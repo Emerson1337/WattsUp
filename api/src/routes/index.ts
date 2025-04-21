@@ -4,10 +4,8 @@ import TelemetryController from "@/modules/telemetry/telemetry.controller";
 
 const router = Router();
 
-const telemetryController = new TelemetryController();
-
 const apiRouter = Router();
-apiRouter.get("/", telemetryController.health);
+apiRouter.get("/", TelemetryController.health);
 
 router.use("/api", apiRouter);
 export default router;

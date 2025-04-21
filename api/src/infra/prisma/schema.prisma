@@ -13,14 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model LastDayReport {
+model DailyReport {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  kW        Float
+  kWh        Float
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
 
-model DailyReport {
+model HourlyReport {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  kWh       Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model PerMinuteReport {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   kW        Float
   createdAt DateTime @default(now())
@@ -29,7 +36,7 @@ model DailyReport {
 
 model MonthlyReport {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  kW        Float
+  kWh        Float
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
@@ -40,6 +47,7 @@ model Tariffs {
   kWhPriceWithTaxes  Float
   description String
   state String
+  effectiveMonth DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
