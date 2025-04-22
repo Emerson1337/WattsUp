@@ -2,6 +2,7 @@ import {
   PrismaClient,
   PerMinuteReport as PrismaPerMinuteReport,
 } from "@prisma/client";
+import { getBrazilianUTCDate } from "@/modules/shared/utils/index";
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,8 @@ class TelemetryRepository {
     await prisma.perMinuteReport.create({
       data: {
         kW: power,
+        createdAt: getBrazilianUTCDate(),
+        updatedAt: getBrazilianUTCDate(),
       },
     });
   };
@@ -35,16 +38,16 @@ class TelemetryRepository {
     await prisma.hourlyReport.create({
       data: {
         kWh: powerInKWh,
+        createdAt: getBrazilianUTCDate(),
+        updatedAt: getBrazilianUTCDate(),
       },
     });
   };
 
   incrementKWhInCurrentMonth = async (powerInKWh: number): Promise<void> => {
-    const startOfMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    );
+    const nowDate = getBrazilianUTCDate();
+
+    const startOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
 
     const existing = await prisma.monthlyReport.findFirst({
       where: {
@@ -61,20 +64,22 @@ class TelemetryRepository {
           kWh: {
             increment: powerInKWh,
           },
+          updatedAt: getBrazilianUTCDate(),
         },
       });
     } else {
       await prisma.monthlyReport.create({
         data: {
-          createdAt: new Date(),
           kWh: powerInKWh,
+          createdAt: getBrazilianUTCDate(),
+          updatedAt: getBrazilianUTCDate(),
         },
       });
     }
   };
 
   incrementKWhInCurrentDay = async (powerInKWh: number): Promise<void> => {
-    const startOfDay = new Date();
+    const startOfDay = getBrazilianUTCDate();
     startOfDay.setHours(0, 0, 0, 0);
 
     const existing = await prisma.dailyReport.findFirst({
@@ -92,13 +97,15 @@ class TelemetryRepository {
           kWh: {
             increment: powerInKWh,
           },
+          updatedAt: getBrazilianUTCDate(),
         },
       });
     } else {
       await prisma.dailyReport.create({
         data: {
-          createdAt: new Date(),
           kWh: powerInKWh,
+          createdAt: getBrazilianUTCDate(),
+          updatedAt: getBrazilianUTCDate(),
         },
       });
     }

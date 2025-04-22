@@ -1,6 +1,8 @@
 import { TelemetryMessage } from "@/modules/telemetry/types";
 import TelemetryRepository from "@/modules/telemetry/telemetry.repository";
 
+const ONE_MINUTE_IN_SECONDS = 60;
+
 class TelemetryService {
   private validPasskey = "esp32-iot-key";
   private energyReportPacketPerMinute: TelemetryMessage[] = [];
@@ -18,7 +20,7 @@ class TelemetryService {
 
     this.energyReportPacketPerMinute.push(data);
 
-    if (this.energyReportPacketPerMinute.length < 60) return;
+    if (this.energyReportPacketPerMinute.length < ONE_MINUTE_IN_SECONDS) return;
 
     const totalPower = this.energyReportPacketPerMinute.reduce(
       (acc, packet) => {
@@ -27,7 +29,9 @@ class TelemetryService {
       0
     );
 
-    await TelemetryRepository.savePowerPerMinute(totalPower);
+    const totalPowerAverage = totalPower / ONE_MINUTE_IN_SECONDS;
+    const totalPowerInKw = totalPowerAverage / 1000;
+    await TelemetryRepository.savePowerPerMinute(totalPowerInKw);
 
     this.energyReportPacketPerMinute = [];
   };

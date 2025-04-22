@@ -3,6 +3,8 @@ import TelemetryRepository from "@/modules/telemetry/telemetry.repository";
 
 //Hourly
 cron.schedule("0 * * * *", async () => {
+  console.log("🟡 Running hourly job to save kWh");
+
   const powerFromLastHour = await TelemetryRepository.getPowerFromLastHour();
 
   const totalPowerFromLastHour = powerFromLastHour.reduce((acc, report) => {
@@ -13,4 +15,7 @@ cron.schedule("0 * * * *", async () => {
 
   await TelemetryRepository.saveKWhPerHour(powerInKwh);
   await TelemetryRepository.incrementKWhInCurrentMonth(powerInKwh);
+  await TelemetryRepository.incrementKWhInCurrentDay(powerInKwh);
+
+  console.log("🟢 Hourly job ran successfully!");
 });
