@@ -60,14 +60,14 @@ jobs:
 
       - name: Upload Docker Compose and Application Files
         run: |
-          tar -czf app.tar.gz ./
+          tar -czf app.tar.gz api
           scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app.tar.gz"
 
       - name: Deploy Application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
-            cd /home/${{ vars.EC2_USER }}/app
+            cd /home/${{ vars.EC2_USER }}/app/api
             docker-compose down || true
             docker-compose up -d --build
           EOF
