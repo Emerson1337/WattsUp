@@ -60,7 +60,7 @@ jobs:
 
       - name: Upload Docker Compose and Application Files
         run: |
-          tar -czf app.tar.gz .
+          tar -czf app.tar.gz ./
           scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app.tar.gz"
 
