@@ -56,7 +56,7 @@ jobs:
       - name: Generate API .env File
         run: |
           mkdir -p api
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
 
       - name: Upload Docker Compose and Application Files
         run: |
