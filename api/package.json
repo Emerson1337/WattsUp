@@ -2,12 +2,12 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "nodemon -r tsconfig-paths/register src/server.ts",
     "db:dev": "./local-dev/start_dev_db.sh",
     "build": "tsc",
-    "serve": "node dist/index.js"
+    "serve": "node -r module-alias/register dist/server.js"
   },
   "prisma": {
     "schema": "src/infra/prisma/schema.prisma",
@@ -15,10 +15,14 @@
   },
   "author": "",
   "license": "ISC",
+  "_moduleAliases": {
+    "@": "dist"
+  },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.1",
     "@types/node-cron": "^3.0.11",
+    "@types/ws": "^8.18.1",
     "nodemon": "^3.1.9",
     "prisma": "^6.6.0",
     "ts-node": "^10.9.2",
@@ -29,6 +33,8 @@
     "@prisma/client": "^6.6.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "node-cron": "^3.0.3"
+    "module-alias": "^2.2.3",
+    "node-cron": "^3.0.3",
+    "ws": "^8.18.1"
   }
 }

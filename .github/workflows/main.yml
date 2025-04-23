@@ -1,0 +1,73 @@
+name: "Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: choice
+        description: What kind of release is this?
+        required: true
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: Prepare EC2 Environment
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            # Install Docker and Docker Compose if not already installed
+            if ! command -v docker &> /dev/null; then
+              sudo yum update -y
+              sudo yum install -y docker
+              sudo service docker start
+              sudo usermod -aG docker ec2-user
+            fi
+
+            if ! command -v docker-compose &> /dev/null; then
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+
+            # Prepare the application directory with correct ownership
+            sudo rm -rf /home/${{ vars.EC2_USER }}/app
+
+            sudo mkdir -p /home/${{ vars.EC2_USER }}/app
+            sudo chown -R ${{ vars.EC2_USER }}:${{ vars.EC2_USER }} /home/${{ vars.EC2_USER }}/app
+          EOF
+
+      - name: Generate API .env File
+        run: |
+          mkdir -p api
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+
+      - name: Upload Docker Compose and Application Files
+        run: |
+          tar -czf app.tar.gz api
+          scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app.tar.gz"
+
+      - name: Deploy Application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
+            cd /home/${{ vars.EC2_USER }}/app
+            docker-compose down || true
+            docker-compose up -d --build
+          EOF
