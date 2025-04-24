@@ -1,6 +1,6 @@
 import express from "express";
 import router from "@/routes";
-import "@/modules/telemetry/jobs";
+import "@/infra/crons/cronjob-runner";
 
 const app = express();
 
