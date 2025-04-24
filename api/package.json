@@ -7,7 +7,8 @@
     "start": "nodemon -r tsconfig-paths/register src/server.ts",
     "db:dev": "./local-dev/start_dev_db.sh",
     "build": "tsc",
-    "serve": "node -r module-alias/register dist/server.js"
+    "serve": "node -r module-alias/register dist/server.js",
+    "cron": "ts-node -r tsconfig-paths/register ./src/infra/crons/cronjob-runner.ts "
   },
   "prisma": {
     "schema": "src/infra/prisma/schema.prisma",
