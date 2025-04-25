@@ -1,10 +1,9 @@
-import { AreaChartInteractive } from '@/components/charts/AreaChartInteractive';
+import { AreaChartInteractive } from "@/components/charts/AreaChartInteractive";
 
 export function Dashboard() {
   return (
-    <main className="flex items-center justify-center pt-16 pb-4">
+    <main className="container mx-auto mt-20">
       <AreaChartInteractive />
     </main>
   );
 }
-
