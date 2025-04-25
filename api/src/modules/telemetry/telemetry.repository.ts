@@ -10,6 +10,7 @@ import {
   subHours,
   startOfHour,
   isEqual,
+  subDays,
 } from "date-fns";
 
 const prisma = new PrismaClient();
@@ -56,20 +57,15 @@ class TelemetryRepository {
   };
 
   incrementKWhInCurrentDay = async (powerInKWh: number): Promise<void> => {
-    const currentDate = startOfHour(getBrazilianUTCDate());
-    const startOfTheDay = startOfDay(currentDate);
+    const now = startOfHour(getBrazilianUTCDate());
 
-    let dayToIncrement = startOfTheDay;
-
-    if (isEqual(currentDate, startOfTheDay)) {
-      dayToIncrement = startOfHour(subHours(currentDate, 1));
-    }
+    const reportDay = isEqual(now, startOfDay(now))
+      ? startOfDay(subDays(now, 1)) // Midnight → this belongs to *yesterday*
+      : startOfDay(now); // Any other hour → use today's date
 
     const existing = await prisma.dailyReport.findFirst({
       where: {
-        createdAt: {
-          gte: startOfTheDay,
-        },
+        createdAt: reportDay,
       },
     });
 
@@ -80,15 +76,15 @@ class TelemetryRepository {
           kWh: {
             increment: powerInKWh,
           },
-          updatedAt: dayToIncrement,
+          updatedAt: now,
         },
       });
     } else {
       await prisma.dailyReport.create({
         data: {
           kWh: powerInKWh,
-          createdAt: dayToIncrement,
-          updatedAt: dayToIncrement,
+          createdAt: reportDay,
+          updatedAt: now,
         },
       });
     }
