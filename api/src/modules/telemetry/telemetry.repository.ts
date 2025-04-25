@@ -2,7 +2,6 @@ import {
   PrismaClient,
   PerMinuteReport as PrismaPerMinuteReport,
 } from "@prisma/client";
-import { getBrazilianUTCDate } from "@/modules/shared/utils/index";
 import {
   startOfMinute,
   startOfMonth,
@@ -12,12 +11,14 @@ import {
   isEqual,
   subDays,
 } from "date-fns";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
+const BRAZIL_TZ = "America/Sao_Paulo";
 
 const prisma = new PrismaClient();
 
 class TelemetryRepository {
   savePowerPerMinute = async (power: number): Promise<void> => {
-    const currentDate = startOfMinute(getBrazilianUTCDate());
+    const currentDate = startOfMinute(new Date());
 
     await prisma.perMinuteReport.create({
       data: {
@@ -29,7 +30,7 @@ class TelemetryRepository {
   };
 
   getPowerFromLastHour = async (): Promise<PrismaPerMinuteReport[]> => {
-    const currentDate = getBrazilianUTCDate();
+    const currentDate = new Date();
     const pastHour = startOfHour(subHours(currentDate, 1));
 
     return await prisma.perMinuteReport.findMany({
@@ -45,7 +46,7 @@ class TelemetryRepository {
   };
 
   saveKWhPerHour = async (powerInKWh: number): Promise<void> => {
-    const currentDate = startOfMinute(getBrazilianUTCDate());
+    const currentDate = startOfMinute(new Date());
 
     await prisma.hourlyReport.create({
       data: {
@@ -57,11 +58,14 @@ class TelemetryRepository {
   };
 
   incrementKWhInCurrentDay = async (powerInKWh: number): Promise<void> => {
-    const now = startOfHour(getBrazilianUTCDate());
+    const nowUTC = startOfHour(new Date());
 
-    const reportDay = isEqual(now, startOfDay(now))
-      ? startOfDay(subDays(now, 1)) // Midnight → this belongs to *yesterday*
-      : startOfDay(now); // Any other hour → use today's date
+    // Convert UTC time to Brazil local time
+    const nowInBrazil = toZonedTime(nowUTC, BRAZIL_TZ);
+    const startOfDayInBrazil = startOfDay(nowInBrazil);
+
+    // Convert that Brazil-local start of day back to UTC (to match DB)
+    const reportDay = fromZonedTime(startOfDayInBrazil, BRAZIL_TZ);
 
     const existing = await prisma.dailyReport.findFirst({
       where: {
@@ -76,7 +80,7 @@ class TelemetryRepository {
           kWh: {
             increment: powerInKWh,
           },
-          updatedAt: now,
+          updatedAt: nowUTC,
         },
       });
     } else {
@@ -84,14 +88,14 @@ class TelemetryRepository {
         data: {
           kWh: powerInKWh,
           createdAt: reportDay,
-          updatedAt: now,
+          updatedAt: nowUTC,
         },
       });
     }
   };
 
   incrementKWhInCurrentMonth = async (powerInKWh: number): Promise<void> => {
-    const currentDate = startOfHour(getBrazilianUTCDate());
+    const currentDate = startOfHour(new Date());
     const startOfTheMonth = startOfMonth(currentDate);
 
     const existing = await prisma.monthlyReport.findFirst({
