@@ -1,33 +1,22 @@
-import { useEffect, useState } from "react";
-import { AreaChartInteractive } from "@/components/charts/AreaChartInteractive";
 import type { ChartConfig } from "@/components/ui/chart";
-import { BarChartInteractive } from "../components/charts/BarChartInteractive";
-import { RadialChartText } from "../components/charts/RadialChart";
-
-const chartConfig = {
-  comsuption: { label: "Consumo instantâneo (kW)", color: "var(--chart-2)" },
-} satisfies ChartConfig;
+import { SimpleBarChartMultiple } from "@/components/charts/SimpleBarChartMultiple";
+import { RadialChartText } from "@/components/charts/RadialChart";
+import { SectionCards } from "@/components/ui/section-cards";
+import { Container } from "@/components/ui/container";
+import { BarChartInteractive } from "@/components/charts/BarChartInteractive";
+import AreaChartView from "../views/AreaChartView";
 
 const chartConfig3 = {
-  visitors: {
-    label: "Visitors",
-  },
-  safari: {
-    label: "Safari",
-    color: "var(--chart-2)",
+  consumption: {
+    label: "Consumo",
   },
 } satisfies ChartConfig;
 
-const radialData = [
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-];
+const radialData = [{ consumption: 200, fill: "var(--chart-2)" }];
 
 const chartConfig2 = {
-  views: {
-    label: "Page Views",
-  },
   consumption: {
-    label: "Desktop",
+    label: "Consumo",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
@@ -126,61 +115,65 @@ const chartData2 = [
   { date: "2024-06-30", consumption: 400 },
 ];
 
+const chartData4 = [
+  { month: "January", past: 186, current: 80 },
+  { month: "February", past: 305, current: 200 },
+  { month: "March", past: 237, current: 120 },
+  { month: "April", past: 73, current: 190 },
+  { month: "May", past: 209, current: 130 },
+  { month: "June", past: 214, current: 140 },
+];
+
+const chartConfig4 = {
+  past: {
+    label: "Passado",
+    color: "var(--chart-3)",
+  },
+  current: {
+    label: "Atual",
+    color: "var(--chart-2)",
+  },
+} satisfies ChartConfig;
+
 export function Dashboard() {
-  const [chartData, setChartData] = useState([
-    { date: "2024-06-01", comsuption: 100 },
-  ]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setChartData((prev) => {
-        const lastDate = new Date(prev[prev.length - 1].date);
-        lastDate.setDate(lastDate.getDate() + 1);
-        const newPoint = {
-          date: lastDate.toISOString().split("T")[0],
-          comsuption: Math.max(
-            50,
-            Math.min(
-              300,
-              prev[prev.length - 1].comsuption +
-                (Math.random() > 0.5 ? 10 : -10)
-            )
-          ),
-        };
-        return [...prev.slice(-89), newPoint]; // keep max 90 points
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <main className="container mx-auto mt-20">
-      <AreaChartInteractive
-        data={chartData}
-        config={chartConfig}
-        title="Live Visitors"
-        description="Updated every second"
-      />
-
-      <BarChartInteractive
-        title="Bar Chart - Interactive"
-        description="Showing total visitors for the last 3 months"
-        data={chartData2}
-        dateKey="date"
-        chartConfig={chartConfig2}
-        initialActiveChart="consumption"
-        totalLabel="views"
-      />
-
-      <RadialChartText
-        title="Radial Chart - Text"
-        periodDescription="January - June 2024"
-        data={radialData}
-        valueKey="visitors"
-        chartConfig={chartConfig3}
-        trendText="Trending up by 5.2% this month"
-        footerDescription="Showing total visitors for the last 6 months"
-      />
+    <main className="container mx-auto my-20">
+      <Container>
+        <SectionCards />
+        <AreaChartView />
+        <div className="flex gap-4 flex-col *:flex-1">
+          <RadialChartText
+            title="Consumo mensal"
+            periodDescription="Consumo nos últimos 30 dias"
+            data={radialData}
+            startAngle={240}
+            unit="kWh"
+            valueKey="consumption"
+            chartConfig={chartConfig3}
+            trendText="Expectativa de aumento em 5.2% esse mês."
+            footerDescription="Consumo nos últimos 30 dias"
+          />
+          <SimpleBarChartMultiple
+            title="Histórico - Consumo"
+            description="Últimos 6 meses"
+            data={chartData4}
+            chartConfig={chartConfig4}
+            barKeys={["past", "current"]}
+            trendPercentage={5.2}
+            trendText="Aumento em relação ao mês do ano anterior"
+            footerText="Consumo nos últimos 6 meses"
+          />
+        </div>
+        <BarChartInteractive
+          title="Consumo - Última hora"
+          description="Consumo na última hora"
+          data={chartData2}
+          dateKey="date"
+          chartConfig={chartConfig2}
+          initialActiveChart="consumption"
+          totalLabel="Consumo total"
+        />
+      </Container>
     </main>
   );
 }

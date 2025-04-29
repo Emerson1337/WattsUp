@@ -66,7 +66,7 @@ export function BarChartInteractive<T extends string>({
                 onClick={() => setActiveChart(chart)}
               >
                 <span className="text-xs text-muted-foreground">
-                  {chartConfig[chart].label}
+                  {totalLabel}
                 </span>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
                   {total[chart].toLocaleString()}
@@ -98,7 +98,7 @@ export function BarChartInteractive<T extends string>({
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
+                return date.toLocaleDateString("pt-BR", {
                   month: "short",
                   day: "numeric",
                 });
@@ -108,9 +108,8 @@ export function BarChartInteractive<T extends string>({
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  nameKey={totalLabel}
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("pt-BR", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",

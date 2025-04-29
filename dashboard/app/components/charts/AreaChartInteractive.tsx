@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/select";
 
 type DataPoint = {
-  date: string;
   [key: string]: string | number;
 };
 
@@ -41,16 +40,12 @@ export function AreaChartInteractive({
   title = "Interactive Area Chart",
   description = "Showing values over time",
 }: Props) {
-  const [timeRange, setTimeRange] = React.useState("90d");
+  const [timeRange, setTimeRange] = React.useState("60");
 
   const filteredData = React.useMemo(() => {
     if (data.length === 0) return [];
-    const latest = new Date(data[data.length - 1].date);
-    const daysToSubtract =
-      timeRange === "30d" ? 30 : timeRange === "7d" ? 7 : 90;
-    const startDate = new Date(latest);
-    startDate.setDate(latest.getDate() - daysToSubtract);
-    return data.filter((item) => new Date(item.date) >= startDate);
+    const numberTimeRange = Number(timeRange);
+    return data.slice(data.length - numberTimeRange, data.length);
   }, [data, timeRange]);
 
   return (
@@ -65,9 +60,9 @@ export function AreaChartInteractive({
             <SelectValue placeholder="Select range" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
-            <SelectItem value="90d">Last 3 months</SelectItem>
-            <SelectItem value="30d">Last 30 days</SelectItem>
-            <SelectItem value="7d">Last 7 days</SelectItem>
+            <SelectItem value="60">Último minuto</SelectItem>
+            <SelectItem value="30">Últimos 30 segundos</SelectItem>
+            <SelectItem value="10">Últimos 10 segundos</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>
@@ -75,29 +70,12 @@ export function AreaChartInteractive({
         <ChartContainer config={config} className="h-[250px] w-full">
           <AreaChart data={filteredData}>
             <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) =>
-                new Date(value).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
-              }
-            />
+            <XAxis hide />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) =>
-                    new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }
+                  labelFormatter={(value) => String(value)}
                   indicator="dot"
                 />
               }

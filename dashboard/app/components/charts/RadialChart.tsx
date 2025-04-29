@@ -29,13 +29,13 @@ interface RadialChartTextProps<T extends string> {
     }
   >;
   valueKey: T;
+  unit: string;
   chartConfig: ChartConfig;
   trendText?: string;
   footerDescription?: string;
   innerRadius?: number;
   outerRadius?: number;
   startAngle?: number;
-  endAngle?: number;
 }
 
 export function RadialChartText<T extends string>({
@@ -44,12 +44,12 @@ export function RadialChartText<T extends string>({
   data,
   valueKey,
   chartConfig,
+  unit,
   trendText = "",
   footerDescription = "",
-  innerRadius = 80,
-  outerRadius = 110,
+  innerRadius = 130,
+  outerRadius = 160,
   startAngle = 0,
-  endAngle = 250,
 }: RadialChartTextProps<T>) {
   return (
     <Card className="flex flex-col">
@@ -60,12 +60,12 @@ export function RadialChartText<T extends string>({
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[350px]"
         >
           <RadialBarChart
             data={data}
             startAngle={startAngle}
-            endAngle={endAngle}
+            endAngle={360 - startAngle}
             innerRadius={innerRadius}
             outerRadius={outerRadius}
           >
@@ -74,7 +74,7 @@ export function RadialChartText<T extends string>({
               radialLines={false}
               stroke="none"
               className="first:fill-muted last:fill-background"
-              polarRadius={[86, 74]}
+              polarRadius={[136, 124]}
             />
             <RadialBar dataKey={valueKey} background cornerRadius={10} />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
@@ -93,7 +93,13 @@ export function RadialChartText<T extends string>({
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold"
                         >
-                          {data[0][valueKey].toLocaleString()}
+                          {data[0][valueKey]}
+                          <tspan
+                            dx={4}
+                            className="fill-muted-foreground text-sm font-normal"
+                          >
+                            {unit}
+                          </tspan>
                         </tspan>
                         <tspan
                           x={viewBox.cx}

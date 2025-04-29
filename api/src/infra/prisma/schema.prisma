@@ -44,7 +44,7 @@ model MonthlyReport {
 model Tariffs {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   kWhPrice  Float
-  kWhPriceWithTaxes  Float
+  kWhPriceTaxes  Float
   description String
   state String
   effectiveMonth DateTime @default(now())
