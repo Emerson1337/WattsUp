@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BarChartInteractive } from "@/components/charts/BarChartInteractive";
 import type { ChartConfig } from "@/components/ui/chart";
 import { fetchBarChartInteractiveData } from "@/services/api";
+import Spinner from "@/components/ui/spinner";
 
 const chartConfig: ChartConfig = {
   consumption: {
@@ -23,7 +24,9 @@ export default function LastHourChart() {
 
   if (!data) {
     return (
-      <div className="text-center text-muted-foreground">Carregando...</div>
+      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
+        <Spinner />
+      </div>
     );
   }
 

@@ -37,10 +37,10 @@ type Props = {
 export function AreaChartInteractive({
   data,
   config,
-  title = "Interactive Area Chart",
-  description = "Showing values over time",
+  title,
+  description,
 }: Props) {
-  const [timeRange, setTimeRange] = React.useState("60");
+  const [timeRange, setTimeRange] = React.useState("30");
 
   const filteredData = React.useMemo(() => {
     if (data.length === 0) return [];
@@ -61,8 +61,8 @@ export function AreaChartInteractive({
           </SelectTrigger>
           <SelectContent className="rounded-xl">
             <SelectItem value="60">Último minuto</SelectItem>
-            <SelectItem value="30">Últimos 30 segundos</SelectItem>
-            <SelectItem value="10">Últimos 10 segundos</SelectItem>
+            <SelectItem value="30">Últimos 30 seg.</SelectItem>
+            <SelectItem value="10">Últimos 10 seg.</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>

@@ -11,8 +11,8 @@ export function Dashboard() {
     <main className="container mx-auto mb-20">
       <Container>
         <SectionCards />
-        <TotalPriceChartView />
         <InstantConsumptionChartView />
+        <TotalPriceChartView />
         <div className="flex gap-4 lg:flex-row flex-col *:flex-1">
           <MonthlyConsumptionChartView />
           <HistoryChartView />

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SimpleBarChartMultiple } from "@/components/charts/SimpleBarChartMultiple";
 import type { ChartConfig } from "@/components/ui/chart";
 import { fetchSimpleBarChartMultipleData } from "@/services/api";
+import Spinner from "@/components/ui/spinner";
 
 const chartConfig: ChartConfig = {
   past: {
@@ -25,7 +26,9 @@ export default function HistoryChartView() {
 
   if (!data) {
     return (
-      <div className="text-center text-muted-foreground">Carregando...</div>
+      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
+        <Spinner />
+      </div>
     );
   }
 
@@ -33,7 +36,7 @@ export default function HistoryChartView() {
     <SimpleBarChartMultiple
       title="Histórico - Consumo"
       description="Últimos 6 meses"
-      data={data}
+      data={data || []}
       chartConfig={chartConfig}
       barKeys={["past", "current"]}
       trendPercentage={5.2}

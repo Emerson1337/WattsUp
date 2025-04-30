@@ -4,10 +4,9 @@ import { RadialChartText } from "@/components/charts/RadialChart";
 import type { ChartConfig } from "@/components/ui/chart";
 import { useState, useEffect } from "react";
 import { fetchRadialChartData } from "@/services/api";
+import Spinner from "@/components/ui/spinner";
 
-const radialData = [{ consumption: 200, fill: "var(--chart-2)" }];
-
-const chartConfig3 = {
+const chartConfig = {
   consumption: {
     label: "Consumo",
   },
@@ -24,7 +23,9 @@ export default function MonthlyConsumptionChartView() {
 
   if (!data) {
     return (
-      <div className="text-center text-muted-foreground">Carregando...</div>
+      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
+        <Spinner />
+      </div>
     );
   }
 
@@ -32,11 +33,11 @@ export default function MonthlyConsumptionChartView() {
     <RadialChartText
       title="Consumo mensal"
       periodDescription="Consumo nos últimos 30 dias"
-      data={radialData}
+      data={data}
       startAngle={240}
       unit="kWh"
       valueKey="consumption"
-      chartConfig={chartConfig3}
+      chartConfig={chartConfig}
       trendText="Expectativa de aumento em 5.2% esse mês."
       footerDescription="Consumo nos últimos 30 dias"
     />

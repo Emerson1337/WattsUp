@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { ChartConfig } from "@/components/ui/chart";
 import { fetchMonthlyConsumptionData } from "@/services/api";
 import { DonutChart } from "@/components/charts/DonutChart";
+import Spinner from "@/components/ui/spinner";
 
 const chartConfig: ChartConfig = {
   energyConsumption: {
@@ -31,7 +32,9 @@ export default function TotalPriceChartView() {
 
   if (!data) {
     return (
-      <div className="text-center text-muted-foreground">Carregando...</div>
+      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
+        <Spinner />
+      </div>
     );
   }
 

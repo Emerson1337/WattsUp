@@ -101,8 +101,8 @@ export async function fetchMonthlyConsumptionData() {
     (resolve) => {
       setTimeout(() => {
         resolve([
-          { name: "energyConsumption", value: 120, fill: "var(--chart-1)" },
-          { name: "taxes", value: 90, fill: "var(--chart-2)" },
+          { name: "energyConsumption", value: 120, fill: "var(--chart-2)" },
+          { name: "taxes", value: 90, fill: "var(--chart-4)" },
           { name: "publicLighting", value: 60, fill: "var(--chart-3)" },
         ]);
       }, 500);
