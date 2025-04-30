@@ -12,6 +12,10 @@ apiRouter.get(
   "/consumption/monthly",
   DashboardController.getMonthlyConsumption
 );
+apiRouter.get(
+  "/consumption/monthly-forecast",
+  DashboardController.getMonthlyForecast
+);
 
 router.use("/api", apiRouter);
 export default router;

@@ -43,6 +43,16 @@ class TelemetryRepository {
     });
   };
 
+  updateLastReadingTariff = async (): Promise<void> => {
+    const currentDate = startOfMinute(new Date());
+
+    await prisma.tariffs.updateMany({
+      data: {
+        lastReading: currentDate,
+      },
+    });
+  };
+
   saveKWhPerHour = async (powerInKWh: number): Promise<void> => {
     const currentDate = startOfMinute(new Date());
 

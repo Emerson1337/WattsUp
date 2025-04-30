@@ -48,6 +48,8 @@ model Tariffs {
   publicLightingPrice  Float
   description String
   state String
+  lastReading DateTime
+  readingEachDays Int
   effectiveMonth DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
