@@ -11,7 +11,7 @@ async function main() {
       kWhPrice: 0.722,
       kWhPriceTaxes: 0.2,
       publicLightingPrice: 11.28,
-      readingEachDays: 30,
+      effectiveReadingDay: 20,
       lastReading: new Date("2025-04-20"),
     },
   });

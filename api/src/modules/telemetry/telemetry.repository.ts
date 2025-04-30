@@ -104,14 +104,44 @@ class TelemetryRepository {
     }
   };
 
-  incrementKWhInCurrentMonth = async (powerInKWh: number): Promise<void> => {
+  incrementKWhInCurrentMonth = async (
+    powerInKWh: number,
+    startMonthReadingDay: number
+  ): Promise<void> => {
     const currentDate = startOfHour(new Date());
-    const startOfTheMonth = startOfMonth(currentDate);
+
+    // Determine the start of the current "month" (e.g: starting on the 20th)
+    const startOfTheMonth =
+      currentDate.getDate() >= startMonthReadingDay
+        ? startOfDay(
+            new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              startMonthReadingDay
+            )
+          )
+        : startOfDay(
+            new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth() - 1,
+              startMonthReadingDay
+            )
+          );
+
+    // Determine the end of the current "month" (e.g: 20th of the next month)
+    const endOfTheMonth = startOfDay(
+      new Date(
+        startOfTheMonth.getFullYear(),
+        startOfTheMonth.getMonth() + 1,
+        startMonthReadingDay
+      )
+    );
 
     const existing = await prisma.monthlyReport.findFirst({
       where: {
         createdAt: {
           gte: startOfTheMonth,
+          lt: endOfTheMonth,
         },
       },
     });
