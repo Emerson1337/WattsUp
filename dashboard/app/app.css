@@ -83,7 +83,8 @@ body {
   --chart-5: hsl(27 87% 67%);
 }
 
-.dark {
+.dark,
+:root[class~="dark"] {
   --background: hsl(20 14.3% 4.1%);
   --foreground: hsl(0 0% 95%);
   --card: hsl(24 9.8% 10%);

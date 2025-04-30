@@ -8,7 +8,7 @@ import TotalPriceChartView from "@/views/TotalPriceChartView";
 
 export function Dashboard() {
   return (
-    <main className="container mx-auto my-20">
+    <main className="container mx-auto mb-20">
       <Container>
         <SectionCards />
         <TotalPriceChartView />

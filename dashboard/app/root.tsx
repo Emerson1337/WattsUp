@@ -1,14 +1,22 @@
 import {
   isRouteErrorResponse,
-  Links,
-  Meta,
   Outlet,
-  Scripts,
-  ScrollRestoration,
+  useLoaderData,
+  type LoaderFunctionArgs,
 } from "react-router";
 
+import { ThemeProvider, useTheme } from "remix-themes";
+import { themeSessionResolver } from "./sessions.server";
 import type { Route } from "./+types/root";
+import Layout from "./components/ui/layout";
 import "./app.css";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { getTheme } = await themeSessionResolver(request);
+  return {
+    theme: getTheme(),
+  };
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,26 +31,23 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
+      <AppShell />
+    </ThemeProvider>
   );
 }
 
-export default function App() {
-  return <Outlet />;
+function AppShell() {
+  const [theme] = useTheme();
+  return (
+    <Layout theme={theme ?? "dark"} ssrTheme>
+      <Outlet />
+    </Layout>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
