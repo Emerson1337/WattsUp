@@ -52,8 +52,12 @@ class DashboardService {
 
   getMonthlyForecast = async (): Promise<
     | {
-        currentMonthForecast: number;
+        currentMonthForecastInKWh: number;
         pastMonthConsumption: number;
+        currentMonthForecast: number;
+        pastMonthConsumptionInKWh: number;
+        currentMonthForecastWithTaxes: number;
+        pastMonthConsumptionWithTaxes: number;
       }
     | undefined
   > => {
@@ -91,16 +95,27 @@ class DashboardService {
       tariff.lastReading
     );
 
-    const currentMonthForecast =
+    const currentMonthForecastInKWh =
       consumptionAverageLast7Days * daysLeftToFinishMonth;
 
+    const currentMonthForecast = currentMonthForecastInKWh * tariff.kWhPrice;
+    const currentMonthForecastWithTaxes =
+      currentMonthForecast * (1 + tariff.kWhPriceTaxes);
+
+    const pastMonthConsumptionInKWh = lastMonthConsumption?.kWh ?? 0;
     const pastMonthConsumption = lastMonthConsumption?.kWh
       ? lastMonthConsumption.kWh * tariff.kWhPrice
       : 0;
+    const pastMonthConsumptionWithTaxes =
+      pastMonthConsumption * (1 + tariff.kWhPriceTaxes);
 
     return {
+      currentMonthForecastInKWh,
       currentMonthForecast,
+      currentMonthForecastWithTaxes,
+      pastMonthConsumptionInKWh,
       pastMonthConsumption,
+      pastMonthConsumptionWithTaxes,
     };
   };
 }
