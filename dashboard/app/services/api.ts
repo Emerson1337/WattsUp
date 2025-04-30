@@ -52,8 +52,60 @@ export async function fetchBarChartInteractiveData() {
         { date: "2024-04-02", consumption: 180 },
         { date: "2024-04-03", consumption: 120 },
         { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
+        { date: "2024-04-04", consumption: 260 },
         // (...and so on...)
       ]);
     }, 500);
   });
+}
+
+export async function fetchMonthlyConsumptionData() {
+  return new Promise<{ name: string; value: number; fill: string }[]>(
+    (resolve) => {
+      setTimeout(() => {
+        resolve([
+          { name: "energyConsumption", value: 120, fill: "var(--chart-1)" },
+          { name: "taxes", value: 90, fill: "var(--chart-2)" },
+          { name: "publicLighting", value: 60, fill: "var(--chart-3)" },
+        ]);
+      }, 500);
+    }
+  );
 }

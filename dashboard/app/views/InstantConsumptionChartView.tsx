@@ -9,7 +9,7 @@ const chartConfig = {
   consumption: { label: "Consumo instantâneo (kW)", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
-export default function AreaChartWithLiveData() {
+export default function InstantConsumptionChartView() {
   const [data, setData] = useState<{ consumption: number }[]>([]);
 
   useEffect(() => {
