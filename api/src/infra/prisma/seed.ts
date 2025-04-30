@@ -10,6 +10,7 @@ async function main() {
         "Tarifa de energia elétrica convencional e impostos (TSDU + TE)",
       kWhPrice: 0.722,
       kWhPriceTaxes: 0.2,
+      publicLightingPrice: 11.28,
     },
   });
 

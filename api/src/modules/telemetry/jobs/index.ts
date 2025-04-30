@@ -13,7 +13,7 @@ export const runSaveKWhJob = async () => {
 
   await TelemetryRepository.saveKWhPerHour(powerInKwh);
   await TelemetryRepository.incrementKWhInCurrentMonth(powerInKwh);
-  await TelemetryRepository.incrementKWhInCurrentDay(powerInKwh);
+  await TelemetryRepository.incrementKWhInCurrentDayBrazilianTZ(powerInKwh);
 
   console.log("🟢 Hourly job ran successfully!");
 };

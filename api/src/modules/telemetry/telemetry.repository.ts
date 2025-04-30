@@ -8,11 +8,9 @@ import {
   startOfDay,
   subHours,
   startOfHour,
-  isEqual,
-  subDays,
 } from "date-fns";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
-const BRAZIL_TZ = "America/Sao_Paulo";
+import { BRAZIL_TZ } from "@/modules/shared/utils";
 
 const prisma = new PrismaClient();
 
@@ -57,7 +55,9 @@ class TelemetryRepository {
     });
   };
 
-  incrementKWhInCurrentDay = async (powerInKWh: number): Promise<void> => {
+  incrementKWhInCurrentDayBrazilianTZ = async (
+    powerInKWh: number
+  ): Promise<void> => {
     const nowUTC = startOfHour(new Date());
 
     // Convert UTC time to Brazil local time
