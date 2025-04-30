@@ -1,6 +1,12 @@
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
-import { addDays, differenceInDays } from "date-fns";
+import {
+  addDays,
+  addMonths,
+  isSameMonth,
+  differenceInDays,
+  startOfMonth,
+} from "date-fns";
 
 class DashboardService {
   getTariffs = async (): Promise<PrismaTariffs | undefined> => {
@@ -51,6 +57,8 @@ class DashboardService {
       }
     | undefined
   > => {
+    const currentDate = new Date();
+
     const last7DaysConsumption =
       await DashboardRepository.getLast7DaysConsumption();
 
@@ -71,9 +79,16 @@ class DashboardService {
       last7DaysConsumption.reduce((acc, day) => acc + day.kWh, 0) /
       last7DaysConsumption.length;
 
+    const nextReadingDate = isSameMonth(tariff.lastReading, currentDate)
+      ? addDays(
+          startOfMonth(addMonths(currentDate, 1)),
+          tariff.effectiveReadingDay
+        )
+      : addDays(startOfMonth(currentDate), tariff.effectiveReadingDay);
+
     const daysLeftToFinishMonth = differenceInDays(
-      addDays(tariff.lastReading, tariff.readingEachDays),
-      new Date()
+      nextReadingDate,
+      tariff.lastReading
     );
 
     const currentMonthForecast =
