@@ -3,6 +3,7 @@ import {
   Tariffs as PrismaTariffs,
   MonthlyReport as PrismaMonthlyReport,
   DailyReport as PrismaDailyReport,
+  PerMinuteReport as PrismaPerMinuteReport,
 } from "@prisma/client";
 import {
   startOfMonth,
@@ -10,6 +11,7 @@ import {
   startOfDay,
   subDays,
   subYears,
+  subHours,
   subMonths,
 } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
@@ -19,11 +21,10 @@ import { TIMEZONES } from "@/modules/shared/utils";
 const prisma = new PrismaClient();
 
 class DashboardRepository {
-  private nowDateInTZ = toZonedTime(startOfHour(new Date()), BRAZIL_TZ);
+  private nowDateInTZ = toZonedTime(new Date(), BRAZIL_TZ);
 
   constructor(timezone?: TIMEZONES) {
-    if (timezone)
-      this.nowDateInTZ = toZonedTime(startOfHour(new Date()), timezone);
+    if (timezone) this.nowDateInTZ = toZonedTime(new Date(), timezone);
   }
 
   findTariff = async (): Promise<PrismaTariffs | null> => {
@@ -104,7 +105,9 @@ class DashboardRepository {
     });
   };
 
-  getLast6MonthsConsumption = async (): Promise<PrismaDailyReport[] | null> => {
+  getLast6MonthsConsumption = async (): Promise<
+    PrismaMonthlyReport[] | null
+  > => {
     const currentMonthDate = startOfMonth(this.nowDateInTZ);
     const lastSixMonths = subMonths(currentMonthDate, 6);
 
@@ -119,7 +122,7 @@ class DashboardRepository {
   };
 
   getLast6MonthsConsumptionFromPastYear = async (): Promise<
-    PrismaDailyReport[] | null
+    PrismaMonthlyReport[] | null
   > => {
     const currentMonthDateInPastYear = subYears(
       startOfMonth(this.nowDateInTZ),
@@ -132,6 +135,21 @@ class DashboardRepository {
         createdAt: {
           lte: currentMonthDateInPastYear,
           gte: lastSixMonthsInPastYear,
+        },
+      },
+    });
+  };
+
+  getLastHourHistoryPerMinute = async (): Promise<
+    PrismaPerMinuteReport[] | null
+  > => {
+    const lastHour = subHours(this.nowDateInTZ, 1);
+
+    return await prisma.perMinuteReport.findMany({
+      where: {
+        createdAt: {
+          lte: this.nowDateInTZ,
+          gte: lastHour,
         },
       },
     });

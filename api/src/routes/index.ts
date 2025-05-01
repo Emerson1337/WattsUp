@@ -22,7 +22,7 @@ apiRouter.get(
 );
 apiRouter.get(
   "/consumption/last-hour/history",
-  DashboardController.getMonthlyForecast
+  DashboardController.getLastHourHistory
 );
 
 router.use("/api", apiRouter);

@@ -24,3 +24,10 @@ export interface LastSemesterHistoryResponse {
     pastYearKWh?: number;
   }[];
 }
+
+export interface LastHourHistoryResponse {
+  history: {
+    minute: Date;
+    KWh: number;
+  }[];
+}
