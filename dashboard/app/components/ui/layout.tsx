@@ -1,8 +1,6 @@
-// components/ui/layout.tsx
-
 import { Links, Meta, Scripts, ScrollRestoration } from "react-router";
 import { clsx } from "clsx";
-import Navbar from "./navbar";
+import Navbar from "@/components/ui/navbar";
 import { PreventFlashOnWrongTheme } from "remix-themes";
 
 export default function Layout({

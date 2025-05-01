@@ -14,6 +14,11 @@ import {
 export function ThemeToggle() {
   const [, setTheme] = useTheme();
 
+  const switchTheme = (theme: Theme) => {
+    setTheme(theme);
+    localStorage.setItem("theme", theme);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -24,10 +29,10 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme(Theme.LIGHT)}>
+        <DropdownMenuItem onClick={() => switchTheme(Theme.LIGHT)}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme(Theme.DARK)}>
+        <DropdownMenuItem onClick={() => switchTheme(Theme.DARK)}>
           Dark
         </DropdownMenuItem>
       </DropdownMenuContent>

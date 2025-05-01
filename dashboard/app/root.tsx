@@ -5,18 +5,11 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 
-import { ThemeProvider, useTheme } from "remix-themes";
-import { themeSessionResolver } from "./sessions.server";
+import { ThemeProvider, useTheme, Theme } from "remix-themes";
 import type { Route } from "./+types/root";
-import Layout from "./components/ui/layout";
-import "./app.css";
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const { getTheme } = await themeSessionResolver(request);
-  return {
-    theme: getTheme(),
-  };
-}
+import Layout from "@/components/ui/layout";
+import "@/app.css";
+import { themeSessionResolver } from "@/sessions.server";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -31,18 +24,25 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { getTheme } = await themeSessionResolver(request);
+  return {
+    theme: getTheme(),
+  };
+}
+
 export default function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
-
   return (
     <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
-      <AppShell />
+      <App />
     </ThemeProvider>
   );
 }
 
-function AppShell() {
+function App() {
   const [theme] = useTheme();
+
   return (
     <Layout theme={theme ?? "dark"} ssrTheme>
       <Outlet />
