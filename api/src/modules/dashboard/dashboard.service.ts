@@ -137,11 +137,6 @@ class DashboardService {
     const last6MonthsConsumptionFromPastYear =
       await DashboardRepository.getLast6MonthsConsumptionFromPastYear();
 
-    console.log(
-      "🟢🟢🟢🟢 last6MonthsConsumptionFromPastYear",
-      last6MonthsConsumptionFromPastYear
-    );
-
     const history: LastSemesterHistoryResponse["history"] =
       last6MonthsConsumption.map((consumption) => ({
         month: consumption.createdAt,
