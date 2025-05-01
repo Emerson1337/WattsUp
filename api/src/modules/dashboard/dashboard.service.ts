@@ -11,7 +11,6 @@ import {
   addMonths,
   isSameMonth,
   differenceInDays,
-  subYears,
   startOfMonth,
 } from "date-fns";
 
@@ -29,24 +28,26 @@ class DashboardService {
   getMonthlyConsumption = async (): Promise<
     MonthlyConsumptionResponse | undefined
   > => {
-    const currentMonthConsumption =
-      await DashboardRepository.findCurrentMonthConsumption();
-
-    if (!currentMonthConsumption) {
-      throw new Error("Consumo mensal não encontrado.");
-    }
-
     const tariff = await DashboardRepository.findTariff();
 
     if (!tariff) {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const currentMonthConsumption =
+      await DashboardRepository.findCurrentMonthConsumption(
+        tariff.effectiveReadingDay
+      );
+
     const currentMonthConsumptionPeak =
-      await DashboardRepository.findCurrentMonthConsumptionPeak();
+      await DashboardRepository.findCurrentMonthConsumptionPeak(
+        tariff.effectiveReadingDay
+      );
 
     const lastMonthConsumptionPeak =
-      await DashboardRepository.findLastMonthConsumptionPeak();
+      await DashboardRepository.findLastMonthConsumptionPeak(
+        tariff.effectiveReadingDay
+      );
 
     const currentMonthPeakKWh = currentMonthConsumptionPeak?.kWh ?? 0;
     const lastMonthPeakKWh = lastMonthConsumptionPeak?.kWh ?? 0;
@@ -59,24 +60,37 @@ class DashboardService {
       : 0;
 
     const energyConsumptionPrice =
-      currentMonthConsumption.kWh * tariff.kWhPrice;
-    const taxesPrice = currentMonthConsumption.kWh * tariff.kWhPriceTaxes;
+      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPrice;
+    const taxesPrice =
+      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPriceTaxes;
     const publicLighting = tariff.publicLightingPrice;
 
     return {
       energyConsumptionPrice,
       taxesPrice,
       publicLighting,
-      currentMonthPeakKWh,
-      currentMonthPeakKWhPrice,
-      lastMonthPeakKWh,
-      lastMonthPeakKWhPrice,
+      currentMonthPeak: {
+        date: currentMonthConsumptionPeak?.createdAt,
+        currentMonthPeakKWh,
+        currentMonthPeakKWhPrice,
+      },
+      lastMonthPeak: {
+        date: lastMonthConsumptionPeak?.createdAt,
+        lastMonthPeakKWh,
+        lastMonthPeakKWhPrice,
+      },
     };
   };
 
   getMonthlyForecast = async (): Promise<
     MonthlyForecastResponse | undefined
   > => {
+    const tariff = await DashboardRepository.findTariff();
+
+    if (!tariff) {
+      throw new Error("Tarifa não encontrada.");
+    }
+
     const currentDate = new Date();
 
     const last7DaysConsumption =
@@ -87,13 +101,9 @@ class DashboardService {
     }
 
     const lastMonthConsumption =
-      await DashboardRepository.findLastMonthConsumption();
-
-    const tariff = await DashboardRepository.findTariff();
-
-    if (!tariff) {
-      throw new Error("Tarifa não encontrada.");
-    }
+      await DashboardRepository.findLastMonthConsumption(
+        tariff.effectiveReadingDay
+      );
 
     const consumptionAverageLast7Days =
       last7DaysConsumption.reduce((acc, day) => acc + day.kWh, 0) /
@@ -138,14 +148,24 @@ class DashboardService {
   getLast6MonthsHistory = async (): Promise<
     LastSemesterHistoryResponse | undefined
   > => {
+    const tariff = await DashboardRepository.findTariff();
+
+    if (!tariff) {
+      throw new Error("Tarifa não encontrada.");
+    }
+
     const last6MonthsConsumption =
-      await DashboardRepository.getLast6MonthsConsumption();
+      await DashboardRepository.getLast6MonthsConsumption(
+        tariff.effectiveReadingDay
+      );
 
     if (!last6MonthsConsumption)
       throw new Error("Consumo mensal não encontrado.");
 
     const last6MonthsConsumptionFromPastYear =
-      await DashboardRepository.getLast6MonthsConsumptionFromPastYear();
+      await DashboardRepository.getLast6MonthsConsumptionFromPastYear(
+        tariff.effectiveReadingDay
+      );
 
     const history: LastSemesterHistoryResponse["history"] =
       last6MonthsConsumption.map((consumption) => ({

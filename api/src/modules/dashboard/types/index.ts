@@ -11,10 +11,16 @@ export interface MonthlyConsumptionResponse {
   energyConsumptionPrice: number;
   taxesPrice: number;
   publicLighting: number;
-  currentMonthPeakKWh: number;
-  currentMonthPeakKWhPrice: number;
-  lastMonthPeakKWh: number;
-  lastMonthPeakKWhPrice: number;
+  currentMonthPeak: {
+    date?: Date;
+    currentMonthPeakKWh: number;
+    currentMonthPeakKWhPrice: number;
+  };
+  lastMonthPeak: {
+    date?: Date;
+    lastMonthPeakKWh: number;
+    lastMonthPeakKWhPrice: number;
+  };
 }
 
 export interface LastSemesterHistoryResponse {
