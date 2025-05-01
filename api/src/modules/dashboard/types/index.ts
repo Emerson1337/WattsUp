@@ -14,3 +14,11 @@ export interface MonthlyConsumptionResponse {
   currentMonthPeakKWh: number;
   currentMonthPeakKWhPrice: number;
 }
+
+export interface LastSemesterHistoryResponse {
+  history: {
+    month: Date;
+    currentKWh: number;
+    pastYearKWh?: number;
+  }[];
+}

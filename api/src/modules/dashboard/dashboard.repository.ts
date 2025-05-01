@@ -9,30 +9,35 @@ import {
   startOfHour,
   startOfDay,
   subDays,
+  subYears,
   subMonths,
 } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { BRAZIL_TZ } from "@/modules/shared/utils";
+import { TIMEZONES } from "@/modules/shared/utils";
 
 const prisma = new PrismaClient();
 
 class DashboardRepository {
+  private nowDateInTZ = toZonedTime(startOfHour(new Date()), BRAZIL_TZ);
+
+  constructor(timezone?: TIMEZONES) {
+    if (timezone)
+      this.nowDateInTZ = toZonedTime(startOfHour(new Date()), timezone);
+  }
+
   findTariff = async (): Promise<PrismaTariffs | null> => {
     return await prisma.tariffs.findFirst();
   };
 
   findLastMonthConsumption = async (): Promise<PrismaMonthlyReport | null> => {
-    const nowUTC = startOfHour(new Date());
-
-    // Convert UTC time to Brazil local time
-    const nowInBrazil = toZonedTime(nowUTC, BRAZIL_TZ);
-    const lastMonthInBrazil = subMonths(startOfMonth(nowInBrazil), 1);
+    const lastMonthInBrazil = subMonths(startOfMonth(this.nowDateInTZ), 1);
 
     return await prisma.monthlyReport.findFirst({
       where: {
         createdAt: {
           gte: lastMonthInBrazil,
-          lte: startOfMonth(nowInBrazil),
+          lte: startOfMonth(this.nowDateInTZ),
         },
       },
     });
@@ -40,11 +45,7 @@ class DashboardRepository {
 
   findCurrentMonthConsumption =
     async (): Promise<PrismaMonthlyReport | null> => {
-      const nowUTC = startOfHour(new Date());
-
-      // Convert UTC time to Brazil local time
-      const nowInBrazil = toZonedTime(nowUTC, BRAZIL_TZ);
-      const startOfMonthInBrazil = startOfMonth(nowInBrazil);
+      const startOfMonthInBrazil = startOfMonth(this.nowDateInTZ);
 
       return await prisma.monthlyReport.findFirst({
         where: {
@@ -57,11 +58,7 @@ class DashboardRepository {
 
   findCurrentMonthConsumptionPeak =
     async (): Promise<PrismaDailyReport | null> => {
-      const nowUTC = startOfHour(new Date());
-
-      // Convert UTC time to Brazil local time
-      const nowInBrazil = toZonedTime(nowUTC, BRAZIL_TZ);
-      const startOfMonthInBrazil = startOfMonth(nowInBrazil);
+      const startOfMonthInBrazil = startOfMonth(this.nowDateInTZ);
 
       return await prisma.dailyReport.findFirst({
         where: {
@@ -76,11 +73,7 @@ class DashboardRepository {
     };
 
   getLast7DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
-    const nowUTC = startOfHour(new Date());
-
-    // Convert UTC time to Brazil local time
-    const nowInBrazil = toZonedTime(nowUTC, BRAZIL_TZ);
-    const startOfDayInBrazil = startOfDay(nowInBrazil);
+    const startOfDayInBrazil = startOfDay(this.nowDateInTZ);
     const sevenDaysBeforeInBrazil = subDays(startOfDayInBrazil, 7);
 
     return await prisma.dailyReport.findMany({
@@ -88,6 +81,39 @@ class DashboardRepository {
         createdAt: {
           lte: startOfDayInBrazil,
           gte: sevenDaysBeforeInBrazil,
+        },
+      },
+    });
+  };
+
+  getLast6MonthsConsumption = async (): Promise<PrismaDailyReport[] | null> => {
+    const currentMonthDate = startOfMonth(this.nowDateInTZ);
+    const lastSixMonths = subMonths(currentMonthDate, 6);
+
+    return await prisma.monthlyReport.findMany({
+      where: {
+        createdAt: {
+          lte: this.nowDateInTZ,
+          gte: lastSixMonths,
+        },
+      },
+    });
+  };
+
+  getLast6MonthsConsumptionFromPastYear = async (): Promise<
+    PrismaDailyReport[] | null
+  > => {
+    const currentMonthDateInPastYear = subYears(
+      startOfMonth(this.nowDateInTZ),
+      1
+    );
+    const lastSixMonthsInPastYear = subMonths(currentMonthDateInPastYear, 6);
+
+    return await prisma.monthlyReport.findMany({
+      where: {
+        createdAt: {
+          lte: currentMonthDateInPastYear,
+          gte: lastSixMonthsInPastYear,
         },
       },
     });

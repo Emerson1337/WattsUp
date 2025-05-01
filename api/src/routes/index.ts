@@ -13,7 +13,15 @@ apiRouter.get(
   DashboardController.getMonthlyConsumption
 );
 apiRouter.get(
-  "/consumption/monthly-forecast",
+  "/consumption/monthly/forecast",
+  DashboardController.getMonthlyForecast
+);
+apiRouter.get(
+  "/consumption/monthly/history",
+  DashboardController.getLast6MonthsHistory
+);
+apiRouter.get(
+  "/consumption/last-hour/history",
   DashboardController.getMonthlyForecast
 );
 

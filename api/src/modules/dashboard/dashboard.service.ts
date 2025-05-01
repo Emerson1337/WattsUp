@@ -1,5 +1,6 @@
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
+import { LastSemesterHistoryResponse } from "@/modules/dashboard/types/index";
 import {
   MonthlyForecastResponse,
   MonthlyConsumptionResponse,
@@ -9,6 +10,7 @@ import {
   addMonths,
   isSameMonth,
   differenceInDays,
+  subYears,
   startOfMonth,
 } from "date-fns";
 
@@ -120,6 +122,44 @@ class DashboardService {
       pastMonthConsumptionInKWh,
       pastMonthConsumption,
       pastMonthConsumptionWithTaxes,
+    };
+  };
+
+  getLast6MonthsHistory = async (): Promise<
+    LastSemesterHistoryResponse | undefined
+  > => {
+    const last6MonthsConsumption =
+      await DashboardRepository.getLast6MonthsConsumption();
+
+    if (!last6MonthsConsumption)
+      throw new Error("Consumo mensal não encontrado.");
+
+    const last6MonthsConsumptionFromPastYear =
+      await DashboardRepository.getLast6MonthsConsumptionFromPastYear();
+
+    console.log(
+      "🟢🟢🟢🟢 last6MonthsConsumptionFromPastYear",
+      last6MonthsConsumptionFromPastYear
+    );
+
+    const history: LastSemesterHistoryResponse["history"] =
+      last6MonthsConsumption.map((consumption) => ({
+        month: consumption.createdAt,
+        currentKWh: consumption.kWh,
+      }));
+
+    last6MonthsConsumptionFromPastYear?.forEach((pastYearConsumption) => {
+      const indexForInsertion = history.findIndex((item) =>
+        isSameMonth(item.month, pastYearConsumption.createdAt)
+      );
+
+      if (indexForInsertion === -1) return;
+
+      history[indexForInsertion].pastYearKWh = pastYearConsumption.kWh;
+    });
+
+    return {
+      history,
     };
   };
 }

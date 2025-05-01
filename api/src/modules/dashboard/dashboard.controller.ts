@@ -34,6 +34,18 @@ class DashboardController {
       response.status(500).json(error);
     }
   };
+
+  getLast6MonthsHistory = async (
+    _: Request,
+    response: Response
+  ): Promise<void> => {
+    try {
+      const data = await DashboardService.getLast6MonthsHistory();
+      response.json(data).status(200);
+    } catch (error) {
+      response.status(500).json(error);
+    }
+  };
 }
 
 export default new DashboardController();
