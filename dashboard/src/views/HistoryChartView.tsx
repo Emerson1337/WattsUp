@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { SimpleBarChartMultiple } from "@/components/charts/SimpleBarChartMultiple";
 import type { ChartConfig } from "@/components/ui/chart";

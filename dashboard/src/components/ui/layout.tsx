@@ -1,4 +1,4 @@
-import { Links, Meta, Scripts, ScrollRestoration } from "react-router";
+import { Links, Meta, ScrollRestoration } from "react-router";
 import { clsx } from "clsx";
 import Navbar from "@/components/ui/navbar";
 import { PreventFlashOnWrongTheme } from "remix-themes";
@@ -25,7 +25,6 @@ export default function Layout({
         <Navbar />
         <div className="container mx-auto p-4">{children}</div>
         <ScrollRestoration />
-        <Scripts />
       </body>
     </html>
   );
