@@ -13,6 +13,8 @@ export interface MonthlyConsumptionResponse {
   publicLighting: number;
   currentMonthPeakKWh: number;
   currentMonthPeakKWhPrice: number;
+  lastMonthPeakKWh: number;
+  lastMonthPeakKWhPrice: number;
 }
 
 export interface LastSemesterHistoryResponse {

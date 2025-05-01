@@ -41,13 +41,20 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
-    const currentMonthPeakConsumption =
+    const currentMonthConsumptionPeak =
       await DashboardRepository.findCurrentMonthConsumptionPeak();
 
-    const currentMonthPeakKWh = currentMonthPeakConsumption?.kWh ?? 0;
+    const lastMonthConsumptionPeak =
+      await DashboardRepository.findLastMonthConsumptionPeak();
 
-    const currentMonthPeakKWhPrice = currentMonthPeakConsumption?.kWh
-      ? currentMonthPeakConsumption.kWh * tariff.kWhPrice
+    const currentMonthPeakKWh = currentMonthConsumptionPeak?.kWh ?? 0;
+    const lastMonthPeakKWh = lastMonthConsumptionPeak?.kWh ?? 0;
+
+    const currentMonthPeakKWhPrice = currentMonthConsumptionPeak?.kWh
+      ? currentMonthConsumptionPeak.kWh * tariff.kWhPrice
+      : 0;
+    const lastMonthPeakKWhPrice = lastMonthConsumptionPeak?.kWh
+      ? lastMonthConsumptionPeak.kWh * tariff.kWhPrice
       : 0;
 
     const energyConsumptionPrice =
@@ -61,6 +68,8 @@ class DashboardService {
       publicLighting,
       currentMonthPeakKWh,
       currentMonthPeakKWhPrice,
+      lastMonthPeakKWh,
+      lastMonthPeakKWhPrice,
     };
   };
 

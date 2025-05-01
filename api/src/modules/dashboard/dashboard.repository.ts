@@ -31,12 +31,12 @@ class DashboardRepository {
   };
 
   findLastMonthConsumption = async (): Promise<PrismaMonthlyReport | null> => {
-    const lastMonthInBrazil = subMonths(startOfMonth(this.nowDateInTZ), 1);
+    const lastMonth = subMonths(startOfMonth(this.nowDateInTZ), 1);
 
     return await prisma.monthlyReport.findFirst({
       where: {
         createdAt: {
-          gte: lastMonthInBrazil,
+          gte: lastMonth,
           lte: startOfMonth(this.nowDateInTZ),
         },
       },
@@ -45,12 +45,12 @@ class DashboardRepository {
 
   findCurrentMonthConsumption =
     async (): Promise<PrismaMonthlyReport | null> => {
-      const startOfMonthInBrazil = startOfMonth(this.nowDateInTZ);
+      const startOfCurrentMonth = startOfMonth(this.nowDateInTZ);
 
       return await prisma.monthlyReport.findFirst({
         where: {
           createdAt: {
-            gte: startOfMonthInBrazil,
+            gte: startOfCurrentMonth,
           },
         },
       });
@@ -58,12 +58,30 @@ class DashboardRepository {
 
   findCurrentMonthConsumptionPeak =
     async (): Promise<PrismaDailyReport | null> => {
-      const startOfMonthInBrazil = startOfMonth(this.nowDateInTZ);
+      const startOfCurrentMonth = startOfMonth(this.nowDateInTZ);
 
       return await prisma.dailyReport.findFirst({
         where: {
           createdAt: {
-            gte: startOfMonthInBrazil,
+            gte: startOfCurrentMonth,
+          },
+        },
+        orderBy: {
+          kWh: "desc",
+        },
+      });
+    };
+
+  findLastMonthConsumptionPeak =
+    async (): Promise<PrismaDailyReport | null> => {
+      const startOfCurrentMonth = startOfMonth(this.nowDateInTZ);
+      const startOfLastMonth = subMonths(startOfCurrentMonth, 1);
+
+      return await prisma.dailyReport.findFirst({
+        where: {
+          createdAt: {
+            lt: startOfCurrentMonth,
+            gte: startOfLastMonth,
           },
         },
         orderBy: {
