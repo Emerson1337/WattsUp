@@ -1,6 +1,10 @@
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
 import {
+  MonthlyForecastResponse,
+  MonthlyConsumptionResponse,
+} from "@/modules/dashboard/types/index";
+import {
   addDays,
   addMonths,
   isSameMonth,
@@ -20,15 +24,11 @@ class DashboardService {
   };
 
   getMonthlyConsumption = async (): Promise<
-    | {
-        energyConsumption: number;
-        taxes: number;
-        publicLighting: number;
-      }
-    | undefined
+    MonthlyConsumptionResponse | undefined
   > => {
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption();
+
     if (!currentMonthConsumption) {
       throw new Error("Consumo mensal não encontrado.");
     }
@@ -39,6 +39,15 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const currentMonthPeakConsumption =
+      await DashboardRepository.findCurrentMonthConsumptionPeak();
+
+    const currentMonthPeakKWh = currentMonthPeakConsumption?.kWh ?? 0;
+
+    const currentMonthPeakKWhPrice = currentMonthPeakConsumption?.kWh
+      ? currentMonthPeakConsumption.kWh * tariff.kWhPrice
+      : 0;
+
     const energyConsumption = currentMonthConsumption.kWh * tariff.kWhPrice;
     const taxes = currentMonthConsumption.kWh * tariff.kWhPriceTaxes;
     const publicLighting = tariff.publicLightingPrice;
@@ -47,19 +56,13 @@ class DashboardService {
       energyConsumption,
       taxes,
       publicLighting,
+      currentMonthPeakKWh,
+      currentMonthPeakKWhPrice,
     };
   };
 
   getMonthlyForecast = async (): Promise<
-    | {
-        currentMonthForecastInKWh: number;
-        pastMonthConsumption: number;
-        currentMonthForecast: number;
-        pastMonthConsumptionInKWh: number;
-        currentMonthForecastWithTaxes: number;
-        pastMonthConsumptionWithTaxes: number;
-      }
-    | undefined
+    MonthlyForecastResponse | undefined
   > => {
     const currentDate = new Date();
 

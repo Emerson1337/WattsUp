@@ -55,6 +55,26 @@ class DashboardRepository {
       });
     };
 
+  findCurrentMonthConsumptionPeak =
+    async (): Promise<PrismaDailyReport | null> => {
+      const nowUTC = startOfHour(new Date());
+
+      // Convert UTC time to Brazil local time
+      const nowInBrazil = toZonedTime(nowUTC, BRAZIL_TZ);
+      const startOfMonthInBrazil = startOfMonth(nowInBrazil);
+
+      return await prisma.dailyReport.findFirst({
+        where: {
+          createdAt: {
+            gte: startOfMonthInBrazil,
+          },
+        },
+        orderBy: {
+          kWh: "desc",
+        },
+      });
+    };
+
   getLast7DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
     const nowUTC = startOfHour(new Date());
 
