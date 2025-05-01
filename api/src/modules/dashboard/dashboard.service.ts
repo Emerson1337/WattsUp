@@ -48,13 +48,14 @@ class DashboardService {
       ? currentMonthPeakConsumption.kWh * tariff.kWhPrice
       : 0;
 
-    const energyConsumption = currentMonthConsumption.kWh * tariff.kWhPrice;
-    const taxes = currentMonthConsumption.kWh * tariff.kWhPriceTaxes;
+    const energyConsumptionPrice =
+      currentMonthConsumption.kWh * tariff.kWhPrice;
+    const taxesPrice = currentMonthConsumption.kWh * tariff.kWhPriceTaxes;
     const publicLighting = tariff.publicLightingPrice;
 
     return {
-      energyConsumption,
-      taxes,
+      energyConsumptionPrice,
+      taxesPrice,
       publicLighting,
       currentMonthPeakKWh,
       currentMonthPeakKWhPrice,

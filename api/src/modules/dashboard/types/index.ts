@@ -8,8 +8,8 @@ export interface MonthlyForecastResponse {
 }
 
 export interface MonthlyConsumptionResponse {
-  energyConsumption: number;
-  taxes: number;
+  energyConsumptionPrice: number;
+  taxesPrice: number;
   publicLighting: number;
   currentMonthPeakKWh: number;
   currentMonthPeakKWhPrice: number;
