@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { SimpleBarChartMultiple } from "@/components/charts/SimpleBarChartMultiple";
 import type { ChartConfig } from "@/components/ui/chart";
-import { fetchSimpleBarChartMultipleData } from "@/services/api";
+import { fetchSimpleBarChartMultipleData } from "@/services/facade";
 import Spinner from "@/components/ui/spinner";
 
 const chartConfig: ChartConfig = {

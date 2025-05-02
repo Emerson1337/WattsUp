@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ChartConfig } from "@/components/ui/chart";
-import { fetchMonthlyConsumptionData } from "@/services/api";
+import { fetchMonthlyConsumptionData } from "@/services/facade";
 import { DonutChart } from "@/components/charts/DonutChart";
 import Spinner from "@/components/ui/spinner";
 

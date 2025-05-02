@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AreaChartInteractive } from "@/components/charts/AreaChartInteractive";
-import { subscribeToLiveAreaChartData } from "@/services/api";
+import { subscribeToLiveAreaChartData } from "@/services/facade";
 import { type ChartConfig } from "@/components/ui/chart";
 import Spinner from "@/components/ui/spinner";
 

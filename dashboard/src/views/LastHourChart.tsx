@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BarChartInteractive } from "@/components/charts/BarChartInteractive";
 import type { ChartConfig } from "@/components/ui/chart";
-import { fetchBarChartInteractiveData } from "@/services/api";
+import { fetchBarChartInteractiveData } from "@/services/facade";
 import Spinner from "@/components/ui/spinner";
 
 const chartConfig: ChartConfig = {

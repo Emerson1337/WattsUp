@@ -3,7 +3,7 @@
 import { RadialChartText } from "@/components/charts/RadialChart";
 import type { ChartConfig } from "@/components/ui/chart";
 import { useState, useEffect } from "react";
-import { fetchRadialChartData } from "@/services/api";
+import { fetchRadialChartData } from "@/services/facade";
 import Spinner from "@/components/ui/spinner";
 
 const chartConfig = {

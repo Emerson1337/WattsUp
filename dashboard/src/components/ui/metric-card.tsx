@@ -18,10 +18,12 @@ interface MetricCardProps {
   footerMain: string;
   footerSub: string;
   className?: string;
+  isLoading?: boolean;
 }
 
 export function MetricCard({
   title,
+  isLoading = false,
   description,
   value,
   badgeValue,
@@ -32,16 +34,22 @@ export function MetricCard({
 }: MetricCardProps) {
   const TrendIcon = badgeTrend === "up" ? TrendingUpIcon : TrendingDownIcon;
 
+  if (isLoading) return <LoadingMetricCard />;
+
   return (
     <Card className={cn("@container/card w-full", className)}>
       <CardHeader className="relative">
         {description && <CardDescription>{description}</CardDescription>}
 
         <div className="text-sm font-medium text-muted-foreground mb-1">
-          {title}
+          {isLoading ? (
+            <div className="animate-pulse h-3 bg-muted-foreground rounded w-full"></div>
+          ) : (
+            title
+          )}
         </div>
 
-        <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+        <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums number-increasing-animation">
           {value}
         </CardTitle>
 
@@ -64,3 +72,20 @@ export function MetricCard({
     </Card>
   );
 }
+
+const LoadingMetricCard = () => (
+  <Card className="w-full">
+    <CardHeader>
+      <div className="animate-pulse space-y-3">
+        <div className="h-3 bg-muted-foreground rounded w-1/3" />
+        <div className="h-12 bg-muted-foreground rounded w-2/3" />
+      </div>
+    </CardHeader>
+    <CardFooter className="flex-col items-start">
+      <div className="animate-pulse space-y-2 w-full">
+        <div className="h-4 bg-muted-foreground rounded w-1/2" />
+        <div className="h-12 bg-muted-foreground rounded w-3/4" />
+      </div>
+    </CardFooter>
+  </Card>
+);
