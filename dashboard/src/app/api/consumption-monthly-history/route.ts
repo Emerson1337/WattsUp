@@ -2,7 +2,7 @@ import { ApiPaths } from "@/lib/apiUrls";
 
 export async function GET() {
   try {
-    const res = await fetch(ApiPaths.tariff.get());
+    const res = await fetch(ApiPaths.history.lastSixMonths());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -13,7 +13,10 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Erro ao consultar dados de energia:", error);
+    console.error(
+      "Erro ao consultar dados históricos de consumo de energia:",
+      error
+    );
     throw new Error(
       error instanceof Error ? error.message : "An unknown error occurred."
     );

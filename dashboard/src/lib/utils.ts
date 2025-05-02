@@ -18,3 +18,15 @@ export function convertToBRDecimal(value: number): string {
     maximumFractionDigits: 2,
   });
 }
+
+export const OneMinuteConsumptionMock = (): { consumption: number }[] => {
+  const dataMock = [];
+
+  for (let index = 0; index < 60; index++) {
+    dataMock.push({
+      consumption: 0,
+    });
+  }
+
+  return dataMock;
+};

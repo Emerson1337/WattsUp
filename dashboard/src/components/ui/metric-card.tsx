@@ -42,11 +42,7 @@ export function MetricCard({
         {description && <CardDescription>{description}</CardDescription>}
 
         <div className="text-sm font-medium text-muted-foreground mb-1">
-          {isLoading ? (
-            <div className="animate-pulse h-3 bg-muted-foreground rounded w-full"></div>
-          ) : (
-            title
-          )}
+          {title}
         </div>
 
         <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums number-increasing-animation">

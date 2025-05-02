@@ -2,6 +2,7 @@ import {
   getTariff,
   getMonthlyReport,
   getMonthlyReportForecast,
+  getLastSixMonthsReport,
 } from "@/services/api";
 
 export async function fetchTariff() {
@@ -14,6 +15,10 @@ export async function fetchMonthlyReport() {
 
 export async function fetchMonthlyReportForecast() {
   return await getMonthlyReportForecast();
+}
+
+export async function fetchLastSixMonthsReport() {
+  return await getLastSixMonthsReport();
 }
 
 export function subscribeToLiveAreaChartData(

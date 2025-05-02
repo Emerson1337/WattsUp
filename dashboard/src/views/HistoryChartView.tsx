@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SimpleBarChartMultiple } from "@/components/charts/SimpleBarChartMultiple";
 import type { ChartConfig } from "@/components/ui/chart";
-import { fetchSimpleBarChartMultipleData } from "@/services/facade";
-import Spinner from "@/components/ui/spinner";
+import { useDataLayer } from "@/components/context/DataLayerContext";
+import { format } from "date-fns";
 
 const chartConfig: ChartConfig = {
   past: {
@@ -18,29 +17,25 @@ const chartConfig: ChartConfig = {
 };
 
 export default function HistoryChartView() {
-  const [data, setData] = useState<
-    { month: string; past: number; current: number }[] | null
-  >(null);
+  const { state } = useDataLayer();
+  const { lastSixMonthsConsumption, lastSixMonthsConsumptionIsLoading } = state;
 
-  useEffect(() => {
-    fetchSimpleBarChartMultipleData().then(setData);
-  }, []);
-
-  if (!data) {
-    return (
-      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
-        <Spinner />
-      </div>
-    );
-  }
+  const dataHistory =
+    lastSixMonthsConsumption?.map((item) => ({
+      month: format(item.month, "MMM yyyy"),
+      past: item?.pastYearKWh ?? 0,
+      current: item.currentKWh,
+    })) ?? [];
 
   return (
     <SimpleBarChartMultiple
-      title="Histórico - Consumo"
+      isLoading={lastSixMonthsConsumptionIsLoading}
+      title="Histórico - Consumo (kWh)"
       description="Últimos 6 meses"
-      data={data || []}
+      data={dataHistory}
       chartConfig={chartConfig}
       barKeys={["past", "current"]}
+      tooltipUnit="kWh"
       trendPercentage={5.2}
       trendText="Aumento em relação ao mês do ano anterior"
       footerText="Consumo nos últimos 6 meses"

@@ -3,6 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/ui/navbar";
+import { setDefaultOptions } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { DateLocaleSetup } from "@/components/locale/DateLocaleSetup";
+
+setDefaultOptions({ locale: ptBR });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +42,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <DateLocaleSetup />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

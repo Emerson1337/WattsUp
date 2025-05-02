@@ -2,6 +2,7 @@
 
 import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import Spinner from "@/components/ui/spinner";
 import {
   Card,
   CardContent,
@@ -19,7 +20,7 @@ import {
 
 interface ChartDataItem {
   month: string;
-  [key: string]: number | string; // Allows any numeric metrics plus month string
+  [key: string]: number | string;
 }
 
 interface SimpleBarChartMultipleProps {
@@ -30,7 +31,10 @@ interface SimpleBarChartMultipleProps {
   trendPercentage?: number;
   trendText?: string;
   footerText: string;
-  barKeys?: string[]; // Optional - will use all numeric keys if not provided
+  barKeys?: string[];
+  isLoading?: boolean;
+  tooltipPrefix?: string;
+  tooltipUnit?: string;
 }
 
 export function SimpleBarChartMultiple({
@@ -42,8 +46,10 @@ export function SimpleBarChartMultiple({
   trendText,
   footerText,
   barKeys,
+  isLoading = false,
+  tooltipPrefix,
+  tooltipUnit,
 }: SimpleBarChartMultipleProps) {
-  // If barKeys not provided, use all numeric keys except 'month'
   const keysToRender =
     barKeys ||
     Object.keys(data[0] || {}).filter(
@@ -57,30 +63,42 @@ export function SimpleBarChartMultiple({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={data}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
-            />
-            {keysToRender.map((key) => (
-              <Bar
-                key={key}
-                dataKey={key}
-                fill={`var(--color-${key})`}
-                radius={4}
+        {isLoading ? (
+          <div className="h-[350px] flex items-center justify-center">
+            <Spinner size={40} />
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig}>
+            <BarChart accessibilityLayer data={data}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                tickFormatter={(value) => value.slice(0, 3)}
               />
-            ))}
-          </BarChart>
-        </ChartContainer>
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    prefix={tooltipPrefix}
+                    unit={tooltipUnit}
+                    indicator="dashed"
+                  />
+                }
+              />
+              {keysToRender.map((key) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  fill={`var(--color-${key})`}
+                  radius={4}
+                />
+              ))}
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         {trendText && trendPercentage && (

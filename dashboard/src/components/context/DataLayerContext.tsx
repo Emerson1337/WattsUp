@@ -1,11 +1,17 @@
 "use client";
 
-import { Tariff, MonthlyReport, MonthlyReportForecast } from "@/services/types";
+import {
+  Tariff,
+  MonthlyReport,
+  MonthlyReportForecast,
+  MonthsHistory,
+} from "@/services/types";
 import { useEffect } from "react";
 import { openWSConnetionInstantConsumption } from "@/services/api";
 import {
   fetchTariff,
   fetchMonthlyReport,
+  fetchLastSixMonthsReport,
   fetchMonthlyReportForecast,
 } from "@/services/facade";
 import React, {
@@ -24,6 +30,8 @@ interface State {
   monthlyReportForecast: MonthlyReportForecast | undefined;
   monthlyReportForecastIsLoading: boolean;
   instantConsumptionSocket: WebSocket | undefined;
+  lastSixMonthsConsumption: MonthsHistory[] | undefined;
+  lastSixMonthsConsumptionIsLoading: boolean;
 }
 
 type Action =
@@ -33,7 +41,9 @@ type Action =
   | { type: "SET_MONTHLY_REPORT_LOADING"; payload: boolean }
   | { type: "SET_MONTHLY_REPORT_FORECAST"; payload?: MonthlyReportForecast }
   | { type: "SET_MONTHLY_REPORT_FORECAST_LOADING"; payload: boolean }
-  | { type: "SET_INSTANT_CONSUMPTION_SOCKET"; payload?: WebSocket };
+  | { type: "SET_INSTANT_CONSUMPTION_SOCKET"; payload?: WebSocket }
+  | { type: "SET_LAST_SIX_MONTHS_CONSUMPTION"; payload?: MonthsHistory[] }
+  | { type: "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING"; payload: boolean };
 
 // Initial state
 const initialState: State = {
@@ -44,6 +54,8 @@ const initialState: State = {
   monthlyReportForecast: undefined,
   monthlyReportForecastIsLoading: true,
   instantConsumptionSocket: undefined,
+  lastSixMonthsConsumption: undefined,
+  lastSixMonthsConsumptionIsLoading: true,
 };
 
 const dataLayerReducer = (state: State, action: Action): State => {
@@ -62,6 +74,10 @@ const dataLayerReducer = (state: State, action: Action): State => {
       return { ...state, monthlyReportForecastIsLoading: action.payload };
     case "SET_INSTANT_CONSUMPTION_SOCKET":
       return { ...state, instantConsumptionSocket: action.payload };
+    case "SET_LAST_SIX_MONTHS_CONSUMPTION":
+      return { ...state, lastSixMonthsConsumption: action.payload };
+    case "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING":
+      return { ...state, lastSixMonthsConsumptionIsLoading: action.payload };
     default:
       const _exhaustiveCheck: never = action;
       throw new Error(`Unhandled action type: ${_exhaustiveCheck}`);
@@ -112,6 +128,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
         });
       }
     };
+
     const fetchInstantConsumptionData = () => {
       try {
         const socket = openWSConnetionInstantConsumption();
@@ -125,10 +142,28 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
+    const fetchLastSixMonthsConsumptionData = async () => {
+      try {
+        const data = await fetchLastSixMonthsReport();
+        dispatch({
+          type: "SET_LAST_SIX_MONTHS_CONSUMPTION",
+          payload: data?.history,
+        });
+      } catch (error) {
+        console.error("Error fetching last six months consumption:", error);
+      } finally {
+        dispatch({
+          type: "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING",
+          payload: false,
+        });
+      }
+    };
+
     fetchTariffData();
     fetchDataMonthlyReportData();
     fetchMonthlyReportForecastData();
     fetchInstantConsumptionData();
+    fetchLastSixMonthsConsumptionData();
   }, []);
 
   return (

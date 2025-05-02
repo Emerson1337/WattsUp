@@ -11,6 +11,9 @@ export const ApiPaths = {
   monthlyReportForecast: {
     get: (): string => `${API_URL}/api/consumption/monthly/forecast`,
   },
+  history: {
+    lastSixMonths: (): string => `${API_URL}/api/consumption/monthly/history`,
+  },
   websocket: {
     telemetry: (): string => `${WS_URL}/telemetry`,
   },

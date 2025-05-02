@@ -32,6 +32,7 @@ type Props = {
   config: ChartConfig;
   title?: string;
   description?: string;
+  tooltipUnit?: string;
 };
 
 export function AreaChartInteractive({
@@ -39,6 +40,7 @@ export function AreaChartInteractive({
   config,
   title,
   description,
+  tooltipUnit,
 }: Props) {
   const [timeRange, setTimeRange] = React.useState("30");
 
@@ -75,6 +77,8 @@ export function AreaChartInteractive({
               cursor={false}
               content={
                 <ChartTooltipContent
+                  fractionDigits={0}
+                  unit={tooltipUnit}
                   labelFormatter={(value) => String(value)}
                   indicator="dot"
                 />

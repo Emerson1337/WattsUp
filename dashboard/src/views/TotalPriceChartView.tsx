@@ -52,6 +52,7 @@ export default function TotalPriceChartView() {
       description="Consumo energético, taxas e custo de iluminação pública."
       data={totalPriceData}
       unit="R$"
+      tooltipPrefix="R$"
       chartConfig={chartConfig}
       footerText="Total de consumo nos últimos 30 dias."
     />

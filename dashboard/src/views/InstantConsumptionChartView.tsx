@@ -5,15 +5,21 @@ import { AreaChartInteractive } from "@/components/charts/AreaChartInteractive";
 import { type ChartConfig } from "@/components/ui/chart";
 import { listenToSocket } from "@/services/api";
 import { useDataLayer } from "@/components/context/DataLayerContext";
+import { OneMinuteConsumptionMock } from "@/lib/utils";
 
 const chartConfig = {
-  consumption: { label: "Consumo instantâneo (kW)", color: "var(--chart-2)" },
+  consumption: {
+    label: "Consumo instantâneo (Watts)",
+    color: "var(--chart-2)",
+  },
 } satisfies ChartConfig;
 
 export default function InstantConsumptionChartView() {
   const { state } = useDataLayer();
   const { instantConsumptionSocket } = state;
-  const [data, setData] = useState<{ consumption: number }[]>([]);
+  const [data, setData] = useState<{ consumption: number }[]>(
+    OneMinuteConsumptionMock()
+  );
   const [error, setError] = useState<Event>();
 
   useEffect(() => {
@@ -40,6 +46,7 @@ export default function InstantConsumptionChartView() {
     <AreaChartInteractive
       data={data}
       config={chartConfig}
+      tooltipUnit="W"
       title="Consumo instantâneo"
       description={`Atualizado a cada segundo (${
         data[data.length - 1]?.consumption

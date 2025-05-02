@@ -47,3 +47,13 @@ export interface TelemetryMessage {
   current: number;
   voltage: number;
 }
+
+export interface LastSixMonthsHistory {
+  history: MonthsHistory[];
+}
+
+export interface MonthsHistory {
+  month: Date;
+  currentKWh: number;
+  pastYearKWh?: number;
+}

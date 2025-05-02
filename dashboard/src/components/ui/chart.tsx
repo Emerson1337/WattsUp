@@ -113,9 +113,12 @@ function ChartTooltipContent({
   labelFormatter,
   labelClassName,
   formatter,
+  unit,
+  prefix,
   color,
   nameKey,
   labelKey,
+  fractionDigits = 2,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
     hideLabel?: boolean;
@@ -123,6 +126,8 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed";
     nameKey?: string;
     labelKey?: string;
+    unit?: string;
+    fractionDigits?: number;
   }) {
   const { config } = useChart();
 
@@ -232,7 +237,12 @@ function ChartTooltipContent({
                     </div>
                     {item.value && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
-                        {item.value.toLocaleString()}
+                        {prefix}{" "}
+                        {item.value.toLocaleString("pt-BR", {
+                          maximumFractionDigits: fractionDigits,
+                          minimumFractionDigits: fractionDigits,
+                        })}{" "}
+                        {unit}
                       </span>
                     )}
                   </div>

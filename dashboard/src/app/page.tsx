@@ -13,13 +13,15 @@ export default function Home() {
       <Container>
         <DataLayerProvider>
           <SectionCards />
-          <TotalPriceChartView />
+          <div className="flex gap-4 lg:flex-row flex-col *:flex-1">
+            <TotalPriceChartView />
+            <MonthlyConsumptionChartView />
+          </div>
           <InstantConsumptionChartView />
           <div className="flex gap-4 lg:flex-row flex-col *:flex-1">
-            <MonthlyConsumptionChartView />
             <HistoryChartView />
+            <LastHourChart />
           </div>
-          <LastHourChart />
         </DataLayerProvider>
       </Container>
     </main>

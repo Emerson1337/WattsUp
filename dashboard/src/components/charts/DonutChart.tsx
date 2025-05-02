@@ -37,6 +37,7 @@ type DonutChartProps = {
   footerText?: string;
   tooltipLabel?: string;
   isLoading?: boolean;
+  tooltipPrefix?: string;
 };
 
 export function DonutChart({
@@ -51,6 +52,7 @@ export function DonutChart({
   trendIcon,
   footerText,
   tooltipLabel,
+  tooltipPrefix,
   isLoading = false,
 }: DonutChartProps) {
   const total = React.useMemo(() => {
@@ -78,6 +80,7 @@ export function DonutChart({
                 cursor={false}
                 content={
                   <ChartTooltipContent
+                    prefix={tooltipPrefix}
                     label={tooltipLabel}
                     hideLabel={!tooltipLabel}
                   />
