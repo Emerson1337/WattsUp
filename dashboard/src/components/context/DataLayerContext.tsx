@@ -5,6 +5,7 @@ import {
   MonthlyReport,
   MonthlyReportForecast,
   MonthsHistory,
+  PerMinuteHistory,
 } from "@/services/types";
 import { useEffect } from "react";
 import { openWSConnetionInstantConsumption } from "@/services/api";
@@ -13,6 +14,7 @@ import {
   fetchMonthlyReport,
   fetchLastSixMonthsReport,
   fetchMonthlyReportForecast,
+  fetchLastHourPerMinute,
 } from "@/services/facade";
 import React, {
   createContext,
@@ -32,6 +34,8 @@ interface State {
   instantConsumptionSocket: WebSocket | undefined;
   lastSixMonthsConsumption: MonthsHistory[] | undefined;
   lastSixMonthsConsumptionIsLoading: boolean;
+  lastHourPerMinuteConsumption: PerMinuteHistory[] | undefined;
+  lastHourPerMinuteConsumptionIsLoading: boolean;
 }
 
 type Action =
@@ -43,7 +47,12 @@ type Action =
   | { type: "SET_MONTHLY_REPORT_FORECAST_LOADING"; payload: boolean }
   | { type: "SET_INSTANT_CONSUMPTION_SOCKET"; payload?: WebSocket }
   | { type: "SET_LAST_SIX_MONTHS_CONSUMPTION"; payload?: MonthsHistory[] }
-  | { type: "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING"; payload: boolean };
+  | { type: "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING"; payload: boolean }
+  | {
+      type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION";
+      payload?: PerMinuteHistory[];
+    }
+  | { type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING"; payload: boolean };
 
 // Initial state
 const initialState: State = {
@@ -56,6 +65,8 @@ const initialState: State = {
   instantConsumptionSocket: undefined,
   lastSixMonthsConsumption: undefined,
   lastSixMonthsConsumptionIsLoading: true,
+  lastHourPerMinuteConsumption: undefined,
+  lastHourPerMinuteConsumptionIsLoading: true,
 };
 
 const dataLayerReducer = (state: State, action: Action): State => {
@@ -78,6 +89,13 @@ const dataLayerReducer = (state: State, action: Action): State => {
       return { ...state, lastSixMonthsConsumption: action.payload };
     case "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING":
       return { ...state, lastSixMonthsConsumptionIsLoading: action.payload };
+    case "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION":
+      return { ...state, lastHourPerMinuteConsumption: action.payload };
+    case "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING":
+      return {
+        ...state,
+        lastHourPerMinuteConsumptionIsLoading: action.payload,
+      };
     default:
       const _exhaustiveCheck: never = action;
       throw new Error(`Unhandled action type: ${_exhaustiveCheck}`);
@@ -159,11 +177,29 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
+    const fetchLastHourPerMinuteData = async () => {
+      try {
+        const data = await fetchLastHourPerMinute();
+        dispatch({
+          type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION",
+          payload: data?.history,
+        });
+      } catch (error) {
+        console.error("Error fetching last hour consumption:", error);
+      } finally {
+        dispatch({
+          type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING",
+          payload: false,
+        });
+      }
+    };
+
     fetchTariffData();
     fetchDataMonthlyReportData();
     fetchMonthlyReportForecastData();
     fetchInstantConsumptionData();
     fetchLastSixMonthsConsumptionData();
+    fetchLastHourPerMinuteData();
   }, []);
 
   return (

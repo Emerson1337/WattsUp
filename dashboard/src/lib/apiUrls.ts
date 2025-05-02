@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = "http://localhost:3000";
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000";
 
 export const ApiPaths = {
@@ -13,6 +13,7 @@ export const ApiPaths = {
   },
   history: {
     lastSixMonths: (): string => `${API_URL}/api/consumption/monthly/history`,
+    lastHour: (): string => `${API_URL}/api/consumption/last-hour/history`,
   },
   websocket: {
     telemetry: (): string => `${WS_URL}/telemetry`,

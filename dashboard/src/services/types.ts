@@ -57,3 +57,12 @@ export interface MonthsHistory {
   currentKWh: number;
   pastYearKWh?: number;
 }
+
+export interface LastHourHistory {
+  history: PerMinuteHistory[];
+}
+
+export interface PerMinuteHistory {
+  minute: Date;
+  KWh: number;
+}

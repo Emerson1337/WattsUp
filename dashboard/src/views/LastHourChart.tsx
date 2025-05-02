@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { BarChartInteractive } from "@/components/charts/BarChartInteractive";
 import type { ChartConfig } from "@/components/ui/chart";
-import { fetchBarChartInteractiveData } from "@/services/facade";
-import Spinner from "@/components/ui/spinner";
+import { useDataLayer } from "@/components/context/DataLayerContext";
+import { format } from "date-fns";
 
 const chartConfig: ChartConfig = {
   consumption: {
@@ -14,28 +13,26 @@ const chartConfig: ChartConfig = {
 };
 
 export default function LastHourChart() {
-  const [data, setData] = useState<
-    { date: string; consumption: number }[] | null
-  >(null);
+  const { state } = useDataLayer();
+  const {
+    lastHourPerMinuteConsumption,
+    lastHourPerMinuteConsumptionIsLoading,
+  } = state;
 
-  useEffect(() => {
-    fetchBarChartInteractiveData().then(setData);
-  }, []);
-
-  if (!data) {
-    return (
-      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
-        <Spinner />
-      </div>
-    );
-  }
+  const lastHourData =
+    lastHourPerMinuteConsumption?.map((item) => ({
+      date: format(item.minute, "HH:mm"),
+      consumption: item.KWh,
+    })) ?? [];
 
   return (
     <BarChartInteractive
+      isLoading={lastHourPerMinuteConsumptionIsLoading}
       title="Consumo - Última hora"
       description="Consumo na última hora"
-      data={data}
+      data={lastHourData}
       dateKey="date"
+      unit="kW"
       chartConfig={chartConfig}
       initialActiveChart="consumption"
       totalLabel="Consumo total"

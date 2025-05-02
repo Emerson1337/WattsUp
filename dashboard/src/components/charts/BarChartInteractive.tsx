@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import Spinner from "@/components/ui/spinner";
+import { convertToBRDecimal } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -19,11 +21,13 @@ import {
 interface BarChartInteractiveProps<T extends string> {
   title: string;
   description: string;
-  data: Array<Record<string, any>>;
+  data: Array<Record<string, string | number>>;
   dateKey: string;
   chartConfig: ChartConfig;
   initialActiveChart: T;
   totalLabel: string;
+  isLoading?: boolean;
+  unit?: string;
 }
 
 export function BarChartInteractive<T extends string>({
@@ -34,6 +38,8 @@ export function BarChartInteractive<T extends string>({
   chartConfig,
   initialActiveChart,
   totalLabel,
+  isLoading,
+  unit,
 }: BarChartInteractiveProps<T>) {
   const [activeChart, setActiveChart] = React.useState<T>(initialActiveChart);
 
@@ -41,7 +47,10 @@ export function BarChartInteractive<T extends string>({
     const result: Record<string, number> = {};
     Object.keys(chartConfig).forEach((key) => {
       if (key !== "views") {
-        result[key] = data.reduce((acc, curr) => acc + curr[key], 0);
+        result[key] = data.reduce(
+          (acc, curr) => acc + (typeof curr[key] === "number" ? curr[key] : 0),
+          0
+        );
       }
     });
     return result;
@@ -69,7 +78,7 @@ export function BarChartInteractive<T extends string>({
                   {totalLabel}
                 </span>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
-                  {total[chart].toLocaleString()}
+                  {convertToBRDecimal(total[chart])} {unit}
                 </span>
               </button>
             );
@@ -77,50 +86,36 @@ export function BarChartInteractive<T extends string>({
         </div>
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
+        {isLoading ? (
+          <div className="h-[350px] flex items-center justify-center">
+            <Spinner size={40} />
+          </div>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[250px] w-full"
           >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey={dateKey}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("pt-BR", {
-                  month: "short",
-                  day: "numeric",
-                });
+            <BarChart
+              accessibilityLayer
+              data={data}
+              margin={{
+                left: 12,
+                right: 12,
               }}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("pt-BR", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    });
-                  }}
-                />
-              }
-            />
-            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
-          </BarChart>
-        </ChartContainer>
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey={dateKey}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+              />
+              <ChartTooltip content={<ChartTooltipContent unit={unit} />} />
+              <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );
