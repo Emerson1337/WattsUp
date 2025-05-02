@@ -18,26 +18,26 @@ import {
 } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import Spinner from "@/components/ui/spinner";
+import { convertToBRDecimal } from "../../lib/utils";
 
 interface RadialChartTextProps<T extends string> {
   title: string;
   periodDescription: string;
-  data: Array<
-    {
-      [key in T]: string;
-    } & {
-      fill: string;
-    }
-  >;
+  data: {
+    [key in T]: string;
+  } & {
+    fill: string;
+  };
   valueKey: T;
   unit: string;
   chartConfig: ChartConfig;
   trendText?: string;
+  trendIcon?: boolean;
   footerDescription?: string;
   innerRadius?: number;
   outerRadius?: number;
-  endAngle?: number;
   isLoading?: boolean;
+  total?: number;
 }
 
 export function RadialChartText<T extends string>({
@@ -52,8 +52,11 @@ export function RadialChartText<T extends string>({
   footerDescription = "",
   innerRadius = 130,
   outerRadius = 160,
-  endAngle = 0,
+  trendIcon,
+  total,
 }: RadialChartTextProps<T>) {
+  const degrees = (Number(data[valueKey]) / (total ?? 1)) * 360;
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -71,9 +74,9 @@ export function RadialChartText<T extends string>({
             className="mx-auto aspect-square max-h-[350px]"
           >
             <RadialBarChart
-              data={data}
+              data={[data]}
               startAngle={0}
-              endAngle={endAngle}
+              endAngle={degrees}
               innerRadius={innerRadius}
               outerRadius={outerRadius}
             >
@@ -101,20 +104,21 @@ export function RadialChartText<T extends string>({
                             y={viewBox.cy}
                             className="fill-foreground text-4xl font-bold"
                           >
-                            {data[0][valueKey]}
+                            {convertToBRDecimal(Number(data[valueKey]))}
                             <tspan
                               dx={4}
-                              className="fill-muted-foreground text-sm font-normal"
+                              className="fill-muted-foreground text-lg"
                             >
-                              {unit}
+                              {!!total && `/ ${convertToBRDecimal(total)}`}
                             </tspan>
                           </tspan>
+
                           <tspan
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground"
+                            y={(viewBox.cy || 0) + 34}
+                            className="fill-muted-foreground text-xl"
                           >
-                            {chartConfig[valueKey]?.label || "Value"}
+                            {unit}
                           </tspan>
                         </text>
                       );
@@ -128,12 +132,12 @@ export function RadialChartText<T extends string>({
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         {trendText && (
-          <div className="flex items-center gap-2 font-medium leading-none">
-            {trendText} <TrendingUp className="h-4 w-4" />
+          <div className="flex items-center gap-2 font-medium leading-lg">
+            {trendText} {trendIcon && <TrendingUp className="h-4 w-4" />}
           </div>
         )}
         {footerDescription && (
-          <div className="leading-none text-muted-foreground">
+          <div className="leading-lg text-muted-foreground">
             {footerDescription}
           </div>
         )}

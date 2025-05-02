@@ -90,7 +90,7 @@ export function DonutChart({
                 data={data}
                 dataKey={dataKey}
                 nameKey={nameKey}
-                innerRadius={120}
+                innerRadius={110}
                 strokeWidth={8}
               >
                 <Label
@@ -131,12 +131,12 @@ export function DonutChart({
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         {trendText && (
-          <div className="flex items-center gap-2 font-medium leading-none">
+          <div className="flex items-center gap-2 font-medium leading-lg">
             {trendText} {trendIcon}
           </div>
         )}
         {footerText && (
-          <div className="leading-none text-muted-foreground">{footerText}</div>
+          <div className="leading-lg text-muted-foreground">{footerText}</div>
         )}
       </CardFooter>
     </Card>

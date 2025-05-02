@@ -77,7 +77,7 @@ export function BarChartInteractive<T extends string>({
                 <span className="text-xs text-muted-foreground">
                   {totalLabel}
                 </span>
-                <span className="text-lg font-bold leading-none sm:text-3xl">
+                <span className="text-lg font-bold leading-lg sm:text-3xl">
                   {convertToBRDecimal(total[chart])} {unit}
                 </span>
               </button>

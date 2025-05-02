@@ -21,11 +21,11 @@ import { TIMEZONES } from "@/modules/shared/utils";
 const prisma = new PrismaClient();
 
 class DashboardRepository {
-  private nowDateInTZ = toZonedTime(new Date(), BRAZIL_TZ);
+  private nowDateInTZ = () => toZonedTime(new Date(), BRAZIL_TZ);
 
   // Determine the start of the current "month" (e.g: starting on the 20th)
   private getStartOfTheMonthInTZ = (startMonthReadingDay: number) => {
-    const currentDate = startOfHour(this.nowDateInTZ);
+    const currentDate = startOfHour(this.nowDateInTZ());
 
     // Determine the start of the current "month" (e.g: starting on the 20th)
     if (currentDate.getDate() >= startMonthReadingDay) {
@@ -50,7 +50,7 @@ class DashboardRepository {
   };
 
   constructor(timezone?: TIMEZONES) {
-    if (timezone) this.nowDateInTZ = toZonedTime(new Date(), timezone);
+    if (timezone) this.nowDateInTZ = () => toZonedTime(new Date(), timezone);
   }
 
   findTariff = async (): Promise<PrismaTariffs | null> => {
@@ -130,7 +130,7 @@ class DashboardRepository {
   };
 
   getLast7DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
-    const startOfDayInBrazil = startOfDay(this.nowDateInTZ);
+    const startOfDayInBrazil = startOfDay(this.nowDateInTZ());
     const sevenDaysBeforeInBrazil = subDays(startOfDayInBrazil, 7);
 
     return await prisma.dailyReport.findMany({
@@ -153,7 +153,7 @@ class DashboardRepository {
     return await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ,
+          lte: this.nowDateInTZ(),
           gte: lastSixMonths,
         },
       },
@@ -182,12 +182,12 @@ class DashboardRepository {
   getLastHourHistoryPerMinute = async (): Promise<
     PrismaPerMinuteReport[] | null
   > => {
-    const lastHour = subHours(this.nowDateInTZ, 1);
+    const lastHour = subHours(this.nowDateInTZ(), 1);
 
     return await prisma.perMinuteReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ,
+          lte: this.nowDateInTZ(),
           gte: lastHour,
         },
       },

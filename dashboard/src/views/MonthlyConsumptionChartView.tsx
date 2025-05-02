@@ -32,16 +32,10 @@ export default function MonthlyConsumptionChartView() {
     ? currentEnergyConsumptionInKWh / lastMonthEnergyConsumptionInKWh - 1
     : 0;
 
-  const radialData = [
-    {
-      consumption: currentEnergyConsumptionInKWh.toFixed(2),
-      fill: "var(--chart-2)",
-    },
-  ];
-
-  const consumptionInDegrees =
-    (currentEnergyConsumptionInKWh / currentEnergyConsumptionForecastInKWh) *
-    360;
+  const radialData = {
+    consumption: currentEnergyConsumptionInKWh.toFixed(2),
+    fill: "var(--chart-2)",
+  };
 
   return (
     <RadialChartText
@@ -49,7 +43,7 @@ export default function MonthlyConsumptionChartView() {
       title="Consumo mensal"
       periodDescription="Consumo nos últimos 30 dias"
       data={radialData}
-      endAngle={consumptionInDegrees}
+      total={currentEnergyConsumptionForecastInKWh}
       unit="kWh"
       valueKey="consumption"
       chartConfig={chartConfig}
@@ -58,7 +52,7 @@ export default function MonthlyConsumptionChartView() {
           ? `"Expectativa de aumento em ${growthExpectationInKWh.toFixed(
               1
             )}% esse mês."`
-          : undefined
+          : `Observe o quão perto o seu consumo está do previsto.`
       }
       footerDescription={`Total de consumo nos últimos 30 dias. Previsão de consumo: ${monthlyReportForecast?.currentMonthForecastInKWh.toFixed(
         2

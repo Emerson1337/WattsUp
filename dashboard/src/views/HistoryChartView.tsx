@@ -7,11 +7,11 @@ import { format } from "date-fns";
 
 const chartConfig: ChartConfig = {
   past: {
-    label: "Passado",
+    label: "Ano passado",
     color: "var(--chart-3)",
   },
   current: {
-    label: "Atual",
+    label: "Ano atual",
     color: "var(--chart-2)",
   },
 };
@@ -37,7 +37,7 @@ export default function HistoryChartView() {
   return (
     <SimpleBarChartMultiple
       isLoading={lastSixMonthsConsumptionIsLoading}
-      title="Histórico - Consumo (kWh)"
+      title="Consumo - Histórico (kWh)"
       description="Últimos 6 meses"
       data={dataHistory}
       chartConfig={chartConfig}
@@ -47,7 +47,7 @@ export default function HistoryChartView() {
       trendText={
         trendPercentage
           ? `Houve aumento de ${lastEntry.current.toFixed(1)}% esse mês.`
-          : "Seu consumo tem aumentado. Observe como ele se compara com o ano passado."
+          : "Seu consumo tem aumentado."
       }
       footerText="Este gráfico é atualizado mensalmente e disponibiliza o consumo dos últimos meses."
     />
