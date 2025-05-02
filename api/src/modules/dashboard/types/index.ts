@@ -11,6 +11,7 @@ export interface MonthlyConsumptionResponse {
   energyConsumptionPrice: number;
   taxesPrice: number;
   publicLighting: number;
+  energyConsumptionInKWh: number;
   currentMonthPeak: {
     date?: Date;
     currentMonthPeakKWh: number;

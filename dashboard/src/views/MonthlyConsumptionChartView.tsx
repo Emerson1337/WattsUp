@@ -2,9 +2,7 @@
 
 import { RadialChartText } from "@/components/charts/RadialChart";
 import type { ChartConfig } from "@/components/ui/chart";
-import { useState, useEffect } from "react";
-import { fetchRadialChartData } from "@/services/facade";
-import Spinner from "@/components/ui/spinner";
+import { useDataLayer } from "@/components/context/DataLayerContext";
 
 const chartConfig = {
   consumption: {
@@ -13,33 +11,58 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function MonthlyConsumptionChartView() {
-  const [data, setData] = useState<
-    { consumption: number; fill: string }[] | null
-  >(null);
+  const { state } = useDataLayer();
+  const {
+    monthlyReport,
+    monthlyReportIsLoading,
+    monthlyReportForecast,
+    monthlyReportForecastIsLoading,
+  } = state;
 
-  useEffect(() => {
-    fetchRadialChartData().then(setData);
-  }, []);
+  const currentEnergyConsumptionInKWh =
+    monthlyReport?.energyConsumptionInKWh ?? 0;
 
-  if (!data) {
-    return (
-      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
-        <Spinner />
-      </div>
-    );
-  }
+  const currentEnergyConsumptionForecastInKWh =
+    monthlyReportForecast?.currentMonthForecastInKWh ?? 0;
+
+  const lastMonthEnergyConsumptionInKWh =
+    monthlyReportForecast?.pastMonthConsumptionInKWh ?? 0;
+
+  const growthExpectationInKWh = lastMonthEnergyConsumptionInKWh
+    ? currentEnergyConsumptionInKWh / lastMonthEnergyConsumptionInKWh - 1
+    : 0;
+
+  const radialData = [
+    {
+      consumption: currentEnergyConsumptionInKWh.toFixed(2),
+      fill: "var(--chart-2)",
+    },
+  ];
+
+  const consumptionInDegrees =
+    (currentEnergyConsumptionInKWh / currentEnergyConsumptionForecastInKWh) *
+    360;
 
   return (
     <RadialChartText
+      isLoading={monthlyReportIsLoading || monthlyReportForecastIsLoading}
       title="Consumo mensal"
       periodDescription="Consumo nos últimos 30 dias"
-      data={data}
-      startAngle={240}
+      data={radialData}
+      endAngle={consumptionInDegrees}
       unit="kWh"
       valueKey="consumption"
       chartConfig={chartConfig}
-      trendText="Expectativa de aumento em 5.2% esse mês."
-      footerDescription="Consumo nos últimos 30 dias"
+      trendText={
+        growthExpectationInKWh
+          ? `"Expectativa de aumento em ${growthExpectationInKWh.toFixed(
+              1
+            )}% esse mês."`
+          : undefined
+      }
+      footerDescription={`Total de consumo nos últimos 30 dias. Previsão de consumo: ${monthlyReportForecast?.currentMonthForecastInKWh.toFixed(
+        2
+      )} kWh.`}
     />
   );
 }

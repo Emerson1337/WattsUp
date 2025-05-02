@@ -14,6 +14,7 @@ export interface Tariff {
 
 export interface MonthlyReport {
   energyConsumptionPrice: number;
+  energyConsumptionInKWh: number;
   taxesPrice: number;
   publicLighting: number;
   currentMonthPeak: CurrentMonthPeak;

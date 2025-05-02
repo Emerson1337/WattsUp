@@ -24,14 +24,14 @@ interface SpinnerProps {
 export default function Spinner({
   size = 24,
   className,
-  color = "primary-500",
+  color = "primary",
   thickness = 2,
 }: Readonly<SpinnerProps>) {
   return (
     <div
       className={cn(
-        "animate-spin rounded-full border-t-transparent",
-        `border-${color}`,
+        "animate-spin rounded-full",
+        `border-${color} border-t-transparent`,
         className
       )}
       style={{

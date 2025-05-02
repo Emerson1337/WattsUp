@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { ChartConfig } from "@/components/ui/chart";
-import { fetchMonthlyConsumptionData } from "@/services/facade";
 import { DonutChart } from "@/components/charts/DonutChart";
-import Spinner from "@/components/ui/spinner";
+import { useDataLayer } from "@/components/context/DataLayerContext";
 
 const chartConfig: ChartConfig = {
   energyConsumption: {
     label: "Consumo elétrico",
     color: "var(--chart-1)",
   },
-  taxes: {
+  consumptionWithTaxes: {
     label: "TSDU + TSE",
     color: "var(--chart-2)",
   },
@@ -22,30 +20,40 @@ const chartConfig: ChartConfig = {
 };
 
 export default function TotalPriceChartView() {
-  const [data, setData] = useState<
-    { name: string; value: number; fill: string }[] | null
-  >(null);
+  const { state } = useDataLayer();
+  const { monthlyReport, monthlyReportIsLoading, tariff, tariffIsLoading } =
+    state;
 
-  useEffect(() => {
-    fetchMonthlyConsumptionData().then(setData);
-  }, []);
+  const taxValueInDecimal = monthlyReport?.taxesPrice ?? 0;
+  const energyConsumption = monthlyReport?.energyConsumptionPrice ?? 0;
 
-  if (!data) {
-    return (
-      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
-        <Spinner />
-      </div>
-    );
-  }
+  const totalPriceData = [
+    {
+      name: "energyConsumption",
+      value: energyConsumption,
+      fill: "var(--chart-2)",
+    },
+    {
+      name: "consumptionWithTaxes",
+      value: taxValueInDecimal,
+      fill: "var(--chart-4)",
+    },
+    {
+      name: "publicLighting",
+      value: tariff?.publicLightingPrice ?? 0,
+      fill: "var(--chart-3)",
+    },
+  ];
 
   return (
     <DonutChart
+      isLoading={monthlyReportIsLoading || tariffIsLoading}
       title="Consumo Mensal"
       description="Consumo energético, taxas e custo de iluminação pública."
-      data={data}
+      data={totalPriceData}
       unit="R$"
       chartConfig={chartConfig}
-      footerText="Total de consumo nos últimos 30 dias"
+      footerText="Total de consumo nos últimos 30 dias."
     />
   );
 }

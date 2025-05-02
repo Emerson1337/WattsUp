@@ -5,7 +5,7 @@ import MonthlyConsumptionChartView from "@/views/MonthlyConsumptionChartView";
 import HistoryChartView from "@/views/HistoryChartView";
 import LastHourChart from "@/views/LastHourChart";
 import TotalPriceChartView from "@/views/TotalPriceChartView";
-import { DataLayerProvider } from "../components/context/DataLayerContext";
+import { DataLayerProvider } from "@/components/context/DataLayerContext";
 
 export default function Home() {
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { MetricCard } from "@/components/ui/metric-card";
+import { format } from "date-fns";
 
 import { convertToBRL } from "@/lib/utils";
 import { useDataLayer } from "@/components/context/DataLayerContext";
@@ -28,7 +29,7 @@ export function SectionCards() {
   const monthlyReportBadgeTrend =
     currentConsumptionPeak > lastMonthPeak ? "up" : "down";
 
-  const currentMonthForecast =
+  const currentMonthForecastWithTaxes =
     monthlyReportForecast?.currentMonthForecastWithTaxes ?? 0;
 
   const lastMonthConsumption =
@@ -39,7 +40,7 @@ export function SectionCards() {
 
   const consumptionForecastGrowth =
     lastMonthConsumption > 0
-      ? currentMonthForecast / lastMonthConsumption - 1
+      ? currentMonthForecastWithTaxes / lastMonthConsumption - 1
       : 0;
 
   return (
@@ -66,12 +67,19 @@ export function SectionCards() {
             ? `Esse valor representa um ${consumptionGrowth}% de crescimento em relação ao mês passado.`
             : "Esse valor representa o pico de consumo do mês atual."
         }
-        footerSub="Este valor representa uma comparação com o mês anterior."
+        footerSub={
+          monthlyReport?.currentMonthPeak.date
+            ? `Este valor foi registrado no dia ${format(
+                monthlyReport?.currentMonthPeak.date,
+                "dd/MM/yyyy"
+              )}.`
+            : ""
+        }
       />
       <MetricCard
         isLoading={monthlyReportForecastIsLoading}
-        title="Previsão de consumo"
-        value={convertToBRL(currentMonthForecast)}
+        title="Previsão de fatura"
+        value={convertToBRL(currentMonthForecastWithTaxes)}
         badgeTrend={
           lastMonthConsumption ? monthlyForecastBadgeTrend : undefined
         }
@@ -81,7 +89,7 @@ export function SectionCards() {
             : undefined
         }
         footerMain="Você irá pagar este valor no próximo mês."
-        footerSub="Este valor representa uma previsão de consumo. O valor pode variar de acordo com o consumo real."
+        footerSub="Este valor representa uma previsão de consumo. O valor pode variar de acordo com o modo de cobrança na fatura."
       />
     </div>
   );
