@@ -22,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
+import LiveBadge from "../ui/live-badge";
 
 type DataPoint = {
   [key: string]: string | number;
@@ -50,11 +52,15 @@ export function AreaChartInteractive({
     return data.slice(data.length - numberTimeRange, data.length);
   }, [data, timeRange]);
 
+  const lastEntry = filteredData[filteredData.length - 1];
+  const secondLastEntry = filteredData[filteredData.length - 2];
+
   return (
     <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b pb-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>{title}</CardTitle>
+          <LiveBadge />
+          <CardTitle className="flex gap-4 mt-2">{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
@@ -68,7 +74,7 @@ export function AreaChartInteractive({
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex relative">
         <ChartContainer config={config} className="h-[250px] w-full">
           <AreaChart data={filteredData}>
             <CartesianGrid vertical={false} />
@@ -79,8 +85,7 @@ export function AreaChartInteractive({
                 <ChartTooltipContent
                   fractionDigits={0}
                   unit={tooltipUnit}
-                  labelFormatter={(value) => String(value)}
-                  indicator="dot"
+                  indicator="dashed"
                 />
               }
             />
@@ -99,6 +104,19 @@ export function AreaChartInteractive({
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
+        <div className="px-4 w-24 items-center h-full absolute -top-5 right-4">
+          <div className="flex text-2xl gap-1 justify-center">
+            <span>{lastEntry.consumption}</span>
+            <span className="text-muted-foreground">{tooltipUnit}</span>
+          </div>
+          <div className="flex justify-end">
+            {lastEntry.consumption > secondLastEntry.consumption ? (
+              <TrendingUpIcon className="text-red-600" />
+            ) : (
+              <TrendingDownIcon className="text-primary" />
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

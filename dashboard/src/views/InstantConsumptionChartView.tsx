@@ -48,9 +48,7 @@ export default function InstantConsumptionChartView() {
       config={chartConfig}
       tooltipUnit="W"
       title="Consumo instantâneo"
-      description={`Atualizado a cada segundo (${
-        data[data.length - 1]?.consumption
-      } W)`}
+      description={`Atualizado a cada segundo`}
     />
   );
 }

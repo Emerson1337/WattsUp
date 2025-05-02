@@ -27,6 +27,13 @@ export default function HistoryChartView() {
       current: item.currentKWh,
     })) ?? [];
 
+  const lastEntry = dataHistory[dataHistory.length - 1];
+
+  const trendPercentage =
+    lastEntry?.past > 0
+      ? (lastEntry.current / lastEntry.past) * 100
+      : undefined;
+
   return (
     <SimpleBarChartMultiple
       isLoading={lastSixMonthsConsumptionIsLoading}
@@ -36,9 +43,13 @@ export default function HistoryChartView() {
       chartConfig={chartConfig}
       barKeys={["past", "current"]}
       tooltipUnit="kWh"
-      trendPercentage={5.2}
-      trendText="Aumento em relação ao mês do ano anterior"
-      footerText="Consumo nos últimos 6 meses"
+      trendPercentage={trendPercentage}
+      trendText={
+        trendPercentage
+          ? `Houve aumento de ${lastEntry.current.toFixed(1)}% esse mês.`
+          : "Seu consumo tem aumentado. Observe como ele se compara com o ano passado."
+      }
+      footerText="Este gráfico é atualizado mensalmente e disponibiliza o consumo dos últimos meses."
     />
   );
 }
