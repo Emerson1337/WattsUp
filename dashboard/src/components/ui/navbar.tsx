@@ -15,6 +15,7 @@ export default function Navbar() {
       </div>
       <Image
         src={"https://github.com/emerson1337.png"}
+        priority
         width={250}
         height={250}
         alt="Avatar"
