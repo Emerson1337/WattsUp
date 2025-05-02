@@ -35,12 +35,14 @@ type Props = {
   title?: string;
   description?: string;
   tooltipUnit?: string;
+  liveBadge?: boolean;
 };
 
 export function AreaChartInteractive({
   data,
   config,
   title,
+  liveBadge,
   description,
   tooltipUnit,
 }: Props) {
@@ -59,7 +61,7 @@ export function AreaChartInteractive({
     <Card>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b pb-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <LiveBadge />
+          {liveBadge && <LiveBadge />}
           <CardTitle className="flex gap-4 mt-2">{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>

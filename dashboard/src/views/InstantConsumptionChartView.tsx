@@ -46,6 +46,7 @@ export default function InstantConsumptionChartView() {
     <AreaChartInteractive
       data={data}
       config={chartConfig}
+      liveBadge
       tooltipUnit="W"
       title="Consumo instantâneo"
       description={`Atualizado a cada segundo`}
