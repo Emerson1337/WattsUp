@@ -58,11 +58,23 @@ jobs:
           mkdir -p api
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
 
-      - name: Upload Docker Compose and Application Files
+      - name: Upload Docker Compose, Application Files, and Certificates
         run: |
-          tar -czf app.tar.gz api
-          scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
-          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app.tar.gz"
+          # Create a directory to store the certificates
+          mkdir -p certificates
+
+          # Write the certificate and private key to files
+          echo "${{ secrets.SSL_CERTIFICATE }}" > certificates/cert.crt
+          echo "${{ secrets.SSL_PRIVATE_KEY }}" > certificates/cert.key
+
+          # Archive the application files and certificates
+          tar -czf app_and_certs.tar.gz api certificates
+
+          # Upload the archive to the EC2 instance
+          scp -o StrictHostKeyChecking=no app_and_certs.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
+
+          # Extract the files on the EC2 instance
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app_and_certs.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app_and_certs.tar.gz"
 
       - name: Deploy Application
         run: |

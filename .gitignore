@@ -1,1 +1,3 @@
 api/local-dev/mongodb/volumes
+*.crt
+*.key
