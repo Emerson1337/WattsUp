@@ -2,6 +2,7 @@
 
 import { Tariff, MonthlyReport, MonthlyReportForecast } from "@/services/types";
 import { useEffect } from "react";
+import { openWSConnetionInstantConsumption } from "@/services/api";
 import {
   fetchTariff,
   fetchMonthlyReport,
@@ -22,6 +23,7 @@ interface State {
   monthlyReportIsLoading: boolean;
   monthlyReportForecast: MonthlyReportForecast | undefined;
   monthlyReportForecastIsLoading: boolean;
+  instantConsumptionSocket: WebSocket | undefined;
 }
 
 type Action =
@@ -30,7 +32,8 @@ type Action =
   | { type: "SET_MONTHLY_REPORT"; payload?: MonthlyReport }
   | { type: "SET_MONTHLY_REPORT_LOADING"; payload: boolean }
   | { type: "SET_MONTHLY_REPORT_FORECAST"; payload?: MonthlyReportForecast }
-  | { type: "SET_MONTHLY_REPORT_FORECAST_LOADING"; payload: boolean };
+  | { type: "SET_MONTHLY_REPORT_FORECAST_LOADING"; payload: boolean }
+  | { type: "SET_INSTANT_CONSUMPTION_SOCKET"; payload?: WebSocket };
 
 // Initial state
 const initialState: State = {
@@ -40,6 +43,7 @@ const initialState: State = {
   monthlyReportIsLoading: true,
   monthlyReportForecast: undefined,
   monthlyReportForecastIsLoading: true,
+  instantConsumptionSocket: undefined,
 };
 
 const dataLayerReducer = (state: State, action: Action): State => {
@@ -56,6 +60,8 @@ const dataLayerReducer = (state: State, action: Action): State => {
       return { ...state, monthlyReportForecast: action.payload };
     case "SET_MONTHLY_REPORT_FORECAST_LOADING":
       return { ...state, monthlyReportForecastIsLoading: action.payload };
+    case "SET_INSTANT_CONSUMPTION_SOCKET":
+      return { ...state, instantConsumptionSocket: action.payload };
     default:
       const _exhaustiveCheck: never = action;
       throw new Error(`Unhandled action type: ${_exhaustiveCheck}`);
@@ -74,54 +80,55 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
     const fetchTariffData = async () => {
       try {
         const data = await fetchTariff();
-        dispatch({
-          type: "SET_TARIFF",
-          payload: data,
-        });
-        dispatch({
-          type: "SET_TARIFF_LOADING",
-          payload: false,
-        });
+        dispatch({ type: "SET_TARIFF", payload: data });
       } catch (error) {
         console.error("Error fetching tariff data:", error);
+      } finally {
+        dispatch({ type: "SET_TARIFF_LOADING", payload: false });
       }
     };
 
     const fetchDataMonthlyReportData = async () => {
       try {
         const data = await fetchMonthlyReport();
-        dispatch({
-          type: "SET_MONTHLY_REPORT",
-          payload: data,
-        });
-        dispatch({
-          type: "SET_MONTHLY_REPORT_LOADING",
-          payload: false,
-        });
+        dispatch({ type: "SET_MONTHLY_REPORT", payload: data });
       } catch (error) {
-        console.error("Error fetching tariff data:", error);
+        console.error("Error fetching monthly report:", error);
+      } finally {
+        dispatch({ type: "SET_MONTHLY_REPORT_LOADING", payload: false });
       }
     };
 
     const fetchMonthlyReportForecastData = async () => {
       try {
         const data = await fetchMonthlyReportForecast();
-        dispatch({
-          type: "SET_MONTHLY_REPORT_FORECAST",
-          payload: data,
-        });
+        dispatch({ type: "SET_MONTHLY_REPORT_FORECAST", payload: data });
+      } catch (error) {
+        console.error("Error fetching monthly report forecast:", error);
+      } finally {
         dispatch({
           type: "SET_MONTHLY_REPORT_FORECAST_LOADING",
           payload: false,
         });
+      }
+    };
+    const fetchInstantConsumptionData = () => {
+      try {
+        const socket = openWSConnetionInstantConsumption();
+
+        dispatch({
+          type: "SET_INSTANT_CONSUMPTION_SOCKET",
+          payload: socket,
+        });
       } catch (error) {
-        console.error("Error fetching tariff data:", error);
+        console.error("Error opening socket connection:", error);
       }
     };
 
     fetchTariffData();
     fetchDataMonthlyReportData();
     fetchMonthlyReportForecastData();
+    fetchInstantConsumptionData();
   }, []);
 
   return (

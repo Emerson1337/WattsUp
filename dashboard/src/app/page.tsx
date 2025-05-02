@@ -13,8 +13,8 @@ export default function Home() {
       <Container>
         <DataLayerProvider>
           <SectionCards />
-          <InstantConsumptionChartView />
           <TotalPriceChartView />
+          <InstantConsumptionChartView />
           <div className="flex gap-4 lg:flex-row flex-col *:flex-1">
             <MonthlyConsumptionChartView />
             <HistoryChartView />

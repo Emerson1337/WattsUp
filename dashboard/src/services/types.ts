@@ -41,3 +41,9 @@ export interface MonthlyReportForecast {
   pastMonthConsumption: number;
   pastMonthConsumptionWithTaxes: number;
 }
+
+export interface TelemetryMessage {
+  power: number;
+  current: number;
+  voltage: number;
+}

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import TelemetryService from "@/modules/telemetry/telemetry.service";
 import { WebSocket } from "ws";
-import { isTelemetryMessage } from "./types/index";
+import { isTelemetryMessage } from "@/modules/telemetry/types";
+import { clients } from "@/server";
 
 class TelemetryController {
   health = async (_: Request, response: Response): Promise<void> => {
@@ -21,6 +22,12 @@ class TelemetryController {
         if (!isTelemetryMessage(data)) return;
 
         TelemetryService.handlePowerData(data);
+
+        clients.forEach((client) => {
+          if (client.clientId === "webapp") {
+            client.ws.send(JSON.stringify(data));
+          }
+        });
       } catch (error) {
         console.error("[TELEMETRY] Error processing message:", error);
       }
@@ -29,6 +36,17 @@ class TelemetryController {
     ws.on("close", () => {
       console.log("[TELEMETRY] Connection closed. 🛰️");
     });
+  }
+
+  handleWebAppConnection(
+    ws: WebSocket,
+    { data, clientId }: { data: unknown; clientId?: string }
+  ): void {
+    if (clientId === "webapp") {
+      console.log("🟢🟢🟢🟢 send, clientId", clientId);
+
+      ws.send(JSON.stringify(data));
+    }
   }
 }
 

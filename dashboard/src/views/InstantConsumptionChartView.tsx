@@ -2,29 +2,39 @@
 
 import { useEffect, useState } from "react";
 import { AreaChartInteractive } from "@/components/charts/AreaChartInteractive";
-import { subscribeToLiveAreaChartData } from "@/services/facade";
 import { type ChartConfig } from "@/components/ui/chart";
-import Spinner from "@/components/ui/spinner";
+import { listenToSocket } from "@/services/api";
+import { useDataLayer } from "@/components/context/DataLayerContext";
 
 const chartConfig = {
   consumption: { label: "Consumo instantâneo (kW)", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
 export default function InstantConsumptionChartView() {
-  const [data, setData] = useState<{ consumption: number }[]>();
+  const { state } = useDataLayer();
+  const { instantConsumptionSocket } = state;
+  const [data, setData] = useState<{ consumption: number }[]>([]);
+  const [error, setError] = useState<Event>();
 
   useEffect(() => {
-    const unsubscribe = subscribeToLiveAreaChartData(setData);
-    return unsubscribe;
-  }, []);
+    if (!instantConsumptionSocket) return;
 
-  if (!data) {
-    return (
-      <div className="text-center flex w-full items-center justify-center text-muted-foreground">
-        <Spinner />
-      </div>
+    listenToSocket(
+      instantConsumptionSocket,
+      (telemetryMessage) =>
+        setData([
+          ...data,
+          {
+            consumption: telemetryMessage.power,
+          },
+        ]),
+      setError
     );
-  }
+
+    if (error) {
+      console.error("Error connecting to live data:", error);
+    }
+  }, [data, error, instantConsumptionSocket]);
 
   return (
     <AreaChartInteractive
