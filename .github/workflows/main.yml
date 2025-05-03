@@ -64,10 +64,6 @@ jobs:
           scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app.tar.gz"
 
-          # Write the certificate and private key to files
-          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "echo '${{ secrets.SSL_CERTIFICATE }}' > /home/${{ vars.EC2_USER }}/app/api/nginx/cert.crt"
-          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "echo '${{ secrets.SSL_PRIVATE_KEY }}' > /home/${{ vars.EC2_USER }}/app/api/nginx/cert.key"
-
       - name: Deploy Application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
