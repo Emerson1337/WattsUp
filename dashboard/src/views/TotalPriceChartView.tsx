@@ -10,7 +10,7 @@ const chartConfig: ChartConfig = {
     color: "var(--chart-1)",
   },
   consumptionWithTaxes: {
-    label: "TSDU + TSE",
+    label: "TUSD + TE",
     color: "var(--chart-2)",
   },
   publicLighting: {

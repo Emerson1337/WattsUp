@@ -7,10 +7,9 @@ async function main() {
     data: {
       state: "Ceará",
       description:
-        "Tarifa de energia elétrica convencional e impostos (TSDU + TE)",
+        "Tarifa de energia elétrica convencional e taxas (TUSD + TE)",
       kWhPrice: 0.722,
       kWhPriceTaxes: 0.2,
-      publicLightingPrice: 11.28,
       effectiveReadingDay: 20,
       lastReading: new Date("2025-04-20"),
     },

@@ -2,6 +2,7 @@ import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
 import { LastSemesterHistoryResponse } from "@/modules/dashboard/types/index";
 import { LastHourHistoryResponse } from "./types/index";
+import { calculateCIP } from "../shared/utils";
 import {
   MonthlyForecastResponse,
   MonthlyConsumptionResponse,
@@ -62,7 +63,7 @@ class DashboardService {
     const energyConsumptionPrice =
       (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPrice;
     const taxesPrice = energyConsumptionPrice * tariff.kWhPriceTaxes;
-    const publicLighting = tariff.publicLightingPrice;
+    const publicLighting = calculateCIP(currentMonthConsumption?.kWh ?? 0);
 
     return {
       energyConsumptionPrice,
