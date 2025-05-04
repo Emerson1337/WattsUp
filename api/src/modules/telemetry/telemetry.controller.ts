@@ -24,9 +24,7 @@ class TelemetryController {
         TelemetryService.handlePowerData(data);
 
         clients.forEach((client) => {
-          if (client.clientId === "webapp") {
-            client.ws.send(JSON.stringify(data));
-          }
+          this.handleWebAppConnection(ws, { data, clientId: client.clientId });
         });
       } catch (error) {
         console.error("[TELEMETRY] Error processing message:", error);

@@ -19,7 +19,7 @@ void setup() {
   analogReadResolution(10);
   SCT013.current(ADC_INPUT, 9.09); 
 
-  webSocket.beginSSL("agendazap.click", 443, "/telemetry");
+  webSocket.beginSSL("agendazap.click", 443, "/telemetry?token=esp32-iot-key");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(5000);
 }
