@@ -41,6 +41,8 @@ class TelemetryController {
     { data, clientId }: { data: unknown; clientId?: string }
   ): void {
     if (clientId === "webapp") {
+      console.log("🟢🟢🟢🟢 webAppSend");
+
       ws.send(JSON.stringify(data));
     }
   }
