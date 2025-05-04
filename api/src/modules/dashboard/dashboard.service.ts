@@ -63,7 +63,10 @@ class DashboardService {
     const energyConsumptionPrice =
       (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPrice;
     const taxesPrice = energyConsumptionPrice * tariff.kWhPriceTaxes;
-    const publicLighting = calculateCIP(currentMonthConsumption?.kWh ?? 0);
+    const publicLighting = calculateCIP(
+      currentMonthConsumption?.kWh ?? 0,
+      energyConsumptionPrice
+    );
 
     return {
       energyConsumptionPrice,

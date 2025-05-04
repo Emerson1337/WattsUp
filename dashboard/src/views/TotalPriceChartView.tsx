@@ -26,6 +26,7 @@ export default function TotalPriceChartView() {
 
   const taxValueInDecimal = monthlyReport?.taxesPrice ?? 0;
   const energyConsumption = monthlyReport?.energyConsumptionPrice ?? 0;
+  const publicLighting = monthlyReport?.publicLighting ?? 0;
 
   const totalPriceData = [
     {
@@ -40,7 +41,7 @@ export default function TotalPriceChartView() {
     },
     {
       name: "publicLighting",
-      value: tariff?.publicLightingPrice ?? 0,
+      value: publicLighting,
       fill: "var(--chart-3)",
     },
   ];

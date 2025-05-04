@@ -2,7 +2,7 @@ export const BRAZIL_TZ = "America/Sao_Paulo";
 
 export type TIMEZONES = typeof BRAZIL_TZ;
 
-export const calculateCIP = (kWh: number): number => {
+export const calculateCIP = (kWh: number, totalPrice: number): number => {
   // https://www.sefin.fortaleza.ce.gov.br/Canal/16/Generico/1201/Ler
   // These are the taxes for Fortaleza. If we want to make it dynamic, let's have a collection per city here.
   const tiers = [
@@ -23,5 +23,5 @@ export const calculateCIP = (kWh: number): number => {
   const tier = tiers.find((t) => kWh <= t.max);
   if (!tier) return 0;
 
-  return kWh * tier.percent;
+  return totalPrice * tier.percent;
 };
