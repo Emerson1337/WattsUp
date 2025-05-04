@@ -43,6 +43,10 @@ export function SectionCards() {
       ? currentMonthForecastWithTaxes / lastMonthConsumption - 1
       : 0;
 
+  const nextReadingDate = tariff?.effectiveReadingDay
+    ? format(new Date().setDate(tariff.effectiveReadingDay), "dd/MM")
+    : "";
+
   return (
     <div className="flex gap-4 lg:flex-row flex-col">
       <MetricCard
@@ -89,7 +93,7 @@ export function SectionCards() {
             : undefined
         }
         footerMain="Você irá pagar este valor no próximo mês."
-        footerSub="Este valor representa uma previsão de consumo. O valor pode variar de acordo com o modo de cobrança na fatura."
+        footerSub={`Este valor representa uma previsão de consumo. O valor pode variar de acordo com o modo de cobrança na fatura. Data prevista para a próxima leitura: ${nextReadingDate}`}
       />
     </div>
   );
