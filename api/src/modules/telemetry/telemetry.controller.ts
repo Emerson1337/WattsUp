@@ -22,10 +22,9 @@ class TelemetryController {
         if (!isTelemetryMessage(data)) return;
 
         TelemetryService.handlePowerData(data);
-        console.log("🟢🟢🟢🟢 clients", clients);
 
-        clients.forEach((client) => {
-          this.handleWebAppConnection(ws, { data, clientId: client.clientId });
+        clients.forEach(({ ws: clientWs, clientId }) => {
+          this.handleWebAppConnection(clientWs, { data, clientId: clientId });
         });
       } catch (error) {
         console.error("[TELEMETRY] Error processing message:", error);
@@ -42,8 +41,6 @@ class TelemetryController {
     { data, clientId }: { data: unknown; clientId?: string }
   ): void {
     if (clientId === "webapp") {
-      console.log("🟢🟢🟢🟢 webAppSend");
-
       ws.send(JSON.stringify(data));
     }
   }
