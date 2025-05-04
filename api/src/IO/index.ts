@@ -7,11 +7,11 @@ wssTelemetry.on("connection", (ws, req) => {
   const [token, clientId] =
     req.headers["sec-websocket-protocol"]?.split(", ") ?? [];
 
-  if (!token || !TelemetryService.handShake(token)) {
-    console.log("[TELEMETRY] Invalid token, closing connection. 🛰️");
-    ws.close(1008, "Invalid token");
-    return;
-  }
+  // if (!token || !TelemetryService.handShake(token)) {
+  //   console.log("[TELEMETRY] Invalid token, closing connection. 🛰️");
+  //   ws.close(1008, "Invalid token");
+  //   return;
+  // }
 
   clients.push({ ws, clientId });
 

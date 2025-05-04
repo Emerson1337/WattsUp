@@ -4,7 +4,6 @@ import TelemetryRepository from "@/modules/telemetry/telemetry.repository";
 const ONE_MINUTE_IN_SECONDS = 60;
 
 class TelemetryService {
-  private validPasskey = "esp32-iot-key";
   private energyReportPacketPerMinute: TelemetryMessage[] = [];
 
   healthCheck = async () => {
@@ -37,7 +36,7 @@ class TelemetryService {
   };
 
   handShake = (token: string) => {
-    return this.validPasskey === token;
+    return true;
   };
 }
 

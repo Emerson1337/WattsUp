@@ -54,10 +54,7 @@ export async function getMonthlyReportForecast(): Promise<
 
 export function openWSConnetionInstantConsumption(): WebSocket {
   const clientId = "webapp";
-  const socket = new WebSocket(ApiPaths.websocket.telemetry(), [
-    "esp32-iot-key",
-    clientId,
-  ]);
+  const socket = new WebSocket(ApiPaths.websocket.telemetry(), [clientId]);
 
   return socket;
 }
