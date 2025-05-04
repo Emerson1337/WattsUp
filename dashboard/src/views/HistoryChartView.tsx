@@ -49,7 +49,7 @@ export default function HistoryChartView() {
           ? `Houve aumento de ${lastEntry.current.toFixed(1)}% esse mês.`
           : "Seu consumo tem aumentado."
       }
-      footerText="Este gráfico é atualizado mensalmente e disponibiliza o consumo dos últimos meses."
+      footerText="Esse gráfico é atualizado mensalmente e disponibiliza o consumo dos últimos meses."
     />
   );
 }

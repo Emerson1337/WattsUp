@@ -73,7 +73,7 @@ export function SectionCards() {
         }
         footerSub={
           monthlyReport?.currentMonthPeak.date
-            ? `Este valor foi registrado no dia ${format(
+            ? `Esse valor foi registrado no dia ${format(
                 monthlyReport?.currentMonthPeak.date,
                 "dd/MM/yyyy"
               )}.`
@@ -92,8 +92,8 @@ export function SectionCards() {
             ? `${(consumptionForecastGrowth * 100).toFixed(2)}%`
             : undefined
         }
-        footerMain="Você irá pagar este valor no próximo mês."
-        footerSub={`Este valor representa uma previsão de consumo. O valor pode variar de acordo com o modo de cobrança na fatura. Data prevista para a próxima leitura: ${nextReadingDate}`}
+        footerMain="Você irá pagar esse valor no próximo mês."
+        footerSub={`Esse valor representa uma previsão de consumo. O valor pode variar de acordo com o modo de cobrança na fatura. Data prevista para a próxima leitura: ${nextReadingDate}`}
       />
     </div>
   );
