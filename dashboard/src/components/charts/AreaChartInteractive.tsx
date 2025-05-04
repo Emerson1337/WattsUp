@@ -60,7 +60,7 @@ export function AreaChartInteractive({
   return (
     <Card>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b pb-5 sm:flex-row">
-        <div className="grid flex-1 gap-1 text-center sm:text-left">
+        <div className="grid flex-1 gap-1 sm:text-left">
           {liveBadge && <LiveBadge />}
           <CardTitle className="flex gap-4 mt-2">{title}</CardTitle>
           <CardDescription>{description}</CardDescription>

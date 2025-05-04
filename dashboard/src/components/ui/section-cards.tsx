@@ -50,7 +50,7 @@ export function SectionCards() {
         title="Preço do kWh"
         value={kWhPriceInBRL}
         footerMain="Tarifa convencional"
-        footerSub={`Esse valor é utilizado para calcular os gastos em reais de energia. ${tariff?.description}`}
+        footerSub="Esse valor é utilizado para calcular os gastos em reais de energia. Esse valor pode variar de acordo com a bandeira tarifária."
       />
       <MetricCard
         isLoading={monthlyReportIsLoading}
