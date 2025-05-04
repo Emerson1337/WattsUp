@@ -7,6 +7,7 @@ import {
   MonthsHistory,
   PerMinuteHistory,
   LastDayHourlyHistory,
+  LastMonthDailyHistory,
 } from "@/services/types";
 import { useEffect } from "react";
 import { openWSConnetionInstantConsumption } from "@/services/api";
@@ -17,6 +18,7 @@ import {
   fetchMonthlyReportForecast,
   fetchLastHourPerMinute,
   fetchLastDayHourly,
+  fetchLastMonthDaily,
 } from "@/services/facade";
 import React, {
   createContext,
@@ -40,6 +42,8 @@ interface State {
   lastHourPerMinuteConsumptionIsLoading: boolean;
   lastDayHourlyConsumption: LastDayHourlyHistory[] | undefined;
   lastDayHourlyConsumptionIsLoading: boolean;
+  lastMonthDailyConsumption: LastMonthDailyHistory[] | undefined;
+  lastMonthDailyConsumptionIsLoading: boolean;
 }
 
 type Action =
@@ -61,7 +65,12 @@ type Action =
       type: "SET_LAST_DAY_HOURLY_CONSUMPTION";
       payload?: LastDayHourlyHistory[];
     }
-  | { type: "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING"; payload: boolean };
+  | { type: "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING"; payload: boolean }
+  | {
+      type: "SET_LAST_MONTH_DAILY_CONSUMPTION";
+      payload?: LastMonthDailyHistory[];
+    }
+  | { type: "SET_LAST_MONTH_DAILY_CONSUMPTION_LOADING"; payload: boolean };
 
 // Initial state
 const initialState: State = {
@@ -78,6 +87,8 @@ const initialState: State = {
   lastHourPerMinuteConsumptionIsLoading: true,
   lastDayHourlyConsumption: undefined,
   lastDayHourlyConsumptionIsLoading: true,
+  lastMonthDailyConsumption: undefined,
+  lastMonthDailyConsumptionIsLoading: true,
 };
 
 const dataLayerReducer = (state: State, action: Action): State => {
@@ -113,6 +124,13 @@ const dataLayerReducer = (state: State, action: Action): State => {
       return {
         ...state,
         lastDayHourlyConsumptionIsLoading: action.payload,
+      };
+    case "SET_LAST_MONTH_DAILY_CONSUMPTION":
+      return { ...state, lastMonthDailyConsumption: action.payload };
+    case "SET_LAST_MONTH_DAILY_CONSUMPTION_LOADING":
+      return {
+        ...state,
+        lastMonthDailyConsumptionIsLoading: action.payload,
       };
     default:
       const _exhaustiveCheck: never = action;
@@ -229,6 +247,24 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
+    const fetchLastMonthDailyData = async () => {
+      try {
+        const data = await fetchLastMonthDaily();
+
+        dispatch({
+          type: "SET_LAST_MONTH_DAILY_CONSUMPTION",
+          payload: data?.history,
+        });
+      } catch (error) {
+        console.error("Erro ao consultar consumo na última hora:", error);
+      } finally {
+        dispatch({
+          type: "SET_LAST_MONTH_DAILY_CONSUMPTION_LOADING",
+          payload: false,
+        });
+      }
+    };
+
     fetchTariffData();
     fetchDataMonthlyReportData();
     fetchMonthlyReportForecastData();
@@ -236,6 +272,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
     fetchLastSixMonthsConsumptionData();
     fetchLastHourPerMinuteData();
     fetchLastDayHourlyData();
+    fetchLastMonthDailyData();
   }, []);
 
   return (

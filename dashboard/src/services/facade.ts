@@ -5,6 +5,7 @@ import {
   getLastSixMonthsReport,
   getLastHourPerMinute,
   getLastDayHourly,
+  getLastMonthDaily,
 } from "@/services/api";
 
 export async function fetchTariff() {
@@ -29,4 +30,8 @@ export async function fetchLastHourPerMinute() {
 
 export async function fetchLastDayHourly() {
   return await getLastDayHourly();
+}
+
+export async function fetchLastMonthDaily() {
+  return await getLastMonthDaily();
 }

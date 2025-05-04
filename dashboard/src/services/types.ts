@@ -75,3 +75,12 @@ export interface LastDayHourlyHistory {
   hour: Date;
   KWh: number;
 }
+
+export interface LastMonthHistory {
+  history: LastMonthDailyHistory[];
+}
+
+export interface LastMonthDailyHistory {
+  day: Date;
+  KWh: number;
+}

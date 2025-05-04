@@ -7,6 +7,7 @@ import LastHourChartView from "@/views/LastHourChartView";
 import TotalPriceChartView from "@/views/TotalPriceChartView";
 import { DataLayerProvider } from "@/components/context/DataLayerContext";
 import LastDayChartView from "@/views/LastDayChartView";
+import LastMonthChartView from "@/views/LastMonthChartView";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
             <LastHourChartView />
           </div>
           <LastDayChartView />
+          <LastMonthChartView />
         </DataLayerProvider>
       </Container>
     </main>

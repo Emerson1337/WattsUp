@@ -7,6 +7,7 @@ import {
   LastSixMonthsHistory,
   LastHourHistory,
   LastDayHistory,
+  LastMonthHistory,
 } from "@/services/types";
 
 export async function getTariff(): Promise<Tariff | undefined> {
@@ -116,6 +117,22 @@ export async function getLastHourPerMinute(): Promise<
 export async function getLastDayHourly(): Promise<LastDayHistory | undefined> {
   try {
     const res = await fetch("/api/consumption-hourly-history");
+
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+    return await res.json();
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "An unknown error occurred."
+    );
+  }
+}
+
+export async function getLastMonthDaily(): Promise<
+  LastMonthHistory | undefined
+> {
+  try {
+    const res = await fetch("/api/consumption-month-history");
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
