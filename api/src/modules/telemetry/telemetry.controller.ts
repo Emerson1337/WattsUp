@@ -22,6 +22,7 @@ class TelemetryController {
         if (!isTelemetryMessage(data)) return;
 
         TelemetryService.handlePowerData(data);
+        console.log("🟢🟢🟢🟢 clients", clients);
 
         clients.forEach((client) => {
           this.handleWebAppConnection(ws, { data, clientId: client.clientId });
