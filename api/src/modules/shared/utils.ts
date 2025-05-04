@@ -4,7 +4,7 @@ export type TIMEZONES = typeof BRAZIL_TZ;
 
 export const calculateCIP = (kWh: number): number => {
   // https://www.sefin.fortaleza.ce.gov.br/Canal/16/Generico/1201/Ler
-  // This is the taxes for Fortaleza. If we want to make it dynamic, let's have a collection per city here.
+  // These are the taxes for Fortaleza. If we want to make it dynamic, let's have a collection per city here.
   const tiers = [
     { max: 30, percent: 0.0072 },
     { max: 100, percent: 0.0107 },
