@@ -12,7 +12,7 @@ const chartConfig: ChartConfig = {
   },
 };
 
-export default function LastHourChart() {
+export default function LastHourChartView() {
   const { state } = useDataLayer();
   const {
     lastHourPerMinuteConsumption,
@@ -22,7 +22,7 @@ export default function LastHourChart() {
   const lastHourData =
     lastHourPerMinuteConsumption?.map((item) => ({
       date: format(item.minute, "HH:mm"),
-      consumption: item.KWh,
+      consumption: item.KW,
     })) ?? [];
 
   return (

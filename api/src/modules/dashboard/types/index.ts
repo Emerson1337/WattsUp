@@ -35,6 +35,13 @@ export interface LastSemesterHistoryResponse {
 export interface LastHourHistoryResponse {
   history: {
     minute: Date;
+    KW: number;
+  }[];
+}
+
+export interface LastDayHistoryResponse {
+  history: {
+    hour: Date;
     KWh: number;
   }[];
 }

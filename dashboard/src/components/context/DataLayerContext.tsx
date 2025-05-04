@@ -6,6 +6,7 @@ import {
   MonthlyReportForecast,
   MonthsHistory,
   PerMinuteHistory,
+  LastDayHourlyHistory,
 } from "@/services/types";
 import { useEffect } from "react";
 import { openWSConnetionInstantConsumption } from "@/services/api";
@@ -15,6 +16,7 @@ import {
   fetchLastSixMonthsReport,
   fetchMonthlyReportForecast,
   fetchLastHourPerMinute,
+  fetchLastDayHourly,
 } from "@/services/facade";
 import React, {
   createContext,
@@ -36,6 +38,8 @@ interface State {
   lastSixMonthsConsumptionIsLoading: boolean;
   lastHourPerMinuteConsumption: PerMinuteHistory[] | undefined;
   lastHourPerMinuteConsumptionIsLoading: boolean;
+  lastDayHourlyConsumption: LastDayHourlyHistory[] | undefined;
+  lastDayHourlyConsumptionIsLoading: boolean;
 }
 
 type Action =
@@ -52,7 +56,12 @@ type Action =
       type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION";
       payload?: PerMinuteHistory[];
     }
-  | { type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING"; payload: boolean };
+  | { type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING"; payload: boolean }
+  | {
+      type: "SET_LAST_DAY_HOURLY_CONSUMPTION";
+      payload?: LastDayHourlyHistory[];
+    }
+  | { type: "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING"; payload: boolean };
 
 // Initial state
 const initialState: State = {
@@ -67,6 +76,8 @@ const initialState: State = {
   lastSixMonthsConsumptionIsLoading: true,
   lastHourPerMinuteConsumption: undefined,
   lastHourPerMinuteConsumptionIsLoading: true,
+  lastDayHourlyConsumption: undefined,
+  lastDayHourlyConsumptionIsLoading: true,
 };
 
 const dataLayerReducer = (state: State, action: Action): State => {
@@ -96,6 +107,13 @@ const dataLayerReducer = (state: State, action: Action): State => {
         ...state,
         lastHourPerMinuteConsumptionIsLoading: action.payload,
       };
+    case "SET_LAST_DAY_HOURLY_CONSUMPTION":
+      return { ...state, lastDayHourlyConsumption: action.payload };
+    case "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING":
+      return {
+        ...state,
+        lastDayHourlyConsumptionIsLoading: action.payload,
+      };
     default:
       const _exhaustiveCheck: never = action;
       throw new Error(`Unhandled action type: ${_exhaustiveCheck}`);
@@ -116,7 +134,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
         const data = await fetchTariff();
         dispatch({ type: "SET_TARIFF", payload: data });
       } catch (error) {
-        console.error("Error fetching tariff data:", error);
+        console.error("Erro ao consultar tarifa:", error);
       } finally {
         dispatch({ type: "SET_TARIFF_LOADING", payload: false });
       }
@@ -127,7 +145,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
         const data = await fetchMonthlyReport();
         dispatch({ type: "SET_MONTHLY_REPORT", payload: data });
       } catch (error) {
-        console.error("Error fetching monthly report:", error);
+        console.error("Erro ao consultar relatório mensal:", error);
       } finally {
         dispatch({ type: "SET_MONTHLY_REPORT_LOADING", payload: false });
       }
@@ -138,7 +156,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
         const data = await fetchMonthlyReportForecast();
         dispatch({ type: "SET_MONTHLY_REPORT_FORECAST", payload: data });
       } catch (error) {
-        console.error("Error fetching monthly report forecast:", error);
+        console.error("Erro ao consultar previsão de consumo:", error);
       } finally {
         dispatch({
           type: "SET_MONTHLY_REPORT_FORECAST_LOADING",
@@ -156,7 +174,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
           payload: socket,
         });
       } catch (error) {
-        console.error("Error opening socket connection:", error);
+        console.error("Erro ao abrir conexão em tempo real:", error);
       }
     };
 
@@ -168,7 +186,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
           payload: data?.history,
         });
       } catch (error) {
-        console.error("Error fetching last six months consumption:", error);
+        console.error("Erro ao consultar histórico do último semestre:", error);
       } finally {
         dispatch({
           type: "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING",
@@ -185,10 +203,27 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
           payload: data?.history,
         });
       } catch (error) {
-        console.error("Error fetching last hour consumption:", error);
+        console.error("Erro ao consultar consumo na última hora:", error);
       } finally {
         dispatch({
           type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING",
+          payload: false,
+        });
+      }
+    };
+
+    const fetchLastDayHourlyData = async () => {
+      try {
+        const data = await fetchLastDayHourly();
+        dispatch({
+          type: "SET_LAST_DAY_HOURLY_CONSUMPTION",
+          payload: data?.history,
+        });
+      } catch (error) {
+        console.error("Erro ao consultar consumo na última hora:", error);
+      } finally {
+        dispatch({
+          type: "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING",
           payload: false,
         });
       }
@@ -200,6 +235,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
     fetchInstantConsumptionData();
     fetchLastSixMonthsConsumptionData();
     fetchLastHourPerMinuteData();
+    fetchLastDayHourlyData();
   }, []);
 
   return (

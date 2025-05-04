@@ -64,5 +64,14 @@ export interface LastHourHistory {
 
 export interface PerMinuteHistory {
   minute: Date;
+  KW: number;
+}
+
+export interface LastDayHistory {
+  history: LastDayHourlyHistory[];
+}
+
+export interface LastDayHourlyHistory {
+  hour: Date;
   KWh: number;
 }

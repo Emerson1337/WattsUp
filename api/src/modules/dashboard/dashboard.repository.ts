@@ -4,9 +4,9 @@ import {
   MonthlyReport as PrismaMonthlyReport,
   DailyReport as PrismaDailyReport,
   PerMinuteReport as PrismaPerMinuteReport,
+  HourlyReport as PrismaHourlyReport,
 } from "@prisma/client";
 import {
-  startOfMonth,
   startOfHour,
   startOfDay,
   subDays,
@@ -189,6 +189,19 @@ class DashboardRepository {
         createdAt: {
           lte: this.nowDateInTZ(),
           gte: lastHour,
+        },
+      },
+    });
+  };
+
+  getLastDayHistoryHourly = async (): Promise<PrismaHourlyReport[] | null> => {
+    const lastDay = subDays(this.nowDateInTZ(), 1);
+
+    return await prisma.hourlyReport.findMany({
+      where: {
+        createdAt: {
+          lte: this.nowDateInTZ(),
+          gte: lastDay,
         },
       },
     });

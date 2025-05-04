@@ -24,6 +24,10 @@ apiRouter.get(
   "/consumption/last-hour/history",
   DashboardController.getLastHourHistory
 );
+apiRouter.get(
+  "/consumption/last-day/history",
+  DashboardController.getLastDayHistory
+);
 
 router.use("/api", apiRouter);
 export default router;

@@ -1,12 +1,13 @@
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
 import { LastSemesterHistoryResponse } from "@/modules/dashboard/types/index";
-import { LastHourHistoryResponse } from "./types/index";
-import { calculateCIP } from "../shared/utils";
+import { calculateCIP } from "@/modules/shared/utils";
 import {
   MonthlyForecastResponse,
   MonthlyConsumptionResponse,
-} from "@/modules/dashboard/types/index";
+  LastHourHistoryResponse,
+  LastDayHistoryResponse,
+} from "@/modules/dashboard/types";
 import {
   addDays,
   addMonths,
@@ -203,7 +204,23 @@ class DashboardService {
 
     const history = lastHourPerMinuteConsumption.map((consumption) => ({
       minute: consumption.createdAt,
-      KWh: consumption.kW,
+      KW: consumption.kW,
+    }));
+
+    return {
+      history,
+    };
+  };
+
+  getLastDayHistory = async (): Promise<LastDayHistoryResponse | undefined> => {
+    const lastDayHourlyConsumption =
+      await DashboardRepository.getLastDayHistoryHourly();
+
+    if (!lastDayHourlyConsumption) throw new Error("Consumo não encontrado.");
+
+    const history = lastDayHourlyConsumption.map((consumption) => ({
+      hour: consumption.createdAt,
+      KWh: consumption.kWh,
     }));
 
     return {

@@ -3,9 +3,10 @@ import { Container } from "@/components/ui/container";
 import InstantConsumptionChartView from "@/views/InstantConsumptionChartView";
 import MonthlyConsumptionChartView from "@/views/MonthlyConsumptionChartView";
 import HistoryChartView from "@/views/HistoryChartView";
-import LastHourChart from "@/views/LastHourChart";
+import LastHourChartView from "@/views/LastHourChartView";
 import TotalPriceChartView from "@/views/TotalPriceChartView";
 import { DataLayerProvider } from "@/components/context/DataLayerContext";
+import LastDayChartView from "@/views/LastDayChartView";
 
 export default function Home() {
   return (
@@ -20,8 +21,9 @@ export default function Home() {
           <InstantConsumptionChartView />
           <div className="flex gap-4 lg:flex-row flex-col *:flex-1">
             <HistoryChartView />
-            <LastHourChart />
+            <LastHourChartView />
           </div>
+          <LastDayChartView />
         </DataLayerProvider>
       </Container>
     </main>

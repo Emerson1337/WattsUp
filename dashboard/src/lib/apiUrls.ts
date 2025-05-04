@@ -14,6 +14,7 @@ export const ApiPaths = {
   history: {
     lastSixMonths: (): string => `${API_URL}/api/consumption/monthly/history`,
     lastHour: (): string => `${API_URL}/api/consumption/last-hour/history`,
+    lastDay: (): string => `${API_URL}/api/consumption/last-day/history`,
   },
   websocket: {
     telemetry: (): string => `${WS_URL}/telemetry?token=esp32-iot-key`,
