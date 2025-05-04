@@ -45,3 +45,10 @@ export interface LastDayHistoryResponse {
     KWh: number;
   }[];
 }
+
+export interface LastMonthHistoryResponse {
+  history: {
+    day: Date;
+    KWh: number;
+  }[];
+}

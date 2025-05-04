@@ -206,6 +206,19 @@ class DashboardRepository {
       },
     });
   };
+
+  getLastMonthDaily = async (): Promise<PrismaDailyReport[] | null> => {
+    const lastDay = subMonths(this.nowDateInTZ(), 1);
+
+    return await prisma.dailyReport.findMany({
+      where: {
+        createdAt: {
+          lte: this.nowDateInTZ(),
+          gte: lastDay,
+        },
+      },
+    });
+  };
 }
 
 export default new DashboardRepository();

@@ -29,7 +29,7 @@ export default function LastDayChartView() {
       description="Consumo nas últimas 24h"
       data={lastHourData}
       dateKey="date"
-      unit="kW"
+      unit="kWh"
       chartConfig={chartConfig}
       initialActiveChart="consumption"
       totalLabel="Consumo total"

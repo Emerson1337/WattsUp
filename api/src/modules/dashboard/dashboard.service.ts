@@ -7,6 +7,7 @@ import {
   MonthlyConsumptionResponse,
   LastHourHistoryResponse,
   LastDayHistoryResponse,
+  LastMonthHistoryResponse,
 } from "@/modules/dashboard/types";
 import {
   addDays,
@@ -220,6 +221,24 @@ class DashboardService {
 
     const history = lastDayHourlyConsumption.map((consumption) => ({
       hour: consumption.createdAt,
+      KWh: consumption.kWh,
+    }));
+
+    return {
+      history,
+    };
+  };
+
+  getLastMonthHistory = async (): Promise<
+    LastMonthHistoryResponse | undefined
+  > => {
+    const lastMonthDailyConsumption =
+      await DashboardRepository.getLastMonthDaily();
+
+    if (!lastMonthDailyConsumption) throw new Error("Consumo não encontrado.");
+
+    const history = lastMonthDailyConsumption.map((consumption) => ({
+      day: consumption.createdAt,
       KWh: consumption.kWh,
     }));
 
