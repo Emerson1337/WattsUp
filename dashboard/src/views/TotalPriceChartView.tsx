@@ -14,7 +14,7 @@ const chartConfig: ChartConfig = {
     color: "var(--chart-2)",
   },
   publicLighting: {
-    label: "Iluminação pública",
+    label: "Iluminação pública (CIP)",
     color: "var(--chart-3)",
   },
 };

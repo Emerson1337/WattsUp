@@ -71,62 +71,79 @@ export function DonutChart({
             <Spinner size={40} />
           </div>
         ) : (
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[350px]"
-          >
-            <PieChart>
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    prefix={tooltipPrefix}
-                    label={tooltipLabel}
-                    hideLabel={!tooltipLabel}
-                  />
-                }
-              />
-              <Pie
-                data={data}
-                dataKey={dataKey}
-                nameKey={nameKey}
-                innerRadius={110}
-                strokeWidth={8}
-              >
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          <tspan
+          <>
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square max-h-[350px]"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      prefix={tooltipPrefix}
+                      label={tooltipLabel}
+                      hideLabel={!tooltipLabel}
+                    />
+                  }
+                />
+                <Pie
+                  data={data}
+                  dataKey={dataKey}
+                  nameKey={nameKey}
+                  innerRadius={110}
+                  strokeWidth={8}
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
                             x={viewBox.cx}
                             y={viewBox.cy}
-                            className="fill-foreground text-3xl font-bold"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
                           >
-                            {unit && ` ${unit} `}
-                            {convertToBRDecimal(total)}
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground text-sm"
-                          >
-                            Total
-                          </tspan>
-                        </text>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </Pie>
-            </PieChart>
-          </ChartContainer>
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {unit && ` ${unit} `}
+                              {convertToBRDecimal(total)}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground text-sm"
+                            >
+                              Total
+                            </tspan>
+                          </text>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+            <div className="flex -mt-5 flex-wrap justify-center gap-4">
+              {data.map((entry, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div
+                    className="w-4 h-4 rounded"
+                    style={{
+                      backgroundColor: entry.fill,
+                    }}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {chartConfig[entry.name].label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </CardContent>
       {isLoading ? (
