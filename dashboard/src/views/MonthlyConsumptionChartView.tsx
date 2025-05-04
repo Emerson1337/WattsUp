@@ -41,7 +41,7 @@ export default function MonthlyConsumptionChartView() {
     <RadialChartText
       isLoading={monthlyReportIsLoading || monthlyReportForecastIsLoading}
       title="Consumo mensal"
-      periodDescription="Consumo nos últimos 30 dias"
+      periodDescription="Consumo no mês atual"
       data={radialData}
       total={currentEnergyConsumptionForecastInKWh}
       unit="kWh"
@@ -54,9 +54,9 @@ export default function MonthlyConsumptionChartView() {
             )}% esse mês."`
           : `Observe o quão perto o seu consumo está do previsto.`
       }
-      footerDescription={`Total de consumo nos últimos 30 dias. Previsão de consumo: ${monthlyReportForecast?.currentMonthForecastInKWh.toFixed(
+      footerDescription={`Esse é o consumo total no mês atual. A sua previsão de consumo é de ${monthlyReportForecast?.currentMonthForecastInKWh.toFixed(
         2
-      )} kWh.`}
+      )} kWh até o fim desse mês.`}
     />
   );
 }

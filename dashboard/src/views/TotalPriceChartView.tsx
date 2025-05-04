@@ -54,7 +54,7 @@ export default function TotalPriceChartView() {
       unit="R$"
       tooltipPrefix="R$"
       chartConfig={chartConfig}
-      footerText={`Total de consumo nos últimos 30 dias. A data de leitura do seu medidor é o dia ${tariff?.effectiveReadingDay} de cada mês. ${tariff?.description}`}
+      footerText={`Total de consumo no mês atual. A data de leitura do seu medidor é o dia ${tariff?.effectiveReadingDay} de cada mês. ${tariff?.description}`}
     />
   );
 }
