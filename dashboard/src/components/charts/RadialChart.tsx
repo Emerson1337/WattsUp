@@ -130,18 +130,25 @@ export function RadialChartText<T extends string>({
           </ChartContainer>
         )}
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        {trendText && (
-          <div className="flex items-center gap-2 font-medium leading-lg">
-            {trendText} {trendIcon && <TrendingUp className="h-4 w-4" />}
-          </div>
-        )}
-        {footerDescription && (
-          <div className="leading-lg text-muted-foreground">
-            {footerDescription}
-          </div>
-        )}
-      </CardFooter>
+      {isLoading ? (
+        <div className="animate-pulse mx-6 space-y-2 w-full">
+          <div className="h-4 bg-muted-foreground rounded w-1/2" />
+          <div className="h-9 bg-muted-foreground rounded w-3/4" />
+        </div>
+      ) : (
+        <CardFooter className="flex-col gap-2 text-sm">
+          {trendText && (
+            <div className="flex items-center gap-2 font-medium leading-lg">
+              {trendText} {trendIcon && <TrendingUp className="h-4 w-4" />}
+            </div>
+          )}
+          {footerDescription && (
+            <div className="leading-lg text-muted-foreground">
+              {footerDescription}
+            </div>
+          )}
+        </CardFooter>
+      )}
     </Card>
   );
 }

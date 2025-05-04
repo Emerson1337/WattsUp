@@ -129,16 +129,23 @@ export function DonutChart({
           </ChartContainer>
         )}
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        {trendText && (
-          <div className="flex items-center gap-2 font-medium leading-lg">
-            {trendText} {trendIcon}
-          </div>
-        )}
-        {footerText && (
-          <div className="leading-lg text-muted-foreground">{footerText}</div>
-        )}
-      </CardFooter>
+      {isLoading ? (
+        <div className="animate-pulse mx-6 space-y-2 w-full">
+          <div className="h-4 bg-muted-foreground rounded w-1/2" />
+          <div className="h-9 bg-muted-foreground rounded w-3/4" />
+        </div>
+      ) : (
+        <CardFooter className="flex-col gap-2 text-sm">
+          {trendText && (
+            <div className="flex items-center gap-2 font-medium leading-lg">
+              {trendText} {trendIcon}
+            </div>
+          )}
+          {footerText && (
+            <div className="leading-lg text-muted-foreground">{footerText}</div>
+          )}
+        </CardFooter>
+      )}
     </Card>
   );
 }
