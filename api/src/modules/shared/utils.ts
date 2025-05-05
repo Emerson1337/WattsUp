@@ -1,3 +1,5 @@
+import {getMonth} from "date-fns";
+
 export const BRAZIL_TZ = "America/Sao_Paulo";
 
 export type TIMEZONES = typeof BRAZIL_TZ;
@@ -25,3 +27,7 @@ export const calculateCIP = (kWh: number, totalPrice: number): number => {
 
   return totalPrice * tier.percent;
 };
+
+export function isSameMonthNoYear(date1: Date, date2: Date) {
+  return getMonth(date1) === getMonth(date2);
+}

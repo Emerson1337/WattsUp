@@ -13,6 +13,7 @@ import {
   subYears,
   subHours,
   subMonths,
+  addMonths,
 } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { BRAZIL_TZ } from "@/modules/shared/utils";
@@ -149,7 +150,7 @@ class DashboardRepository {
     const startOfCurrentMonth =
       this.getStartOfTheMonthInTZ(startMonthReadingDay);
     const lastSixMonths = subMonths(startOfCurrentMonth, 6);
-
+    
     return await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
@@ -166,8 +167,9 @@ class DashboardRepository {
     const startOfCurrentMonth =
       this.getStartOfTheMonthInTZ(startMonthReadingDay);
 
-    const currentMonthDateInPastYear = subYears(startOfCurrentMonth, 1);
+    const currentMonthDateInPastYear = addMonths(subYears(startOfCurrentMonth, 1),1);
     const lastSixMonthsInPastYear = subMonths(currentMonthDateInPastYear, 6);
+    
 
     return await prisma.monthlyReport.findMany({
       where: {

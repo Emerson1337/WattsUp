@@ -2,6 +2,7 @@ import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
 import { LastSemesterHistoryResponse } from "@/modules/dashboard/types/index";
 import { calculateCIP } from "@/modules/shared/utils";
+import { isSameMonthNoYear } from "../shared/utils";
 import {
   MonthlyForecastResponse,
   MonthlyConsumptionResponse,
@@ -181,7 +182,7 @@ class DashboardService {
 
     last6MonthsConsumptionFromPastYear?.forEach((pastYearConsumption) => {
       const indexForInsertion = history.findIndex((item) =>
-        isSameMonth(item.month, pastYearConsumption.createdAt)
+        isSameMonthNoYear(item.month, pastYearConsumption.createdAt)
       );
 
       if (indexForInsertion === -1) return;
