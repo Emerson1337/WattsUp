@@ -130,9 +130,9 @@ class DashboardRepository {
     });
   };
 
-  getLast7DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
+  getLast15DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
     const startOfDayInBrazil = startOfDay(this.nowDateInTZ());
-    const sevenDaysBeforeInBrazil = subDays(startOfDayInBrazil, 7);
+    const sevenDaysBeforeInBrazil = subDays(startOfDayInBrazil, 15);
 
     return await prisma.dailyReport.findMany({
       where: {
@@ -150,7 +150,7 @@ class DashboardRepository {
     const startOfCurrentMonth =
       this.getStartOfTheMonthInTZ(startMonthReadingDay);
     const lastSixMonths = subMonths(startOfCurrentMonth, 6);
-    
+
     return await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
@@ -167,9 +167,11 @@ class DashboardRepository {
     const startOfCurrentMonth =
       this.getStartOfTheMonthInTZ(startMonthReadingDay);
 
-    const currentMonthDateInPastYear = addMonths(subYears(startOfCurrentMonth, 1),1);
+    const currentMonthDateInPastYear = addMonths(
+      subYears(startOfCurrentMonth, 1),
+      1
+    );
     const lastSixMonthsInPastYear = subMonths(currentMonthDateInPastYear, 6);
-    
 
     return await prisma.monthlyReport.findMany({
       where: {

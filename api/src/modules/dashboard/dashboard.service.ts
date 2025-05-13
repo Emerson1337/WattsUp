@@ -100,10 +100,10 @@ class DashboardService {
 
     const currentDate = new Date();
 
-    const last7DaysConsumption =
-      await DashboardRepository.getLast7DaysConsumption();
+    const last15DaysConsumption =
+      await DashboardRepository.getLast15DaysConsumption();
 
-    if (!last7DaysConsumption) {
+    if (!last15DaysConsumption) {
       throw new Error("Consumo diário não encontrado.");
     }
 
@@ -113,8 +113,8 @@ class DashboardService {
       );
 
     const consumptionAverageLast7Days =
-      last7DaysConsumption.reduce((acc, day) => acc + day.kWh, 0) /
-      last7DaysConsumption.length;
+      last15DaysConsumption.reduce((acc, day) => acc + day.kWh, 0) /
+      last15DaysConsumption.length;
 
     const nextReadingDate = isSameMonth(tariff.lastReading, currentDate)
       ? addDays(
