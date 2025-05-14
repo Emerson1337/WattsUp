@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: IoT Energy Monitoring API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /:
+    get:
+      summary: Health Check
+      responses:
+        "200":
+          description: API is healthy
+
+  /tariff:
+    get:
+      summary: Tariff
+      responses:
+        "200":
+          description: Tariff info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "681190bf9b6ec8400753d414"
+                  kWhPrice:
+                    type: number
+                    format: float
+                    example: 0.722
+                  kWhPriceTaxes:
+                    type: number
+                    format: float
+                    example: 0.2
+                  publicLightingPrice:
+                    type: number
+                    format: float
+                    example: 11.28
+                  description:
+                    type: string
+                    example: "Tarifa de energia elétrica convencional e impostos (TSDU + TE)"
+                  state:
+                    type: string
+                    example: "Ceará"
+                  lastReading:
+                    type: string
+                    format: date-time
+                    example: "2025-04-20T00:00:00.000Z"
+                  effectiveReadingDay:
+                    type: integer
+                    example: 20
+                  effectiveMonth:
+                    type: string
+                    format: date-time
+                    example: "2025-04-30T02:53:50.765Z"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2025-04-30T02:53:50.765Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2025-04-30T02:53:50.765Z"
+
+  /consumption/monthly:
+    get:
+      summary: Monthly Report
+      responses:
+        "200":
+          description: Monthly energy consumption
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  energyConsumptionPrice:
+                    type: number
+                    format: float
+                    example: 59.87560921333334
+                  energyConsumptionInKWh:
+                    type: number
+                    format: float
+                    example: 82.93020666666668
+                  taxesPrice:
+                    type: number
+                    format: float
+                    example: 11.975121842666669
+                  publicLighting:
+                    type: number
+                    format: float
+                    example: 0.6406690185826667
+                  currentMonthPeak:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                        format: date-time
+                        example: "2025-04-26T03:00:00.000Z"
+                      currentMonthPeakKWh:
+                        type: number
+                        format: float
+                        example: 14.6829675
+                      currentMonthPeakKWhPrice:
+                        type: number
+                        format: float
+                        example: 10.601102534999999
+                  lastMonthPeak:
+                    type: object
+                    properties:
+                      lastMonthPeakKWh:
+                        type: number
+                        format: float
+                        example: 0
+                      lastMonthPeakKWhPrice:
+                        type: number
+                        format: float
+                        example: 0
+
+  /consumption/monthly/forecast:
+    get:
+      summary: Monthly Forecast
+      responses:
+        "200":
+          description: Estimated usage and cost forecast
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentMonthForecastInKWh:
+                    type: number
+                    format: float
+                    example: 269.2561036805555
+                  currentMonthForecast:
+                    type: number
+                    format: float
+                    example: 194.40290685736107
+                  currentMonthForecastWithTaxes:
+                    type: number
+                    format: float
+                    example: 233.28348822883328
+                  pastMonthConsumptionInKWh:
+                    type: number
+                    format: float
+                    example: 0
+                  pastMonthConsumption:
+                    type: number
+                    format: float
+                    example: 0
+                  pastMonthConsumptionWithTaxes:
+                    type: number
+                    format: float
+                    example: 0
+
+  /consumption/monthly/history:
+    get:
+      summary: Last 6 Month Report with Year Comparison
+      responses:
+        "200":
+          description: History with previous year comparison
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        month:
+                          type: string
+                          format: date-time
+                          example: "2025-04-24T03:00:00.000Z"
+                        currentKWh:
+                          type: number
+                          format: float
+                          example: 92.44745805555556
+                        pastYearKWh:
+                          type: number
+                          format: float
+                          example: 0.2
+
+  /consumption/last-hour/history:
+    get:
+      summary: Last Hour History
+      responses:
+        "200":
+          description: Energy usage for last hour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        minute:
+                          type: string
+                          format: date-time
+                          example: "2025-05-04T16:47:00.000Z"
+                        KW:
+                          type: number
+                          format: float
+                          example: 0.22695
+
+  /consumption/last-day/history:
+    get:
+      summary: Last Day History
+      responses:
+        "200":
+          description: Energy usage for last 24h
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        day:
+                          type: string
+                          format: date-time
+                          example: "2025-04-24T03:00:00.000Z"
+                        KWh:
+                          type: number
+                          format: float
+                          example: 5.886455833333333
+
+  /consumption/last-month/history:
+    get:
+      summary: Last Month Daily History
+      responses:
+        "200":
+          description: Daily report for previous month
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hour:
+                          type: string
+                          format: date-time
+                          example: "2025-05-13T03:00:00.000Z"
+                        KWh:
+                          type: number
+                          format: float
+                          example: 1.080388055555556
