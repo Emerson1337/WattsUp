@@ -112,7 +112,7 @@ class DashboardService {
         tariff.effectiveReadingDay
       );
 
-    const consumptionAverageLast7Days =
+    const consumptionAverageLast15Days =
       last15DaysConsumption.reduce((acc, day) => acc + day.kWh, 0) /
       last15DaysConsumption.length;
 
@@ -125,11 +125,19 @@ class DashboardService {
 
     const daysLeftToFinishMonth = differenceInDays(
       nextReadingDate,
-      tariff.lastReading
+      addMonths(tariff.lastReading, 1)
     );
 
+    const currentMonthConsumption =
+      await DashboardRepository.findCurrentMonthConsumption(
+        tariff.effectiveReadingDay
+      );
+
+    const currentKwhConsumption = currentMonthConsumption?.kWh ?? 0;
+
     const currentMonthForecastInKWh =
-      consumptionAverageLast7Days * daysLeftToFinishMonth;
+      consumptionAverageLast15Days * daysLeftToFinishMonth +
+      currentKwhConsumption;
 
     const currentMonthForecast = currentMonthForecastInKWh * tariff.kWhPrice;
     const currentMonthForecastWithTaxes =

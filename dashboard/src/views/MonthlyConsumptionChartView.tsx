@@ -3,6 +3,7 @@
 import { RadialChartText } from "@/components/charts/RadialChart";
 import type { ChartConfig } from "@/components/ui/chart";
 import { useDataLayer } from "@/components/context/DataLayerContext";
+import { convertToBRDecimal } from "@/lib/utils";
 
 const chartConfig = {
   consumption: {
@@ -37,6 +38,9 @@ export default function MonthlyConsumptionChartView() {
     fill: "var(--chart-2)",
   };
 
+  const currentMonthForecastInKWh =
+    monthlyReportForecast?.currentMonthForecastInKWh ?? 0;
+
   return (
     <RadialChartText
       isLoading={monthlyReportIsLoading || monthlyReportForecastIsLoading}
@@ -54,8 +58,8 @@ export default function MonthlyConsumptionChartView() {
             )}% esse mês."`
           : `Observe o quão perto o seu consumo está do previsto.`
       }
-      footerDescription={`Esse é o consumo total no mês atual. A sua previsão de consumo é de ${monthlyReportForecast?.currentMonthForecastInKWh.toFixed(
-        2
+      footerDescription={`Esse é o consumo total no mês atual. A sua previsão de consumo é de ${convertToBRDecimal(
+        currentMonthForecastInKWh
       )} kWh até o fim desse mês.`}
     />
   );

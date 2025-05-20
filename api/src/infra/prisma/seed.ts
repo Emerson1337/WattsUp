@@ -7,7 +7,7 @@ async function main() {
     data: {
       state: "Ceará",
       description:
-        "Tarifa de energia elétrica convencional e taxas (TUSD + TE)",
+        "Tarifa de Uso do Sistema de Distribuição (TUSD). Iluminação pública calculada com base no CIP de Fortaleza.",
       kWhPrice: 0.722,
       kWhPriceTaxes: 0.2,
       effectiveReadingDay: 20,

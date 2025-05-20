@@ -6,11 +6,11 @@ import { useDataLayer } from "@/components/context/DataLayerContext";
 
 const chartConfig: ChartConfig = {
   energyConsumption: {
-    label: "Consumo elétrico",
+    label: "Tarifa de energia (TE)",
     color: "var(--chart-1)",
   },
   consumptionWithTaxes: {
-    label: "TUSD + TE",
+    label: "TUSD",
     color: "var(--chart-2)",
   },
   publicLighting: {
