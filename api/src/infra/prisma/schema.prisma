@@ -45,6 +45,8 @@ model Tariffs {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   kWhPrice  Float
   kWhPriceTaxes  Float
+  kWhTEPrice  Float
+  kWhTUSDPrice  Float
   description String
   state String
   lastReading DateTime

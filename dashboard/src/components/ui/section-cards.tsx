@@ -5,6 +5,7 @@ import { format } from "date-fns";
 
 import { convertToBRL } from "@/lib/utils";
 import { useDataLayer } from "@/components/context/DataLayerContext";
+import { convertToBRDecimal } from "@/lib/utils";
 
 export function SectionCards() {
   const { state } = useDataLayer();
@@ -63,12 +64,14 @@ export function SectionCards() {
         badgeTrend={lastMonthPeak ? monthlyReportBadgeTrend : undefined}
         badgeValue={
           consumptionGrowth
-            ? `${(consumptionGrowth * 100).toFixed(2)}%`
+            ? `${convertToBRDecimal(consumptionGrowth * 100)}%`
             : undefined
         }
         footerMain={
           lastMonthPeak
-            ? `Esse valor representa um ${consumptionGrowth}% de crescimento em relação ao mês passado.`
+            ? `Esse valor representa um ${convertToBRDecimal(
+                consumptionGrowth
+              )}% de crescimento em relação ao mês passado.`
             : "Esse valor representa o pico de consumo do mês atual."
         }
         footerSub={

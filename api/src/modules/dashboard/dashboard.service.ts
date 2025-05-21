@@ -57,25 +57,24 @@ class DashboardService {
     const lastMonthPeakKWh = lastMonthConsumptionPeak?.kWh ?? 0;
 
     const currentMonthPeakKWhPrice = currentMonthConsumptionPeak?.kWh
-      ? currentMonthConsumptionPeak.kWh * tariff.kWhPrice
+      ? currentMonthConsumptionPeak.kWh * tariff.kWhPriceTaxes
       : 0;
     const lastMonthPeakKWhPrice = lastMonthConsumptionPeak?.kWh
-      ? lastMonthConsumptionPeak.kWh * tariff.kWhPrice
+      ? lastMonthConsumptionPeak.kWh * tariff.kWhPriceTaxes
       : 0;
 
     const energyConsumptionPrice =
-      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPrice;
-    const taxesPrice = energyConsumptionPrice * tariff.kWhPriceTaxes;
-    const publicLighting = calculateCIP(
-      currentMonthConsumption?.kWh ?? 0,
-      energyConsumptionPrice
-    );
+      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhTEPrice;
+    const tusdPrice = (currentMonthConsumption?.kWh ?? 0) * tariff.kWhTUSDPrice;
+    const extraTaxes =
+      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPriceTaxes -
+      (energyConsumptionPrice + tusdPrice);
 
     return {
       energyConsumptionPrice,
       energyConsumptionInKWh: currentMonthConsumption?.kWh ?? 0,
-      taxesPrice,
-      publicLighting,
+      tusdPrice,
+      extraTaxes,
       currentMonthPeak: {
         date: currentMonthConsumptionPeak?.createdAt,
         currentMonthPeakKWh,

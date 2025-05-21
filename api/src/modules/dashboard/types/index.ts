@@ -9,8 +9,8 @@ export interface MonthlyForecastResponse {
 
 export interface MonthlyConsumptionResponse {
   energyConsumptionPrice: number;
-  taxesPrice: number;
-  publicLighting: number;
+  tusdPrice: number;
+  extraTaxes: number;
   energyConsumptionInKWh: number;
   currentMonthPeak: {
     date?: Date;

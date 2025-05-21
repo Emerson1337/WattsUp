@@ -33,14 +33,18 @@ paths:
                   kWhPriceTaxes:
                     type: number
                     format: float
-                    example: 0.2
-                  publicLightingPrice:
+                    example: 0.87
+                  kWhTEPrice:
+                    type: number
+                    format: float
+                    example: 11.28
+                  kWhTUSDPrice:
                     type: number
                     format: float
                     example: 11.28
                   description:
                     type: string
-                    example: "Tarifa de energia elétrica convencional e impostos (TSDU + TE)"
+                    example: "Tarifa de energia elétrica"
                   state:
                     type: string
                     example: "Ceará"

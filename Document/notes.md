@@ -98,3 +98,5 @@ consumo da conta (TE + TSDU + COFINS + ICMS) = 3.62+14.53+37.37+4.48+5.16+20.66+
 calculo com base no 0.72 (Taxa convencional (media TE + TSDU)) = 233 * (0.72 + 0.72*1.2 (20% em cima das taxas para COFINS e ICMS)) = 167,76 + 33,552 (20% COFINS + ICMS) = 201.31
 
 em caso de baixa renda, taxa de erro de aprox 3%.
+
+010.570.36725-22 - denuncia ANEEL

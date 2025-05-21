@@ -2,7 +2,6 @@ export interface Tariff {
   id: string;
   kWhPrice: number;
   kWhPriceTaxes: number;
-  publicLightingPrice: number;
   description: string;
   state: string;
   lastReading: Date;
@@ -15,8 +14,8 @@ export interface Tariff {
 export interface MonthlyReport {
   energyConsumptionPrice: number;
   energyConsumptionInKWh: number;
-  taxesPrice: number;
-  publicLighting: number;
+  tusdPrice: number;
+  extraTaxes: number;
   currentMonthPeak: CurrentMonthPeak;
   lastMonthPeak: LastMonthPeak;
 }

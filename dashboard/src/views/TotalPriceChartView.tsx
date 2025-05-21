@@ -9,12 +9,12 @@ const chartConfig: ChartConfig = {
     label: "Tarifa de energia (TE)",
     color: "var(--chart-1)",
   },
-  consumptionWithTaxes: {
+  tusdPrice: {
     label: "TUSD",
     color: "var(--chart-2)",
   },
-  publicLighting: {
-    label: "Iluminação pública (CIP)",
+  extraTaxes: {
+    label: "Taxas extras",
     color: "var(--chart-3)",
   },
 };
@@ -24,9 +24,9 @@ export default function TotalPriceChartView() {
   const { monthlyReport, monthlyReportIsLoading, tariff, tariffIsLoading } =
     state;
 
-  const taxValueInDecimal = monthlyReport?.taxesPrice ?? 0;
+  const tusdPrice = monthlyReport?.tusdPrice ?? 0;
   const energyConsumption = monthlyReport?.energyConsumptionPrice ?? 0;
-  const publicLighting = monthlyReport?.publicLighting ?? 0;
+  const extraTaxes = monthlyReport?.extraTaxes ?? 0;
 
   const totalPriceData = [
     {
@@ -35,13 +35,13 @@ export default function TotalPriceChartView() {
       fill: "var(--chart-2)",
     },
     {
-      name: "consumptionWithTaxes",
-      value: taxValueInDecimal,
+      name: "tusdPrice",
+      value: tusdPrice,
       fill: "var(--chart-4)",
     },
     {
-      name: "publicLighting",
-      value: publicLighting,
+      name: "extraTaxes",
+      value: extraTaxes,
       fill: "var(--chart-3)",
     },
   ];
