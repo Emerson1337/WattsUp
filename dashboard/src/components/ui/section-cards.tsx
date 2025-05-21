@@ -1,8 +1,7 @@
 "use client";
 
 import { MetricCard } from "@/components/ui/metric-card";
-import { format } from "date-fns";
-
+import { format, addMonths } from "date-fns";
 import { convertToBRL } from "@/lib/utils";
 import { useDataLayer } from "@/components/context/DataLayerContext";
 import { convertToBRDecimal } from "@/lib/utils";
@@ -25,7 +24,9 @@ export function SectionCards() {
   const lastMonthPeak = monthlyReport?.lastMonthPeak.lastMonthPeakKWhPrice ?? 0;
 
   const consumptionGrowth =
-    lastMonthPeak > 0 ? currentConsumptionPeak / lastMonthPeak - 1 : 0;
+    lastMonthPeak > 0
+      ? ((currentConsumptionPeak - lastMonthPeak) / lastMonthPeak) * 100
+      : 0;
 
   const monthlyReportBadgeTrend =
     currentConsumptionPeak > lastMonthPeak ? "up" : "down";
@@ -36,16 +37,20 @@ export function SectionCards() {
   const lastMonthConsumption =
     monthlyReportForecast?.pastMonthConsumptionWithTaxes ?? 0;
 
-  const monthlyForecastBadgeTrend =
-    currentConsumptionPeak > lastMonthPeak ? "up" : "down";
-
   const consumptionForecastGrowth =
     lastMonthConsumption > 0
-      ? currentMonthForecastWithTaxes / lastMonthConsumption - 1
+      ? ((currentMonthForecastWithTaxes - lastMonthConsumption) /
+          lastMonthConsumption) *
+        100
       : 0;
 
+  const monthlyForecastBadgeTrend = consumptionForecastGrowth ? "up" : "down";
+
   const nextReadingDate = tariff?.effectiveReadingDay
-    ? format(new Date().setDate(tariff.effectiveReadingDay), "dd/MM")
+    ? format(
+        addMonths(new Date().setDate(tariff.effectiveReadingDay), 1),
+        "dd/MM"
+      )
     : "";
 
   return (
@@ -55,7 +60,7 @@ export function SectionCards() {
         title="Preço do kWh"
         value={kWhPriceInBRL}
         footerMain="Tarifa convencional"
-        footerSub="Esse valor é utilizado para calcular os gastos em reais de energia. Esse valor pode variar de acordo com a bandeira tarifária."
+        footerSub="Esse valor é definido pela ANEEL. Pode variar de acordo com a bandeira tarifária."
       />
       <MetricCard
         isLoading={monthlyReportIsLoading}
@@ -64,14 +69,14 @@ export function SectionCards() {
         badgeTrend={lastMonthPeak ? monthlyReportBadgeTrend : undefined}
         badgeValue={
           consumptionGrowth
-            ? `${convertToBRDecimal(consumptionGrowth * 100)}%`
+            ? `${convertToBRDecimal(consumptionGrowth)}%`
             : undefined
         }
         footerMain={
           lastMonthPeak
-            ? `Esse valor representa um ${convertToBRDecimal(
+            ? `Esse valor representa ${convertToBRDecimal(
                 consumptionGrowth
-              )}% de crescimento em relação ao mês passado.`
+              )}% em relação ao mês passado.`
             : "Esse valor representa o pico de consumo do mês atual."
         }
         footerSub={
@@ -92,7 +97,7 @@ export function SectionCards() {
         }
         badgeValue={
           consumptionForecastGrowth
-            ? `${(consumptionForecastGrowth * 100).toFixed(2)}%`
+            ? `${convertToBRDecimal(consumptionForecastGrowth)}%`
             : undefined
         }
         footerMain="Você irá pagar esse valor no próximo mês."

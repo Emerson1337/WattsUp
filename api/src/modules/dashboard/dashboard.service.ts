@@ -124,7 +124,7 @@ class DashboardService {
 
     const daysLeftToFinishMonth = differenceInDays(
       nextReadingDate,
-      addMonths(tariff.lastReading, 1)
+      currentDate
     );
 
     const currentMonthConsumption =
@@ -140,14 +140,12 @@ class DashboardService {
 
     const currentMonthForecast = currentMonthForecastInKWh * tariff.kWhPrice;
     const currentMonthForecastWithTaxes =
-      currentMonthForecast * (1 + tariff.kWhPriceTaxes);
+      currentMonthForecastInKWh * tariff.kWhPriceTaxes;
 
     const pastMonthConsumptionInKWh = lastMonthConsumption?.kWh ?? 0;
-    const pastMonthConsumption = lastMonthConsumption?.kWh
-      ? lastMonthConsumption.kWh * tariff.kWhPrice
-      : 0;
+    const pastMonthConsumption = pastMonthConsumptionInKWh * tariff.kWhPrice;
     const pastMonthConsumptionWithTaxes =
-      pastMonthConsumption * (1 + tariff.kWhPriceTaxes);
+      pastMonthConsumptionInKWh * tariff.kWhPriceTaxes;
 
     return {
       currentMonthForecastInKWh,
