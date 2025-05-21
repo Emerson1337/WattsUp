@@ -30,7 +30,10 @@ export default function MonthlyConsumptionChartView() {
     monthlyReportForecast?.pastMonthConsumptionInKWh ?? 0;
 
   const growthExpectationInKWh = lastMonthEnergyConsumptionInKWh
-    ? currentEnergyConsumptionInKWh / lastMonthEnergyConsumptionInKWh - 1
+    ? ((currentEnergyConsumptionForecastInKWh -
+        lastMonthEnergyConsumptionInKWh) /
+        lastMonthEnergyConsumptionInKWh) *
+      100
     : 0;
 
   const radialData = {
@@ -53,9 +56,9 @@ export default function MonthlyConsumptionChartView() {
       chartConfig={chartConfig}
       trendText={
         growthExpectationInKWh
-          ? `"Expectativa de aumento em ${growthExpectationInKWh.toFixed(
-              1
-            )}% esse mês."`
+          ? `Expectativa de aumento em ${convertToBRDecimal(
+              growthExpectationInKWh
+            )}% esse mês.`
           : `Observe o quão perto o seu consumo está do previsto.`
       }
       footerDescription={`Esse é o consumo total no mês atual. A sua previsão de consumo é de ${convertToBRDecimal(
