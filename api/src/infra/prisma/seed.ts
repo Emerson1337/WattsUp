@@ -9,7 +9,9 @@ async function main() {
       description:
         "Tarifa de Uso do Sistema de Distribuição (TUSD). Iluminação pública calculada com base no CIP de Fortaleza.",
       kWhPrice: 0.722,
-      kWhPriceTaxes: 0.2,
+      kWhPriceTaxes: 0.85,
+      kWhTEPrice: 0.2598,
+      kWhTUSDPrice: 0.388,
       effectiveReadingDay: 20,
       lastReading: new Date("2025-04-20"),
     },
