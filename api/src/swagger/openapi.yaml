@@ -87,11 +87,11 @@ paths:
                     type: number
                     format: float
                     example: 82.93020666666668
-                  taxesPrice:
+                  tusdPrice:
                     type: number
                     format: float
                     example: 11.975121842666669
-                  publicLighting:
+                  extraTaxes:
                     type: number
                     format: float
                     example: 0.6406690185826667

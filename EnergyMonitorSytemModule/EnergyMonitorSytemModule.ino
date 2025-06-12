@@ -17,7 +17,7 @@ void setup() {
   Serial.begin(115200);
   connectToWiFi();
   analogReadResolution(10);
-  SCT013.current(ADC_INPUT, 9.09); 
+  SCT013.current(ADC_INPUT, 7.99); 
 
   webSocket.beginSSL("agendazap.click", 443, "/telemetry?token=esp32-iot-key");
   webSocket.onEvent(webSocketEvent);
