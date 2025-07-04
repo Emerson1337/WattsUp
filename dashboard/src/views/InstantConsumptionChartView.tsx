@@ -21,21 +21,29 @@ export default function InstantConsumptionChartView() {
     OneMinuteConsumptionMock()
   );
   const [error, setError] = useState<Event>();
+  const [connectionStartTime, setConnectionStartTime] = useState<number>(0);
 
   useEffect(() => {
     if (!instantConsumptionSocket) return;
 
+    // Set connection start time when socket is available
+    if (connectionStartTime === 0) {
+      setConnectionStartTime(Date.now());
+    }
+
     listenToSocket(
       instantConsumptionSocket,
       (telemetryMessage) => {
-        // Calculate transmission time using timestamp
+        // Calculate relative time since connection start
         const currentTime = Date.now();
-        const transmissionTime = currentTime - telemetryMessage.timestamp;
+        const relativeTime = currentTime - connectionStartTime;
+        const esp32Time = telemetryMessage.timestamp;
+        const transmissionTime = relativeTime - esp32Time;
 
         console.log(
           `[PERFORMANCE] Transmission time: ${transmissionTime}ms`,
-          currentTime,
-          telemetryMessage.timestamp
+          `ESP32 time: ${esp32Time}ms`,
+          `Relative time: ${relativeTime}ms`
         );
 
         setData([
@@ -51,7 +59,7 @@ export default function InstantConsumptionChartView() {
     if (error) {
       console.error("Error connecting to live data:", error);
     }
-  }, [data, error, instantConsumptionSocket]);
+  }, [data, error, instantConsumptionSocket, connectionStartTime]);
 
   return (
     <AreaChartInteractive
