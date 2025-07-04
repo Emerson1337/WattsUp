@@ -2,6 +2,7 @@
 #include <WebSocketsClient.h>
 #include "WiFiManagerHelper.h"
 #include "EmonLib.h"
+#include <time.h> 
 
 EnergyMonitor SCT013; 
 WebSocketsClient webSocket;
@@ -34,8 +35,10 @@ void loop() {
     double Irms = SCT013.calcIrms(1480);
     power = Irms * HOME_VOLTAGE;
     
-    // Get current timestamp in milliseconds since epoch
-    unsigned long timestamp = millis();
+    // Get current timestamp in milliseconds since epoch (Unix time)
+    time_t now;
+    time(&now);
+    unsigned long timestamp = now * 1000; // JS-style timestamp
       
     String json = "{\"current\":" + String(Irms, 2) + ",\"power\":" + String(power) + ",\"timestamp\":" + String(timestamp) + ",\"voltage\":" + String(HOME_VOLTAGE) + "}";
     webSocket.sendTXT(json);
