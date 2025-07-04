@@ -45,7 +45,7 @@ export interface TelemetryMessage {
   power: number;
   current: number;
   voltage: number;
-  timestamp: number;
+  timestamp: string;
 }
 
 export interface LastSixMonthsHistory {

@@ -25,6 +25,31 @@ void setup() {
   webSocket.setReconnectInterval(5000);
 }
 
+String getCurrentTimestampWithMillis() {
+  struct tm timeinfo;
+  struct timeval tv;
+  gettimeofday(&tv, NULL); // get seconds and microseconds
+
+  localtime_r(&tv.tv_sec, &timeinfo);
+
+  char timeString[30];
+  snprintf(
+    timeString,
+    sizeof(timeString),
+    "%04d-%02d-%02dT%02d:%02d:%02d.%03ldZ",
+    timeinfo.tm_year + 1900,
+    timeinfo.tm_mon + 1,
+    timeinfo.tm_mday,
+    timeinfo.tm_hour,
+    timeinfo.tm_min,
+    timeinfo.tm_sec,
+    tv.tv_usec / 1000 // convert microseconds to milliseconds
+  );
+
+  return String(timeString);
+}
+
+
 void loop() {
   webSocket.loop();
 
@@ -34,17 +59,19 @@ void loop() {
 
     double Irms = SCT013.calcIrms(1480);
     power = Irms * HOME_VOLTAGE;
-    
-    // Get current timestamp in milliseconds since epoch (Unix time)
-    time_t now;
-    time(&now);
-    unsigned long timestamp = now * 1000; // JS-style timestamp
-      
-    String json = "{\"current\":" + String(Irms, 2) + ",\"power\":" + String(power) + ",\"timestamp\":" + String(timestamp) + ",\"voltage\":" + String(HOME_VOLTAGE) + "}";
+
+    String timestamp = getCurrentTimestampWithMillis();
+
+    String json = "{\"current\":" + String(Irms, 2) +
+                  ",\"power\":" + String(power) +
+                  ",\"timestamp\":\"" + timestamp + "\"" +
+                  ",\"voltage\":" + String(HOME_VOLTAGE) + "}";
+
     webSocket.sendTXT(json);
     logReading(Irms, power);
   }
 }
+
 
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   switch (type) {

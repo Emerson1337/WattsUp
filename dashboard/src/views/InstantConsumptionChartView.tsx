@@ -6,6 +6,7 @@ import { type ChartConfig } from "@/components/ui/chart";
 import { listenToSocket } from "@/services/api";
 import { useDataLayer } from "@/components/context/DataLayerContext";
 import { OneMinuteConsumptionMock } from "@/lib/utils";
+import { parseISO, differenceInMilliseconds } from "date-fns";
 
 const chartConfig = {
   consumption: {
@@ -28,13 +29,13 @@ export default function InstantConsumptionChartView() {
     listenToSocket(
       instantConsumptionSocket,
       (telemetryMessage) => {
-        // Calculate transmission time using timestamp
-        const currentTime = Date.now();
-        const transmissionTime = currentTime - telemetryMessage.timestamp;
+        const esp32Datetime = telemetryMessage.timestamp; // ISO 8601 string
+        const espDate = parseISO(esp32Datetime);
+        const now = new Date();
 
-        console.log(
-          `[PERFORMANCE] Transmission time: ${transmissionTime}ms, ESP time: ${telemetryMessage.timestamp}, current time: ${currentTime}`
-        );
+        const transmissionTime = differenceInMilliseconds(now, espDate);
+
+        console.log(`[PERFORMANCE] Transmission time: ${transmissionTime}ms`);
 
         setData([
           ...data,
