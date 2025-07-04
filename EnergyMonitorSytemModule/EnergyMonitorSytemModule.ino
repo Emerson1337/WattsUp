@@ -23,6 +23,17 @@ void setup() {
   webSocket.beginSSL("agendazap.click", 443, "/telemetry?token=esp32-iot-key");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(5000);
+
+  // Sync time via NTP
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+
+  Serial.print("Waiting for NTP time sync...");
+  time_t now = time(nullptr);
+  while (now < 1704067200) { // wait until time is reasonably synced (after year 2024)
+    delay(100);
+    now = time(nullptr);
+  }
+  Serial.println("✓ Time synced!");
 }
 
 String getCurrentTimestampWithMillis() {
@@ -68,7 +79,7 @@ void loop() {
                   ",\"voltage\":" + String(HOME_VOLTAGE) + "}";
 
     webSocket.sendTXT(json);
-    logReading(Irms, power);
+    logReading(Irms, power, timestamp);
   }
 }
 
@@ -93,7 +104,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   }
 }
 
-void logReading(double Irms, int power) {
+void logReading(double Irms, int power, String timestamp) {
   Serial.print("Current = ");
   Serial.print(Irms);
   Serial.println(" A");
@@ -101,6 +112,9 @@ void logReading(double Irms, int power) {
   Serial.print("Power = ");
   Serial.print(power);
   Serial.println(" W");
-  
+
+  Serial.print("Time = ");
+  Serial.println(timestamp);
+
   Serial.println("............");
 }

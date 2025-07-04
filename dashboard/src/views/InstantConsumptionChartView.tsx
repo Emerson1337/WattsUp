@@ -33,7 +33,7 @@ export default function InstantConsumptionChartView() {
         const espDate = parseISO(esp32Datetime);
         const now = new Date();
 
-        const transmissionTime = differenceInMilliseconds(now, espDate);
+        const transmissionTime = differenceInMilliseconds(espDate, now);
 
         console.log(`[PERFORMANCE] Transmission time: ${transmissionTime}ms`);
 
