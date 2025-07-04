@@ -32,7 +32,11 @@ export default function InstantConsumptionChartView() {
         const currentTime = Date.now();
         const transmissionTime = currentTime - telemetryMessage.timestamp;
 
-        console.log(`[PERFORMANCE] Transmission time: ${transmissionTime}ms`);
+        console.log(
+          `[PERFORMANCE] Transmission time: ${transmissionTime}ms`,
+          currentTime,
+          telemetryMessage.timestamp
+        );
 
         setData([
           ...data,
