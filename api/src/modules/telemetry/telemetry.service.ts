@@ -12,10 +12,10 @@ class TelemetryService {
   };
 
   handlePowerData = async (data: TelemetryMessage): Promise<void> => {
-    const { power, current, voltage } = data;
+    const { power, current, voltage, timestamp } = data;
 
     console.log(
-      `[TELEMETRY] Potency: ${power} W, Current: ${current} A, Voltage: ${voltage} V`
+      `[TELEMETRY] Potency: ${power} W, Current: ${current} A, Voltage: ${voltage} V, Timestamp: ${timestamp}`
     );
 
     this.energyReportPacketPerMinute.push(data);

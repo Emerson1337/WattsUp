@@ -33,8 +33,11 @@ void loop() {
 
     double Irms = SCT013.calcIrms(1480);
     power = Irms * HOME_VOLTAGE;
+    
+    // Get current timestamp in milliseconds since epoch
+    unsigned long timestamp = millis();
       
-    String json = "{\"current\":" + String(Irms, 2) + ",\"power\":" + String(power) + ",\"voltage\":" + String(HOME_VOLTAGE) + "}";
+    String json = "{\"current\":" + String(Irms, 2) + ",\"power\":" + String(power) + ",\"timestamp\":" + String(timestamp) + ",\"voltage\":" + String(HOME_VOLTAGE) + "}";
     webSocket.sendTXT(json);
     logReading(Irms, power);
   }

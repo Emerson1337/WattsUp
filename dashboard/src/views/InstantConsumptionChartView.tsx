@@ -27,13 +27,20 @@ export default function InstantConsumptionChartView() {
 
     listenToSocket(
       instantConsumptionSocket,
-      (telemetryMessage) =>
+      (telemetryMessage) => {
+        // Calculate transmission time using timestamp
+        const currentTime = Date.now();
+        const transmissionTime = currentTime - telemetryMessage.timestamp;
+
+        console.log(`[PERFORMANCE] Transmission time: ${transmissionTime}ms`);
+
         setData([
           ...data,
           {
             consumption: telemetryMessage.power,
           },
-        ]),
+        ]);
+      },
       setError
     );
 
