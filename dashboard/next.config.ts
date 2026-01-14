@@ -1,20 +1,24 @@
 import type { NextConfig } from "next";
+import path from "path";
+
+const rootDir = path.resolve(process.cwd(), "..");
 
 interface Rule {
   test?: { test?: (input: string) => boolean };
 }
 
 const nextConfig: NextConfig = {
-  experimental: {
-    turbo: {
-      rules: {
-        "*.svg": {
-          as: "*.js",
-          loaders: ["@svgr/webpack"],
-        },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        as: "*.js",
+        loaders: ["@svgr/webpack"],
       },
     },
+    root: rootDir,
   },
+
+  outputFileTracingRoot: rootDir,
 
   images: {
     remotePatterns: [
