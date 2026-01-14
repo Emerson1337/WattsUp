@@ -43,6 +43,10 @@ resource "aws_instance" "main" {
 
   key_name = var.ssh_public_key != "" ? aws_key_pair.main[0].key_name : null
 
+  lifecycle {
+    ignore_changes = [key_name]
+  }
+
   tags = {
     Name = "${var.project_name}-instance"
   }
