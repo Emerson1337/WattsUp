@@ -3,11 +3,12 @@ import { NextRequest } from "next/server";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const res = await fetch(ApiPaths.tariff.update(params.id), {
+    const res = await fetch(ApiPaths.tariff.update(id), {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -30,4 +31,3 @@ export async function PUT(
     );
   }
 }
-
