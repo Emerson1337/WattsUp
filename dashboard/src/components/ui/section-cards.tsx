@@ -1,7 +1,7 @@
 "use client";
 
 import { MetricCard } from "@/components/ui/metric-card";
-import { format, addMonths } from "date-fns";
+import { format } from "date-fns";
 import { convertToBRL } from "@/lib/utils";
 import { useDataLayer } from "@/components/context/DataLayerContext";
 import { convertToBRDecimal } from "@/lib/utils";
