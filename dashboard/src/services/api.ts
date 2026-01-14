@@ -12,7 +12,7 @@ import {
 
 export async function getTariff(): Promise<Tariff | undefined> {
   try {
-    const res = await fetch("/api/tariff");
+    const res = await fetch(ApiPaths.tariff.get());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -26,7 +26,7 @@ export async function getTariff(): Promise<Tariff | undefined> {
 
 export async function getMonthlyReport(): Promise<MonthlyReport | undefined> {
   try {
-    const res = await fetch("/api/monthly-report");
+    const res = await fetch(ApiPaths.monthlyReport.get());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -42,7 +42,7 @@ export async function getMonthlyReportForecast(): Promise<
   MonthlyReportForecast | undefined
 > {
   try {
-    const res = await fetch("/api/monthly-report-forecast");
+    const res = await fetch(ApiPaths.monthlyReportForecast.get());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -86,7 +86,7 @@ export async function getLastSixMonthsReport(): Promise<
   LastSixMonthsHistory | undefined
 > {
   try {
-    const res = await fetch("/api/consumption-monthly-history");
+    const res = await fetch(ApiPaths.history.lastSixMonths());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -102,7 +102,7 @@ export async function getLastHourPerMinute(): Promise<
   LastHourHistory | undefined
 > {
   try {
-    const res = await fetch("/api/consumption-per-minute-history");
+    const res = await fetch(ApiPaths.history.lastHour());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -116,7 +116,7 @@ export async function getLastHourPerMinute(): Promise<
 
 export async function getLastDayHourly(): Promise<LastDayHistory | undefined> {
   try {
-    const res = await fetch("/api/consumption-hourly-history");
+    const res = await fetch(ApiPaths.history.lastDay());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -132,7 +132,7 @@ export async function getLastMonthDaily(): Promise<
   LastMonthHistory | undefined
 > {
   try {
-    const res = await fetch("/api/consumption-month-history");
+    const res = await fetch(ApiPaths.history.lastMonth());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 

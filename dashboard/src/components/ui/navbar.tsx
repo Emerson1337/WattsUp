@@ -20,6 +20,7 @@ export default function Navbar() {
         height={250}
         alt="Avatar"
         className="overflow-hidden w-10 lg:w-64 rounded-full"
+        unoptimized
       />
       <ThemeToggle />
     </header>
