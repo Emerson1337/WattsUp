@@ -7,6 +7,7 @@ export interface Tariff {
   lastReading: Date;
   effectiveReadingDay: number;
   effectiveMonth: Date;
+  nextReadingDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }

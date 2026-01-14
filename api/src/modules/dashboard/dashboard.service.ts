@@ -1,8 +1,7 @@
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
 import { LastSemesterHistoryResponse } from "@/modules/dashboard/types/index";
-import { calculateCIP } from "@/modules/shared/utils";
-import { isSameMonthNoYear } from "../shared/utils";
+import { isSameMonthNoYear } from "@/modules/shared/utils";
 import {
   MonthlyForecastResponse,
   MonthlyConsumptionResponse,
@@ -27,6 +26,19 @@ class DashboardService {
     }
 
     return tariff;
+  };
+
+  updateTariff = async (
+    id: string,
+    tariff: Partial<PrismaTariffs>
+  ): Promise<PrismaTariffs | undefined> => {
+    const updatedTariff = await DashboardRepository.updateTariff(id, tariff);
+
+    if (!updatedTariff) {
+      throw new Error("Tarifa não encontrada.");
+    }
+
+    return updatedTariff;
   };
 
   getMonthlyConsumption = async (): Promise<

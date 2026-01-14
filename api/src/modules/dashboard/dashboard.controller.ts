@@ -1,10 +1,48 @@
 import { Request, Response } from "express";
 import DashboardService from "@/modules/dashboard/dashboard.service";
+import { setDayOfYear, addMonths } from "date-fns";
 
 class DashboardController {
   getTariffs = async (_: Request, response: Response): Promise<void> => {
     try {
       const data = await DashboardService.getTariffs();
+
+      if (!data) {
+        response.status(404).json({ error: "Tarifa não encontrada." });
+        return;
+      }
+
+      const nextReadingMonth = addMonths(data.lastReading, 1);
+
+      const nextReadingDate = setDayOfYear(
+        nextReadingMonth,
+        data.effectiveReadingDay
+      );
+
+      response
+        .json({
+          ...data,
+          nextReadingDate,
+        })
+        .status(200);
+    } catch (error) {
+      response.status(500).json(error);
+    }
+  };
+
+  updateTariff = async (
+    { params, body }: Request,
+    response: Response
+  ): Promise<void> => {
+    try {
+      const id = params.id;
+
+      if (!id || typeof id !== "string") {
+        response.status(400).json({ error: "ID não informado." });
+        return;
+      }
+
+      const data = await DashboardService.updateTariff(id, body);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);

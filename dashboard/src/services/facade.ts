@@ -1,5 +1,6 @@
 import {
   getTariff,
+  updateTariff as updateTariffApi,
   getMonthlyReport,
   getMonthlyReportForecast,
   getLastSixMonthsReport,
@@ -7,9 +8,14 @@ import {
   getLastDayHourly,
   getLastMonthDaily,
 } from "@/services/api";
+import { Tariff } from "@/services/types";
 
 export async function fetchTariff() {
   return await getTariff();
+}
+
+export async function updateTariff(id: string, tariff: Partial<Tariff>) {
+  return await updateTariffApi(id, tariff);
 }
 
 export async function fetchMonthlyReport() {

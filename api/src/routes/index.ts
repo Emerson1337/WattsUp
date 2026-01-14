@@ -8,6 +8,7 @@ const router = Router();
 const apiRouter = Router();
 apiRouter.get("/", TelemetryController.health);
 apiRouter.get("/tariff", DashboardController.getTariffs);
+apiRouter.put("/tariff/:id", DashboardController.updateTariff);
 apiRouter.get(
   "/consumption/monthly",
   DashboardController.getMonthlyConsumption

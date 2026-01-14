@@ -58,6 +58,25 @@ class DashboardRepository {
     return await prisma.tariffs.findFirst();
   };
 
+  updateTariff = async (
+    id: string,
+    tariff: Partial<PrismaTariffs>
+  ): Promise<PrismaTariffs | null> => {
+    return await prisma.tariffs.update({
+      where: { id },
+      data: {
+        effectiveReadingDay: tariff.effectiveReadingDay,
+        lastReading: tariff.lastReading,
+        kWhPrice: tariff.kWhPrice,
+        kWhPriceTaxes: tariff.kWhPriceTaxes,
+        kWhTEPrice: tariff.kWhTEPrice,
+        kWhTUSDPrice: tariff.kWhTUSDPrice,
+        description: tariff.description,
+        state: tariff.state,
+      },
+    });
+  };
+
   findLastMonthConsumption = async (
     startMonthReadingDay: number
   ): Promise<PrismaMonthlyReport | null> => {

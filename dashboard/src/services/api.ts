@@ -1,4 +1,4 @@
-import { ApiPaths } from "@/lib/apiUrls";
+import { NextApiPaths, ApiPaths } from "@/lib/apiUrls";
 import {
   Tariff,
   MonthlyReport,
@@ -12,7 +12,30 @@ import {
 
 export async function getTariff(): Promise<Tariff | undefined> {
   try {
-    const res = await fetch(ApiPaths.tariff.get());
+    const res = await fetch(NextApiPaths.tariff.get());
+
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+    return await res.json();
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "An unknown error occurred."
+    );
+  }
+}
+
+export async function updateTariff(
+  id: string,
+  tariff: Partial<Tariff>
+): Promise<Tariff | undefined> {
+  try {
+    const res = await fetch(`/api/tariff/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tariff),
+    });
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -26,7 +49,7 @@ export async function getTariff(): Promise<Tariff | undefined> {
 
 export async function getMonthlyReport(): Promise<MonthlyReport | undefined> {
   try {
-    const res = await fetch(ApiPaths.monthlyReport.get());
+    const res = await fetch(NextApiPaths.monthlyReport.get());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -42,7 +65,7 @@ export async function getMonthlyReportForecast(): Promise<
   MonthlyReportForecast | undefined
 > {
   try {
-    const res = await fetch(ApiPaths.monthlyReportForecast.get());
+    const res = await fetch(NextApiPaths.monthlyReportForecast.get());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -86,7 +109,7 @@ export async function getLastSixMonthsReport(): Promise<
   LastSixMonthsHistory | undefined
 > {
   try {
-    const res = await fetch(ApiPaths.history.lastSixMonths());
+    const res = await fetch(NextApiPaths.history.lastSixMonths());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -102,7 +125,7 @@ export async function getLastHourPerMinute(): Promise<
   LastHourHistory | undefined
 > {
   try {
-    const res = await fetch(ApiPaths.history.lastHour());
+    const res = await fetch(NextApiPaths.history.lastHour());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -116,7 +139,7 @@ export async function getLastHourPerMinute(): Promise<
 
 export async function getLastDayHourly(): Promise<LastDayHistory | undefined> {
   try {
-    const res = await fetch(ApiPaths.history.lastDay());
+    const res = await fetch(NextApiPaths.history.lastDay());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -132,7 +155,7 @@ export async function getLastMonthDaily(): Promise<
   LastMonthHistory | undefined
 > {
   try {
-    const res = await fetch(ApiPaths.history.lastMonth());
+    const res = await fetch(NextApiPaths.history.lastMonth());
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 

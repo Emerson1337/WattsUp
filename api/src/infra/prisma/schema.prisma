@@ -51,7 +51,6 @@ model Tariffs {
   state String
   lastReading DateTime
   effectiveReadingDay Int
-  effectiveMonth DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }

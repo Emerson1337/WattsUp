@@ -6,6 +6,7 @@ import Navbar from "@/components/ui/navbar";
 import { setDefaultOptions } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DateLocaleSetup } from "@/components/locale/DateLocaleSetup";
+import { DataLayerProvider } from "@/components/context/DataLayerContext";
 
 setDefaultOptions({ locale: ptBR });
 
@@ -42,16 +43,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <DateLocaleSetup />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Navbar />
-          {children}
-        </ThemeProvider>
+        <DataLayerProvider>
+          <DateLocaleSetup />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Navbar />
+            {children}
+          </ThemeProvider>
+        </DataLayerProvider>
       </body>
     </html>
   );
