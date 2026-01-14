@@ -225,3 +225,10 @@ jobs:
             # Reload nginx
             sudo systemctl reload nginx
           NGINX_EOF
+
+      - name: Deployment Complete
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Application URL: http://${{ vars.EC2_HOST }}"
+          echo "📊 Dashboard: http://${{ vars.EC2_HOST }}/"
+          echo "🔌 API: http://${{ vars.EC2_HOST }}/api"
