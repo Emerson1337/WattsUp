@@ -54,53 +54,88 @@ jobs:
               sudo npm install -g pm2
             fi
             
+            # Install Prisma CLI globally for generating Prisma Client
+            if ! command -v prisma &> /dev/null; then
+              sudo npm install -g prisma
+            fi
+            
             # Prepare application directories
             sudo mkdir -p /home/${{ vars.EC2_USER }}/app/api
             sudo mkdir -p /home/${{ vars.EC2_USER }}/app/dashboard
             sudo chown -R ${{ vars.EC2_USER }}:${{ vars.EC2_USER }} /home/${{ vars.EC2_USER }}/app
           EOF
 
-      - name: Generate API .env File
-        run: |
-          mkdir -p api
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
-          echo "PORT=3001" >> api/.env
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-      - name: Upload Application Files
+      - name: Build API
         run: |
-          tar -czf app.tar.gz api dashboard
-          scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
-          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "cd /home/${{ vars.EC2_USER }}/app && tar -xzf app.tar.gz && rm app.tar.gz"
+          cd api
+          npm ci
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+          echo "PORT=3001" >> .env
+          npx prisma generate
+          npm run build
 
-      - name: Build and Deploy Applications
+      - name: Build Dashboard
         run: |
+          cd dashboard
+          npm ci
+          NEXT_PUBLIC_API_URL=http://${{ vars.EC2_HOST }}/api NEXT_PUBLIC_WS_URL=ws://${{ vars.EC2_HOST }} npm run build
+
+      - name: Prepare Deployment Package
+        run: |
+          # Create deployment directories
+          mkdir -p deploy/api deploy/dashboard
+
+          # Copy API files (built dist, package.json, node_modules for production, .env, prisma schema)
+          cp -r api/dist deploy/api/
+          cp api/package.json deploy/api/
+          cp api/package-lock.json deploy/api/ 2>/dev/null || true
+          cp api/.env deploy/api/
+          mkdir -p deploy/api/src/infra/prisma
+          cp api/src/infra/prisma/schema.prisma deploy/api/src/infra/prisma/
+
+          # Copy Dashboard files (built .next, package.json, node_modules for production, public)
+          cp -r dashboard/.next deploy/dashboard/
+          cp dashboard/package.json deploy/dashboard/
+          cp dashboard/package-lock.json deploy/dashboard/ 2>/dev/null || true
+          cp -r dashboard/public deploy/dashboard/ 2>/dev/null || true
+
+          # Create production node_modules for API
+          cd api
+          npm ci --production
+          cp -r node_modules ../deploy/api/
+
+          # Create production node_modules for Dashboard
+          cd ../dashboard
+          npm ci --production
+          cp -r node_modules ../deploy/dashboard/
+
+      - name: Upload Built Applications
+        run: |
+          tar -czf deploy.tar.gz deploy
+          scp -o StrictHostKeyChecking=no deploy.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
             set -e
-            
-            # Build API
-            cd /home/${{ vars.EC2_USER }}/app/api
-            npm ci --production=false
-            npx prisma generate
-            npm run build
-            
-            # Build Dashboard with correct API URL
-            cd /home/${{ vars.EC2_USER }}/app/dashboard
-            npm ci --production=false
-            NEXT_PUBLIC_API_URL=http://${{ vars.EC2_HOST }}/api NEXT_PUBLIC_WS_URL=ws://${{ vars.EC2_HOST }} npm run build
-            
-            # Install production dependencies for API
-            cd /home/${{ vars.EC2_USER }}/app/api
-            npm ci --production=true
-            
-            # Install production dependencies for Dashboard
-            cd /home/${{ vars.EC2_USER }}/app/dashboard
-            npm ci --production=true
+            cd /home/${{ vars.EC2_USER }}/app
+            rm -rf api dashboard
+            tar -xzf deploy.tar.gz
+            mv deploy/api api
+            mv deploy/dashboard dashboard
+            rm -rf deploy deploy.tar.gz
           EOF
 
       - name: Configure PM2 and Start Applications
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
             set -e
+            
+            # Regenerate Prisma Client for platform compatibility
+            cd /home/${{ vars.EC2_USER }}/app/api
+            prisma generate
             
             # Stop existing PM2 processes
             pm2 delete all || true
