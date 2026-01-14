@@ -24,8 +24,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*",
+        hostname: "github.com",
         port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        port: "",
+        pathname: "/**",
       },
       {
         protocol: "http",
@@ -33,6 +40,7 @@ const nextConfig: NextConfig = {
         port: "",
       },
     ],
+    unoptimized: false,
   },
 
   // Keep this until Turbo handles SVGs in production builds
