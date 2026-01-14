@@ -15,21 +15,15 @@ const checkAndUpdateTariffLastReading = async () => {
   }
 
   const now = new Date();
+  const dayAfterNextReading = addDays(tariff.nextReadingDate, 1);
 
-  const effectiveReadingDate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    tariff.effectiveReadingDay
-  );
-  const dayAfterEffectiveReading = addDays(effectiveReadingDate, 1);
-
-  if (isSameDay(now, dayAfterEffectiveReading)) {
+  if (isSameDay(now, dayAfterNextReading)) {
     await updateTariffLastReading();
   } else {
     const currentDay = getDate(now);
-    const targetDay = getDate(dayAfterEffectiveReading);
+    const targetDay = getDate(dayAfterNextReading);
     console.log(
-      `⏭️ Skipping update: current day (${currentDay}) does not match target day (${targetDay}, which is 1 day after effective reading day ${tariff.effectiveReadingDay})`
+      `⏭️ Skipping update: current day (${currentDay}) does not match target day (${targetDay}, which is 1 day after next reading date ${tariff.nextReadingDate.toISOString()})`
     );
   }
 };

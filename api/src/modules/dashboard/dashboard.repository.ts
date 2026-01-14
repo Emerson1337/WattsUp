@@ -65,7 +65,7 @@ class DashboardRepository {
     return await prisma.tariffs.update({
       where: { id },
       data: {
-        effectiveReadingDay: tariff.effectiveReadingDay,
+        nextReadingDate: tariff.nextReadingDate,
         lastReading: tariff.lastReading,
         kWhPrice: tariff.kWhPrice,
         kWhPriceTaxes: tariff.kWhPriceTaxes,

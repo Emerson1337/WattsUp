@@ -37,7 +37,7 @@ export const NextApiPaths = {
   history: {
     lastSixMonths: (): string => `/consulta/historico-consumo-mensal`,
     lastHour: (): string => `/consulta/historico-consumo-por-minuto`,
-    lastDay: (): string => `/consulta/historico-consumo-dia`,
+    lastDay: (): string => `/consulta/historico-consumo-hora`,
     lastMonth: (): string => `/consulta/historico-consumo-mes`,
   },
 };

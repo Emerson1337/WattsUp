@@ -46,11 +46,8 @@ export function SectionCards() {
 
   const monthlyForecastBadgeTrend = consumptionForecastGrowth ? "up" : "down";
 
-  const nextReadingDate = tariff?.effectiveReadingDay
-    ? format(
-        addMonths(new Date().setDate(tariff.effectiveReadingDay), 1),
-        "dd/MM"
-      )
+  const nextReadingDate = tariff?.nextReadingDate
+    ? format(new Date(tariff.nextReadingDate), "dd/MM")
     : "";
 
   return (

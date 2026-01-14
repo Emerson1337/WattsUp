@@ -1,5 +1,6 @@
 import TelemetryRepository from "@/modules/telemetry/telemetry.repository";
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
+import { addMonths } from "date-fns";
 
 export const runSaveKWhJob = async () => {
   console.log("🟡 Running hourly job to save kWh");
@@ -15,11 +16,12 @@ export const runSaveKWhJob = async () => {
   }, 0);
 
   const powerInKwh = totalPowerFromLastHour / 60;
+  const effectiveReadingDay = tariff.nextReadingDate.getDate();
 
   await TelemetryRepository.saveKWhPerHour(powerInKwh);
   await TelemetryRepository.incrementKWhInCurrentMonth(
     powerInKwh,
-    tariff.effectiveReadingDay
+    effectiveReadingDay
   );
   await TelemetryRepository.incrementKWhInCurrentDayBrazilianTZ(powerInKwh);
 
@@ -27,9 +29,25 @@ export const runSaveKWhJob = async () => {
 };
 
 export const updateTariffLastReading = async () => {
-  console.log("🟡 Running monthly job to update last reading");
+  console.log(
+    "🟡 Running monthly job to update last reading and next reading date"
+  );
+
+  const tariff = await DashboardRepository.findTariff();
+
+  if (!tariff) throw new Error("Tarifa não encontrada.");
+
+  const newLastReading = tariff.nextReadingDate;
+  const newNextReadingDate = addMonths(tariff.nextReadingDate, 1);
 
   await TelemetryRepository.updateLastReadingTariff();
+  await DashboardRepository.updateTariff(tariff.id, {
+    lastReading: newLastReading,
+    nextReadingDate: newNextReadingDate,
+  });
 
   console.log("🟢 Monthly job to update last reading ran successfully!");
+  console.log(
+    `📅 Updated: lastReading = ${newLastReading.toISOString()}, nextReadingDate = ${newNextReadingDate.toISOString()}`
+  );
 };

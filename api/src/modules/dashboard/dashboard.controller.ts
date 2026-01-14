@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import DashboardService from "@/modules/dashboard/dashboard.service";
-import { setDayOfYear, addMonths } from "date-fns";
 
 class DashboardController {
   getTariffs = async (_: Request, response: Response): Promise<void> => {
@@ -12,19 +11,7 @@ class DashboardController {
         return;
       }
 
-      const nextReadingMonth = addMonths(data.lastReading, 1);
-
-      const nextReadingDate = setDayOfYear(
-        nextReadingMonth,
-        data.effectiveReadingDay
-      );
-
-      response
-        .json({
-          ...data,
-          nextReadingDate,
-        })
-        .status(200);
+      response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);
     }

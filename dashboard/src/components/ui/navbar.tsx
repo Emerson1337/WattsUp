@@ -35,16 +35,10 @@ export default function Navbar() {
       return;
     }
 
-    const selectedDay = date.getDate();
-    const currentDay = tariff.effectiveReadingDay;
-    const currentEffectiveMonth = new Date(tariff.effectiveMonth);
+    const currentNextReadingDate = new Date(tariff.nextReadingDate);
+    const hasChanged = date.getTime() !== currentNextReadingDate.getTime();
 
-    const dayChanged = selectedDay !== currentDay;
-    const monthChanged =
-      date.getMonth() !== currentEffectiveMonth.getMonth() ||
-      date.getFullYear() !== currentEffectiveMonth.getFullYear();
-
-    setHasChanges(dayChanged || monthChanged);
+    setHasChanges(hasChanged);
   };
 
   const handleSave = async () => {
@@ -52,11 +46,8 @@ export default function Navbar() {
 
     setIsSaving(true);
     try {
-      const effectiveReadingDay = selectedDate.getDate();
-
       const updatedTariff = await updateTariffApi(tariff.id, {
-        effectiveReadingDay,
-        effectiveMonth: selectedDate,
+        nextReadingDate: selectedDate,
       });
 
       if (!updatedTariff) {
@@ -81,8 +72,8 @@ export default function Navbar() {
         </h1>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="max-w-sm">
+      <div className="flex flex-col items-center gap-2">
+        <div className="max-w-72">
           <DatePicker
             title="Data da próxima leitura prevista"
             description="Confirme a data da próxima leitura prevista para o seu consumo na sua conta de energia elétrica."
@@ -92,11 +83,7 @@ export default function Navbar() {
           />
         </div>
         {hasChanges && (
-          <Button
-            onClick={handleSave}
-            disabled={isSaving || tariffIsLoading}
-            size="sm"
-          >
+          <Button onClick={handleSave} disabled={isSaving || tariffIsLoading}>
             {isSaving ? "Salvando..." : "Salvar"}
           </Button>
         )}

@@ -3,6 +3,7 @@
 import type { ChartConfig } from "@/components/ui/chart";
 import { DonutChart } from "@/components/charts/DonutChart";
 import { useDataLayer } from "@/components/context/DataLayerContext";
+import { format } from "date-fns";
 
 const chartConfig: ChartConfig = {
   energyConsumption: {
@@ -55,7 +56,11 @@ export default function TotalPriceChartView() {
       unit="R$"
       tooltipPrefix="R$"
       chartConfig={chartConfig}
-      footerText={`Total de consumo no mês atual. A data de leitura do seu medidor é o dia ${tariff?.effectiveReadingDay} de cada mês. ${tariff?.description}`}
+      footerText={`Total de consumo no mês atual. A próxima data de leitura do seu medidor é: ${
+        tariff?.nextReadingDate
+          ? format(tariff.nextReadingDate, "dd/MM/yyyy")
+          : "não definida"
+      }. ${tariff?.description}`}
     />
   );
 }

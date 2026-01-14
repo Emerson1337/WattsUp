@@ -50,7 +50,7 @@ model Tariffs {
   description String
   state String
   lastReading DateTime
-  effectiveReadingDay Int
+  nextReadingDate DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }

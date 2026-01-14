@@ -5,8 +5,6 @@ export interface Tariff {
   description: string;
   state: string;
   lastReading: Date;
-  effectiveReadingDay: number;
-  effectiveMonth: Date;
   nextReadingDate: Date;
   createdAt: Date;
   updatedAt: Date;

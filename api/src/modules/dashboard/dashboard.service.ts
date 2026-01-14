@@ -50,19 +50,21 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const effectiveReadingDay = tariff.nextReadingDate.getDate();
+
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption(
-        tariff.effectiveReadingDay
+        effectiveReadingDay
       );
 
     const currentMonthConsumptionPeak =
       await DashboardRepository.findCurrentMonthConsumptionPeak(
-        tariff.effectiveReadingDay
+        effectiveReadingDay
       );
 
     const lastMonthConsumptionPeak =
       await DashboardRepository.findLastMonthConsumptionPeak(
-        tariff.effectiveReadingDay
+        effectiveReadingDay
       );
 
     const currentMonthPeakKWh = currentMonthConsumptionPeak?.kWh ?? 0;
@@ -110,6 +112,7 @@ class DashboardService {
     }
 
     const currentDate = new Date();
+    const effectiveReadingDay = tariff.nextReadingDate.getDate();
 
     const last15DaysConsumption =
       await DashboardRepository.getLast15DaysConsumption();
@@ -119,29 +122,20 @@ class DashboardService {
     }
 
     const lastMonthConsumption =
-      await DashboardRepository.findLastMonthConsumption(
-        tariff.effectiveReadingDay
-      );
+      await DashboardRepository.findLastMonthConsumption(effectiveReadingDay);
 
     const consumptionAverageLast15Days =
       last15DaysConsumption.reduce((acc, day) => acc + day.kWh, 0) /
       last15DaysConsumption.length;
 
-    const nextReadingDate = isSameMonth(tariff.lastReading, currentDate)
-      ? addDays(
-          startOfMonth(addMonths(currentDate, 1)),
-          tariff.effectiveReadingDay
-        )
-      : addDays(startOfMonth(currentDate), tariff.effectiveReadingDay);
-
     const daysLeftToFinishMonth = differenceInDays(
-      nextReadingDate,
+      tariff.nextReadingDate,
       currentDate
     );
 
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption(
-        tariff.effectiveReadingDay
+        effectiveReadingDay
       );
 
     const currentKwhConsumption = currentMonthConsumption?.kWh ?? 0;
@@ -178,17 +172,17 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const effectiveReadingDay = tariff.nextReadingDate.getDate();
+
     const last6MonthsConsumption =
-      await DashboardRepository.getLast6MonthsConsumption(
-        tariff.effectiveReadingDay
-      );
+      await DashboardRepository.getLast6MonthsConsumption(effectiveReadingDay);
 
     if (!last6MonthsConsumption)
       throw new Error("Consumo mensal não encontrado.");
 
     const last6MonthsConsumptionFromPastYear =
       await DashboardRepository.getLast6MonthsConsumptionFromPastYear(
-        tariff.effectiveReadingDay
+        effectiveReadingDay
       );
 
     const history: LastSemesterHistoryResponse["history"] =

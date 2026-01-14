@@ -52,13 +52,10 @@ paths:
                     type: string
                     format: date-time
                     example: "2025-04-20T00:00:00.000Z"
-                  effectiveReadingDay:
-                    type: integer
-                    example: 20
-                  effectiveMonth:
+                  nextReadingDate:
                     type: string
                     format: date-time
-                    example: "2025-04-30T02:53:50.765Z"
+                    example: "2025-05-20T00:00:00.000Z"
                   createdAt:
                     type: string
                     format: date-time
