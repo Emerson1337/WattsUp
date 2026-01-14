@@ -210,11 +210,14 @@ jobs:
             }
             EOF
             
-            # Enable the site
-            sudo ln -sf /etc/nginx/sites-available/wattsup /etc/nginx/sites-enabled/
-            
             # Remove default nginx site if it exists
             sudo rm -f /etc/nginx/sites-enabled/default
+            
+            # Enable the site (create symlink)
+            sudo ln -sf /etc/nginx/sites-available/wattsup /etc/nginx/sites-enabled/wattsup
+            
+            # Verify symlink was created
+            ls -la /etc/nginx/sites-enabled/
             
             # Test nginx configuration
             sudo nginx -t
