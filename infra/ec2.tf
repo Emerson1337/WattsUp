@@ -43,6 +43,11 @@ resource "aws_instance" "main" {
 
   key_name = var.ssh_public_key != "" ? aws_key_pair.main[0].key_name : null
 
+  user_data = <<-EOF
+    #!/bin/bash
+    timedatectl set-timezone America/Sao_Paulo
+  EOF
+
   lifecycle {
     ignore_changes = [key_name]
   }
