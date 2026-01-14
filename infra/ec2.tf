@@ -45,7 +45,7 @@ resource "aws_instance" "main" {
 
   user_data = <<-EOF
     #!/bin/bash
-    timedatectl set-timezone America/Sao_Paulo
+    timedatectl set-timezone UTC
   EOF
 
   lifecycle {
