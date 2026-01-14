@@ -164,7 +164,7 @@ jobs:
             set -e
             
             # Create nginx configuration
-            sudo tee /etc/nginx/sites-available/wattsup > /dev/null << 'EOF'
+            sudo tee /etc/nginx/sites-available/wattsup > /dev/null << 'NGINX_CONFIG_EOF'
             server {
                 listen 80;
                 server_name _;
@@ -208,7 +208,7 @@ jobs:
                     proxy_read_timeout 86400;
                 }
             }
-            EOF
+            NGINX_CONFIG_EOF
             
             # Remove default nginx site if it exists
             sudo rm -f /etc/nginx/sites-enabled/default
