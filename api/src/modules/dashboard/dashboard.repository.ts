@@ -16,17 +16,16 @@ import {
   addMonths,
 } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { BRAZIL_TZ } from "@/modules/shared/utils";
 import { TIMEZONES } from "@/modules/shared/utils";
 
 const prisma = new PrismaClient();
 
 class DashboardRepository {
-  private nowDateInTZ = () => toZonedTime(new Date(), BRAZIL_TZ);
+  private nowDate = () => new Date();
 
   // Determine the start of the current "month" (e.g: starting on the 20th)
   private getStartOfTheMonthInTZ = (startMonthReadingDay: number) => {
-    const currentDate = startOfHour(this.nowDateInTZ());
+    const currentDate = startOfHour(this.nowDate());
 
     // Determine the start of the current "month" (e.g: starting on the 20th)
     if (currentDate.getDate() >= startMonthReadingDay) {
@@ -51,7 +50,7 @@ class DashboardRepository {
   };
 
   constructor(timezone?: TIMEZONES) {
-    if (timezone) this.nowDateInTZ = () => toZonedTime(new Date(), timezone);
+    if (timezone) this.nowDate = () => toZonedTime(new Date(), timezone);
   }
 
   findTariff = async (): Promise<PrismaTariffs | null> => {
@@ -150,7 +149,7 @@ class DashboardRepository {
   };
 
   getLast15DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
-    const startOfDayInBrazil = startOfDay(this.nowDateInTZ());
+    const startOfDayInBrazil = startOfDay(this.nowDate());
     const sevenDaysBeforeInBrazil = subDays(startOfDayInBrazil, 15);
 
     return await prisma.dailyReport.findMany({
@@ -173,7 +172,7 @@ class DashboardRepository {
     return await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
+          lte: this.nowDate(),
           gte: lastSixMonths,
         },
       },
@@ -205,12 +204,12 @@ class DashboardRepository {
   getLastHourHistoryPerMinute = async (): Promise<
     PrismaPerMinuteReport[] | null
   > => {
-    const lastHour = subHours(this.nowDateInTZ(), 1);
+    const lastHour = subHours(this.nowDate(), 1);
 
     return await prisma.perMinuteReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
+          lte: this.nowDate(),
           gte: lastHour,
         },
       },
@@ -218,12 +217,12 @@ class DashboardRepository {
   };
 
   getLastDayHistoryHourly = async (): Promise<PrismaHourlyReport[] | null> => {
-    const lastDay = subDays(this.nowDateInTZ(), 1);
+    const lastDay = subDays(this.nowDate(), 1);
 
     return await prisma.hourlyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
+          lte: this.nowDate(),
           gte: lastDay,
         },
       },
@@ -231,12 +230,12 @@ class DashboardRepository {
   };
 
   getLastMonthDaily = async (): Promise<PrismaDailyReport[] | null> => {
-    const lastDay = subMonths(this.nowDateInTZ(), 1);
+    const lastDay = subMonths(this.nowDate(), 1);
 
     return await prisma.dailyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
+          lte: this.nowDate(),
           gte: lastDay,
         },
       },
