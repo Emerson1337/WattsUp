@@ -33,23 +33,30 @@ jobs:
       - name: Prepare EC2 Environment
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
-            # Install Docker and Docker Compose if not already installed
-            if ! command -v docker &> /dev/null; then
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo service docker start
-              sudo usermod -aG docker ec2-user
+            set -e
+            
+            # Update system packages
+            sudo apt-get update -y
+            
+            # Install Node.js 20.x if not already installed
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
             fi
-
-            if ! command -v docker-compose &> /dev/null; then
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
+            
+            # Install nginx if not already installed
+            if ! command -v nginx &> /dev/null; then
+              sudo apt-get install -y nginx
             fi
-
-            # Prepare the application directory with correct ownership
-            sudo rm -rf /home/${{ vars.EC2_USER }}/app
-
-            sudo mkdir -p /home/${{ vars.EC2_USER }}/app
+            
+            # Install PM2 globally if not already installed
+            if ! command -v pm2 &> /dev/null; then
+              sudo npm install -g pm2
+            fi
+            
+            # Prepare application directories
+            sudo mkdir -p /home/${{ vars.EC2_USER }}/app/api
+            sudo mkdir -p /home/${{ vars.EC2_USER }}/app/dashboard
             sudo chown -R ${{ vars.EC2_USER }}:${{ vars.EC2_USER }} /home/${{ vars.EC2_USER }}/app
           EOF
 
@@ -57,17 +64,125 @@ jobs:
         run: |
           mkdir -p api
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
+          echo "PORT=3001" >> api/.env
 
-      - name: Upload Docker Compose and Application Files
+      - name: Upload Application Files
         run: |
-          tar -czf app.tar.gz api
+          tar -czf app.tar.gz api dashboard
           scp -o StrictHostKeyChecking=no app.tar.gz ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/home/${{ vars.EC2_USER }}/app/
-          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "tar -xzf /home/${{ vars.EC2_USER }}/app/app.tar.gz -C /home/${{ vars.EC2_USER }}/app && rm /home/${{ vars.EC2_USER }}/app/app.tar.gz"
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} "cd /home/${{ vars.EC2_USER }}/app && tar -xzf app.tar.gz && rm app.tar.gz"
 
-      - name: Deploy Application
+      - name: Build and Deploy Applications
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
+            set -e
+            
+            # Build API
             cd /home/${{ vars.EC2_USER }}/app/api
-            docker-compose down || true
-            docker-compose up -d --build
+            npm ci --production=false
+            npx prisma generate
+            npm run build
+            
+            # Build Dashboard with correct API URL
+            cd /home/${{ vars.EC2_USER }}/app/dashboard
+            npm ci --production=false
+            NEXT_PUBLIC_API_URL=http://${{ vars.EC2_HOST }}/api NEXT_PUBLIC_WS_URL=ws://${{ vars.EC2_HOST }} npm run build
+            
+            # Install production dependencies for API
+            cd /home/${{ vars.EC2_USER }}/app/api
+            npm ci --production=true
+            
+            # Install production dependencies for Dashboard
+            cd /home/${{ vars.EC2_USER }}/app/dashboard
+            npm ci --production=true
           EOF
+
+      - name: Configure PM2 and Start Applications
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << EOF
+            set -e
+            
+            # Stop existing PM2 processes
+            pm2 delete all || true
+            
+            # Start API with PM2
+            cd /home/${{ vars.EC2_USER }}/app/api
+            pm2 start npm --name "api" -- run serve --update-env
+            
+            # Start Dashboard with PM2
+            cd /home/${{ vars.EC2_USER }}/app/dashboard
+            pm2 start npm --name "dashboard" -- start --update-env
+            
+            # Save PM2 configuration
+            pm2 save
+            
+            # Set up PM2 startup script (only if not already configured)
+            if ! pm2 startup | grep -q "already"; then
+              sudo env PATH=\$PATH:/usr/bin pm2 startup systemd -u ${{ vars.EC2_USER }} --hp /home/${{ vars.EC2_USER }}
+            fi
+          EOF
+
+      - name: Configure Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << 'NGINX_EOF'
+            set -e
+            
+            # Create nginx configuration
+            sudo tee /etc/nginx/sites-available/wattsup > /dev/null << 'EOF'
+            server {
+                listen 80;
+                server_name _;
+                
+                # Dashboard (Next.js)
+                location / {
+                    proxy_pass http://localhost:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_cache_bypass $http_upgrade;
+                }
+                
+                # API endpoints
+                location /api {
+                    proxy_pass http://localhost:3001;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_cache_bypass $http_upgrade;
+                }
+                
+                # WebSocket support for telemetry
+                location /telemetry {
+                    proxy_pass http://localhost:3001;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_read_timeout 86400;
+                }
+            }
+            EOF
+            
+            # Enable the site
+            sudo ln -sf /etc/nginx/sites-available/wattsup /etc/nginx/sites-enabled/
+            
+            # Remove default nginx site if it exists
+            sudo rm -f /etc/nginx/sites-enabled/default
+            
+            # Test nginx configuration
+            sudo nginx -t
+            
+            # Reload nginx
+            sudo systemctl reload nginx
+          NGINX_EOF
