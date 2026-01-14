@@ -135,7 +135,7 @@ jobs:
             
             # Regenerate Prisma Client for platform compatibility
             cd /home/${{ vars.EC2_USER }}/app/api
-            prisma generate
+            prisma generate --schema=src/infra/prisma/schema.prisma
             
             # Stop existing PM2 processes
             pm2 delete all || true
