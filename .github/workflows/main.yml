@@ -105,13 +105,13 @@ jobs:
             # Stop existing PM2 processes
             pm2 delete all || true
             
-            # Start API with PM2
+            # Start API with PM2 (using the serve script from package.json)
             cd /home/${{ vars.EC2_USER }}/app/api
-            pm2 start npm --name "api" -- run serve --update-env
+            pm2 start npm --name "api" -- run serve
             
-            # Start Dashboard with PM2
+            # Start Dashboard with PM2 (using the start script from package.json)
             cd /home/${{ vars.EC2_USER }}/app/dashboard
-            pm2 start npm --name "dashboard" -- start --update-env
+            pm2 start npm --name "dashboard" -- start
             
             # Save PM2 configuration
             pm2 save
