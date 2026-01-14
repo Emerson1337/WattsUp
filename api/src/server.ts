@@ -15,6 +15,6 @@ export const wssTelemetry = new WebSocketServer({
 
 import "@/IO";
 
-server.listen(process.env.PORT || 3000, () =>
+server.listen(process.env.PORT || 3001, () =>
   console.log("Server has been initializated! 🚀 ")
 );

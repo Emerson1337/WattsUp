@@ -160,55 +160,59 @@ jobs:
 
       - name: Configure Nginx
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << 'NGINX_EOF'
+          cat > /tmp/nginx-wattsup.conf << 'EOF'
+          server {
+              listen 80;
+              server_name _;
+              
+              # Dashboard (Next.js)
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_cache_bypass $http_upgrade;
+              }
+              
+              # API endpoints - preserve /api prefix
+              location /api {
+                  proxy_pass http://localhost:3001/api;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_cache_bypass $http_upgrade;
+              }
+              
+              # WebSocket support for telemetry
+              location /telemetry {
+                  proxy_pass http://localhost:3001;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_read_timeout 86400;
+              }
+          }
+          EOF
+
+          scp -o StrictHostKeyChecking=no /tmp/nginx-wattsup.conf ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }}:/tmp/nginx-wattsup.conf
+
+          ssh -o StrictHostKeyChecking=no ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << 'EOF'
             set -e
             
-            # Create nginx configuration
-            sudo tee /etc/nginx/sites-available/wattsup > /dev/null << 'NGINX_CONFIG_EOF'
-            server {
-                listen 80;
-                server_name _;
-                
-                # Dashboard (Next.js)
-                location / {
-                    proxy_pass http://localhost:3000;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_cache_bypass $http_upgrade;
-                }
-                
-                # API endpoints
-                location /api {
-                    proxy_pass http://localhost:3001;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_cache_bypass $http_upgrade;
-                }
-                
-                # WebSocket support for telemetry
-                location /telemetry {
-                    proxy_pass http://localhost:3001;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection "upgrade";
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_read_timeout 86400;
-                }
-            }
-            NGINX_CONFIG_EOF
+            # Move config to nginx directory
+            sudo mv /tmp/nginx-wattsup.conf /etc/nginx/sites-available/wattsup
             
             # Remove default nginx site if it exists
             sudo rm -f /etc/nginx/sites-enabled/default
@@ -224,7 +228,7 @@ jobs:
             
             # Reload nginx
             sudo systemctl reload nginx
-          NGINX_EOF
+          EOF
 
       - name: Deployment Complete
         run: |
