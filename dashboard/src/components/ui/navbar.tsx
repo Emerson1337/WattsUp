@@ -3,6 +3,13 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CalendarIcon } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/logo.svg";
 import { useDataLayer } from "@/components/context/DataLayerContext";
@@ -18,17 +25,22 @@ export default function Navbar() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [month, setMonth] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     if (!tariff?.nextReadingDate) return;
 
     const date = new Date(tariff.nextReadingDate);
     setSelectedDate(date);
+    setMonth(date);
     setHasChanges(false);
   }, [tariff]);
 
   const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date);
+    if (date) {
+      setMonth(date);
+    }
 
     if (!tariff || !date) {
       setHasChanges(false);
@@ -39,6 +51,10 @@ export default function Navbar() {
     const hasChanged = date.getTime() !== currentNextReadingDate.getTime();
 
     setHasChanges(hasChanged);
+  };
+
+  const handleMobileDateSelect = (date: Date | undefined) => {
+    handleDateChange(date);
   };
 
   const handleSave = async () => {
@@ -73,7 +89,7 @@ export default function Navbar() {
       </div>
 
       <div className="flex flex-col items-center gap-2">
-        <div className="max-w-72">
+        <div className="max-w-72 hidden lg:block">
           <DatePicker
             title="Data da próxima leitura prevista"
             description="Confirme a data da próxima leitura prevista para o seu consumo na sua conta de energia elétrica."
@@ -82,6 +98,7 @@ export default function Navbar() {
             disabled={tariffIsLoading || !tariff}
           />
         </div>
+
         {hasChanges && (
           <Button onClick={handleSave} disabled={isSaving || tariffIsLoading}>
             {isSaving ? "Salvando..." : "Salvar"}
@@ -99,6 +116,39 @@ export default function Navbar() {
         unoptimized
       />
       <ThemeToggle />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon" className="lg:hidden">
+            <CalendarIcon className="h-[1.2rem] w-[1.2rem]" />
+            <span className="sr-only">Selecionar data</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="w-auto max-w-80 overflow-hidden p-0"
+          align="end"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <div className="flex flex-col gap-1.5">
+              <h2 className="text-sm font-medium leading-none">
+                Data da próxima leitura prevista
+              </h2>
+              <p className="text-muted-foreground text-sm leading-none">
+                Confirme a data da próxima leitura prevista para o seu consumo
+                na sua conta de energia elétrica.
+              </p>
+            </div>
+            <Calendar
+              className="w-full"
+              mode="single"
+              selected={selectedDate}
+              captionLayout="dropdown"
+              month={month}
+              onMonthChange={setMonth}
+              onSelect={handleMobileDateSelect}
+            />
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }
