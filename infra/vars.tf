@@ -13,7 +13,7 @@ variable "project_name" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t4g.nano"
+  default     = "t4g.micro"
 }
 
 variable "ssh_public_key" {
