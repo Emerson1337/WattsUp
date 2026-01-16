@@ -4,6 +4,10 @@ import "@/infra/crons/cronjob-runner";
 
 const app = express();
 
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Server is running" });
+});
+
 app.use(express.json());
 app.use(router);
 
