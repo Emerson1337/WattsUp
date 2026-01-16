@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon -r tsconfig-paths/register src/server.ts",
     "db:dev": "./local-dev/start_dev_db.sh",
-    "build": "tsc",
+    "build": "tsc && mkdir -p dist/swagger && cp -r src/swagger/* dist/swagger/",
     "serve": "node -r module-alias/register dist/server.js",
     "cron": "ts-node -r tsconfig-paths/register ./src/infra/crons/cronjob-runner.ts "
   },
