@@ -69,50 +69,59 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Build API
         run: |
           cd api
-          npm ci
+          npm ci --prefer-offline --no-audit
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
           echo "PORT=3001" >> .env
           npx prisma generate
           npm run build
 
+          # Copy built artifacts to deployment directory
+          mkdir -p ../deploy/api
+          cp -r dist ../deploy/api/
+          cp package.json ../deploy/api/
+          cp package-lock.json ../deploy/api/ 2>/dev/null || true
+          cp .env ../deploy/api/
+          mkdir -p ../deploy/api/src/infra/prisma
+          cp src/infra/prisma/schema.prisma ../deploy/api/src/infra/prisma/
+
+          # Clean up to free memory
+          rm -rf node_modules
+          npm cache clean --force
+
       - name: Build Dashboard
         run: |
           cd dashboard
-          npm ci
+          npm ci --prefer-offline --no-audit
           NEXT_PUBLIC_API_URL=http://${{ vars.EC2_HOST }}/api NEXT_PUBLIC_WS_URL=ws://${{ vars.EC2_HOST }} npm run build
+
+          # Copy built artifacts to deployment directory
+          mkdir -p ../deploy/dashboard
+          cp -r .next ../deploy/dashboard/
+          cp package.json ../deploy/dashboard/
+          cp package-lock.json ../deploy/dashboard/ 2>/dev/null || true
+          cp -r public ../deploy/dashboard/ 2>/dev/null || true
+
+          # Clean up to free memory
+          rm -rf node_modules
+          npm cache clean --force
 
       - name: Prepare Deployment Package
         run: |
-          # Create deployment directories
-          mkdir -p deploy/api deploy/dashboard
+          # Install production dependencies for API
+          cd deploy/api
+          npm ci --production --prefer-offline --no-audit
 
-          # Copy API files (built dist, package.json, node_modules for production, .env, prisma schema)
-          cp -r api/dist deploy/api/
-          cp api/package.json deploy/api/
-          cp api/package-lock.json deploy/api/ 2>/dev/null || true
-          cp api/.env deploy/api/
-          mkdir -p deploy/api/src/infra/prisma
-          cp api/src/infra/prisma/schema.prisma deploy/api/src/infra/prisma/
-
-          # Copy Dashboard files (built .next, package.json, node_modules for production, public)
-          cp -r dashboard/.next deploy/dashboard/
-          cp dashboard/package.json deploy/dashboard/
-          cp dashboard/package-lock.json deploy/dashboard/ 2>/dev/null || true
-          cp -r dashboard/public deploy/dashboard/ 2>/dev/null || true
-
-          # Create production node_modules for API
-          cd api
-          npm ci --production
-          cp -r node_modules ../deploy/api/
-
-          # Create production node_modules for Dashboard
+          # Install production dependencies for Dashboard
           cd ../dashboard
-          npm ci --production
-          cp -r node_modules ../deploy/dashboard/
+          npm ci --production --prefer-offline --no-audit
+
+          # Final cleanup
+          npm cache clean --force
 
       - name: Upload Built Applications
         run: |
