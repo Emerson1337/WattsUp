@@ -18,15 +18,6 @@ const nextConfig: NextConfig = {
     root: rootDir,
   },
 
-  rewrites: async () => {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "http://localhost:3001/api/:path*",
-      },
-    ];
-  },
-
   outputFileTracingRoot: rootDir,
 
   images: {
