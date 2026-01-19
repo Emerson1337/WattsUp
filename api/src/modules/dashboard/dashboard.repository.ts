@@ -15,43 +15,50 @@ import {
   subMonths,
   addMonths,
 } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { BRAZIL_TZ } from "@/modules/shared/utils";
 import { TIMEZONES } from "@/modules/shared/utils";
 
 const prisma = new PrismaClient();
 
 class DashboardRepository {
-  private nowDateInTZ = () => toZonedTime(new Date(), BRAZIL_TZ);
+  private timezone: string = BRAZIL_TZ;
+  private currentTimeUTC: Date = new Date();
+  private currentTimeInTimezone: Date = toZonedTime(new Date(), this.timezone);
 
-  // Determine the start of the current "month" (e.g: starting on the 20th)
-  private getStartOfTheMonthInTZ = (startMonthReadingDay: number) => {
-    const currentDate = startOfHour(this.nowDateInTZ());
+  private refreshCurrentTime = (): void => {
+    this.currentTimeUTC = new Date();
+    this.currentTimeInTimezone = toZonedTime(this.currentTimeUTC, this.timezone);
+  };
 
-    // Determine the start of the current "month" (e.g: starting on the 20th)
-    if (currentDate.getDate() >= startMonthReadingDay) {
-      // If today is after the start month reading day, return the start of the month
-      return startOfDay(
-        new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          startMonthReadingDay
-        )
-      );
-    }
+  private convertTimezoneToUTC = (dateInTimezone: Date): Date => {
+    return fromZonedTime(dateInTimezone, this.timezone);
+  };
 
-    // If today is before the start month reading day, return the start of the previous month (the actual current month)
-    return startOfDay(
+  private getStartOfCurrentMonthInUTC = (
+    startMonthReadingDay: number
+  ): Date => {
+    this.refreshCurrentTime();
+
+    const currentHourInTimezone = startOfHour(this.currentTimeInTimezone);
+    const currentDayOfMonth = currentHourInTimezone.getDate();
+
+    const startOfMonthInTimezone = startOfDay(
       new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() - 1,
+        currentHourInTimezone.getFullYear(),
+        currentDayOfMonth >= startMonthReadingDay
+          ? currentHourInTimezone.getMonth()
+          : currentHourInTimezone.getMonth() - 1,
         startMonthReadingDay
       )
     );
+
+    return this.convertTimezoneToUTC(startOfMonthInTimezone);
   };
 
   constructor(timezone?: TIMEZONES) {
-    if (timezone) this.nowDateInTZ = () => toZonedTime(new Date(), timezone);
+    if (timezone) this.timezone = timezone;
+    this.refreshCurrentTime();
   }
 
   findTariff = async (): Promise<PrismaTariffs | null> => {
@@ -80,16 +87,15 @@ class DashboardRepository {
   findLastMonthConsumption = async (
     startMonthReadingDay: number
   ): Promise<PrismaMonthlyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfTheMonthInTZ(startMonthReadingDay);
-
-    const lastMonth = subMonths(startOfCurrentMonth, 1);
+    const startOfCurrentMonthInUTC =
+      this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
+    const startOfLastMonthInUTC = subMonths(startOfCurrentMonthInUTC, 1);
 
     return await prisma.monthlyReport.findFirst({
       where: {
         createdAt: {
-          gte: lastMonth,
-          lte: startOfCurrentMonth,
+          gte: startOfLastMonthInUTC,
+          lte: startOfCurrentMonthInUTC,
         },
       },
     });
@@ -98,13 +104,13 @@ class DashboardRepository {
   findCurrentMonthConsumption = async (
     startMonthReadingDay: number
   ): Promise<PrismaMonthlyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfTheMonthInTZ(startMonthReadingDay);
+    const startOfCurrentMonthInUTC =
+      this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
 
     return await prisma.monthlyReport.findFirst({
       where: {
         createdAt: {
-          gte: startOfCurrentMonth,
+          gte: startOfCurrentMonthInUTC,
         },
       },
     });
@@ -113,13 +119,13 @@ class DashboardRepository {
   findCurrentMonthConsumptionPeak = async (
     startMonthReadingDay: number
   ): Promise<PrismaDailyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfTheMonthInTZ(startMonthReadingDay);
+    const startOfCurrentMonthInUTC =
+      this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
 
     return await prisma.dailyReport.findFirst({
       where: {
         createdAt: {
-          gte: startOfCurrentMonth,
+          gte: startOfCurrentMonthInUTC,
         },
       },
       orderBy: {
@@ -131,16 +137,15 @@ class DashboardRepository {
   findLastMonthConsumptionPeak = async (
     startMonthReadingDay: number
   ): Promise<PrismaDailyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfTheMonthInTZ(startMonthReadingDay);
-
-    const startOfLastMonth = subMonths(startOfCurrentMonth, 1);
+    const startOfCurrentMonthInUTC =
+      this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
+    const startOfLastMonthInUTC = subMonths(startOfCurrentMonthInUTC, 1);
 
     return await prisma.dailyReport.findFirst({
       where: {
         createdAt: {
-          lt: startOfCurrentMonth,
-          gte: startOfLastMonth,
+          lt: startOfCurrentMonthInUTC,
+          gte: startOfLastMonthInUTC,
         },
       },
       orderBy: {
@@ -150,14 +155,20 @@ class DashboardRepository {
   };
 
   getLast15DaysConsumption = async (): Promise<PrismaDailyReport[] | null> => {
-    const startOfDayInBrazil = startOfDay(this.nowDateInTZ());
-    const sevenDaysBeforeInBrazil = subDays(startOfDayInBrazil, 15);
+    this.refreshCurrentTime();
+
+    const startOfTodayInTimezone = startOfDay(this.currentTimeInTimezone);
+    const startOfFifteenDaysAgoInTimezone = subDays(startOfTodayInTimezone, 15);
+
+    const startOfTodayInUTC = this.convertTimezoneToUTC(startOfTodayInTimezone);
+    const startOfFifteenDaysAgoInUTC =
+      this.convertTimezoneToUTC(startOfFifteenDaysAgoInTimezone);
 
     return await prisma.dailyReport.findMany({
       where: {
         createdAt: {
-          lte: startOfDayInBrazil,
-          gte: sevenDaysBeforeInBrazil,
+          lte: startOfTodayInUTC,
+          gte: startOfFifteenDaysAgoInUTC,
         },
       },
     });
@@ -166,15 +177,17 @@ class DashboardRepository {
   getLast6MonthsConsumption = async (
     startMonthReadingDay: number
   ): Promise<PrismaMonthlyReport[] | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfTheMonthInTZ(startMonthReadingDay);
-    const lastSixMonths = subMonths(startOfCurrentMonth, 6);
+    this.refreshCurrentTime();
+
+    const startOfCurrentMonthInUTC =
+      this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
+    const startOfSixMonthsAgoInUTC = subMonths(startOfCurrentMonthInUTC, 6);
 
     return await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
-          gte: lastSixMonths,
+          lte: this.currentTimeUTC,
+          gte: startOfSixMonthsAgoInUTC,
         },
       },
     });
@@ -183,20 +196,23 @@ class DashboardRepository {
   getLast6MonthsConsumptionFromPastYear = async (
     startMonthReadingDay: number
   ): Promise<PrismaMonthlyReport[] | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfTheMonthInTZ(startMonthReadingDay);
+    const startOfCurrentMonthInUTC =
+      this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
 
-    const currentMonthDateInPastYear = addMonths(
-      subYears(startOfCurrentMonth, 1),
+    const startOfCurrentMonthOneYearAgoInUTC = addMonths(
+      subYears(startOfCurrentMonthInUTC, 1),
       1
     );
-    const lastSixMonthsInPastYear = subMonths(currentMonthDateInPastYear, 6);
+    const startOfSixMonthsBeforeOneYearAgoInUTC = subMonths(
+      startOfCurrentMonthOneYearAgoInUTC,
+      6
+    );
 
     return await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
-          lte: currentMonthDateInPastYear,
-          gte: lastSixMonthsInPastYear,
+          lte: startOfCurrentMonthOneYearAgoInUTC,
+          gte: startOfSixMonthsBeforeOneYearAgoInUTC,
         },
       },
     });
@@ -205,39 +221,54 @@ class DashboardRepository {
   getLastHourHistoryPerMinute = async (): Promise<
     PrismaPerMinuteReport[] | null
   > => {
-    const lastHour = subHours(this.nowDateInTZ(), 1);
+    this.refreshCurrentTime();
+
+    const oneHourAgoInTimezone = subHours(this.currentTimeInTimezone, 1);
+
+    const currentTimeInUTC = this.currentTimeUTC;
+    const oneHourAgoInUTC = this.convertTimezoneToUTC(oneHourAgoInTimezone);
 
     return await prisma.perMinuteReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
-          gte: lastHour,
+          lte: currentTimeInUTC,
+          gte: oneHourAgoInUTC,
         },
       },
     });
   };
 
   getLastDayHistoryHourly = async (): Promise<PrismaHourlyReport[] | null> => {
-    const lastDay = subDays(this.nowDateInTZ(), 1);
+    this.refreshCurrentTime();
+
+    const oneDayAgoInTimezone = subDays(this.currentTimeInTimezone, 1);
+
+    const currentTimeInUTC = this.currentTimeUTC;
+    const oneDayAgoInUTC = this.convertTimezoneToUTC(oneDayAgoInTimezone);
 
     return await prisma.hourlyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
-          gte: lastDay,
+          lte: currentTimeInUTC,
+          gte: oneDayAgoInUTC,
         },
       },
     });
   };
 
   getLastMonthDaily = async (): Promise<PrismaDailyReport[] | null> => {
-    const lastDay = subMonths(this.nowDateInTZ(), 1);
+    this.refreshCurrentTime();
+
+    const oneMonthAgoInTimezone = subMonths(this.currentTimeInTimezone, 1);
+
+    const currentTimeInUTC = this.currentTimeUTC;
+    const oneMonthAgoInUTC = this.convertTimezoneToUTC(oneMonthAgoInTimezone);
 
     return await prisma.dailyReport.findMany({
       where: {
         createdAt: {
-          lte: this.nowDateInTZ(),
-          gte: lastDay,
+          lte: currentTimeInUTC,
+          gte: oneMonthAgoInUTC,
         },
       },
     });
