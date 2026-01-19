@@ -14,6 +14,8 @@ import {
   subHours,
   subMonths,
   addMonths,
+  isAfter,
+  addDays,
 } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { BRAZIL_TZ } from "@/modules/shared/utils";
@@ -181,9 +183,27 @@ class DashboardRepository {
 
     const startOfCurrentMonthInUTC =
       this.getStartOfCurrentMonthInUTC(startMonthReadingDay);
+
+
+    const startOfNextMonthInUTC = addMonths(startOfCurrentMonthInUTC, 1);
+
+    let currentMonthTarget;
+
+    const tariff = await this.findTariff();
+
+    if(!tariff) {
+      throw new Error("Tarifa não encontrada.");
+    }
+
+    if(isAfter(this.currentTimeInTimezone, addDays(tariff.nextReadingDate, 1))) {
+      currentMonthTarget = startOfNextMonthInUTC;
+    } else {
+      currentMonthTarget = startOfCurrentMonthInUTC;
+    }
+      
     const startOfSixMonthsAgoInUTC = subMonths(startOfCurrentMonthInUTC, 6);
 
-    return await prisma.monthlyReport.findMany({
+    const last6MonthsEntries = await prisma.monthlyReport.findMany({
       where: {
         createdAt: {
           lte: this.currentTimeUTC,
@@ -191,6 +211,10 @@ class DashboardRepository {
         },
       },
     });
+
+    last6MonthsEntries[last6MonthsEntries.length - 1].createdAt = currentMonthTarget;
+
+    return last6MonthsEntries;
   };
 
   getLast6MonthsConsumptionFromPastYear = async (

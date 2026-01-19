@@ -1,7 +1,7 @@
 import DashboardRepository from "@/modules/dashboard/dashboard.repository";
 import { Tariffs as PrismaTariffs } from "@prisma/client";
 import { LastSemesterHistoryResponse } from "@/modules/dashboard/types/index";
-import { isSameMonthNoYear } from "@/modules/shared/utils";
+import { isSameMonthNoYear, BRAZIL_TZ } from "@/modules/shared/utils";
 import {
   MonthlyForecastResponse,
   MonthlyConsumptionResponse,
@@ -15,9 +15,19 @@ import {
   isSameMonth,
   differenceInDays,
   startOfMonth,
+  getDate,
 } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
 class DashboardService {
+  private getReadingDayFromTariff = (tariff: PrismaTariffs): number => {
+    const nextReadingDateInTimezone = toZonedTime(
+      tariff.nextReadingDate,
+      BRAZIL_TZ
+    );
+    return getDate(nextReadingDateInTimezone);
+  };
+
   getTariffs = async (): Promise<PrismaTariffs | undefined> => {
     const tariff = await DashboardRepository.findTariff();
 
@@ -50,7 +60,7 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
-    const effectiveReadingDay = tariff.nextReadingDate.getDate();
+    const effectiveReadingDay = this.getReadingDayFromTariff(tariff) + 1;
 
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption(
@@ -111,8 +121,13 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
-    const currentDate = new Date();
-    const effectiveReadingDay = tariff.nextReadingDate.getDate();
+    const currentDateUTC = new Date();
+    const currentDateInTimezone = toZonedTime(currentDateUTC, BRAZIL_TZ);
+    const nextReadingDateInTimezone = toZonedTime(
+      tariff.nextReadingDate,
+      BRAZIL_TZ
+    );
+    const effectiveReadingDay = this.getReadingDayFromTariff(tariff) + 1;
 
     const last15DaysConsumption =
       await DashboardRepository.getLast15DaysConsumption();
@@ -129,8 +144,8 @@ class DashboardService {
       last15DaysConsumption.length;
 
     const daysLeftToFinishMonth = differenceInDays(
-      tariff.nextReadingDate,
-      currentDate
+      nextReadingDateInTimezone,
+      currentDateInTimezone
     );
 
     const currentMonthConsumption =
@@ -172,7 +187,7 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
-    const effectiveReadingDay = tariff.nextReadingDate.getDate();
+    const effectiveReadingDay = this.getReadingDayFromTariff(tariff);
 
     const last6MonthsConsumption =
       await DashboardRepository.getLast6MonthsConsumption(effectiveReadingDay);

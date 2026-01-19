@@ -16,7 +16,7 @@ export const runSaveKWhJob = async () => {
   }, 0);
 
   const powerInKwh = totalPowerFromLastHour / 60;
-  const effectiveReadingDay = tariff.nextReadingDate.getDate();
+  const effectiveReadingDay = tariff.nextReadingDate.getDate() + 1;
 
   await TelemetryRepository.saveKWhPerHour(powerInKwh);
   await TelemetryRepository.incrementKWhInCurrentMonth(
