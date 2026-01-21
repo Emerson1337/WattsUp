@@ -29,7 +29,7 @@ export async function updateTariff(
   tariff: Partial<Tariff>
 ): Promise<Tariff | undefined> {
   try {
-    const res = await fetch(`/api/tariff/${id}`, {
+    const res = await fetch(NextApiPaths.tariff.update(id), {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

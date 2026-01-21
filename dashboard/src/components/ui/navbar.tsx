@@ -124,7 +124,7 @@ export default function Navbar() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="w-auto max-w-80 overflow-hidden p-0"
+          className="w-auto max-w-[calc(100vw-2rem)] overflow-visible p-0"
           align="end"
         >
           <div className="flex flex-col gap-3 p-4">
@@ -137,15 +137,17 @@ export default function Navbar() {
                 na sua conta de energia elétrica.
               </p>
             </div>
-            <Calendar
-              className="w-full"
-              mode="single"
-              selected={selectedDate}
-              captionLayout="dropdown"
-              month={month}
-              onMonthChange={setMonth}
-              onSelect={handleMobileDateSelect}
-            />
+            <div className="overflow-visible">
+              <Calendar
+                className="w-full"
+                mode="single"
+                selected={selectedDate}
+                captionLayout="dropdown"
+                month={month}
+                onMonthChange={setMonth}
+                onSelect={handleMobileDateSelect}
+              />
+            </div>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
