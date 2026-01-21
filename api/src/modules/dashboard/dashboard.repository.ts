@@ -123,7 +123,7 @@ class DashboardRepository {
     startMonthReadingDay: number
   ): Promise<PrismaDailyReport | null> => {
     const startOfCurrentMonth =
-      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);
+      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);    
 
     return await prisma.dailyReport.findFirst({
       where: {

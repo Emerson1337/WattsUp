@@ -28,6 +28,14 @@ class DashboardService {
     return getDate(nextReadingDateInTimezone);
   };
 
+  private getLastEffectiveReadingDay = (tariff: PrismaTariffs): number => {
+    const lastReadingDateInTimezone = toZonedTime(
+      tariff.lastReading,
+      BRAZIL_TZ
+    );
+    return getDate(lastReadingDateInTimezone);
+  };
+
   getTariffs = async (): Promise<PrismaTariffs | undefined> => {
     const tariff = await DashboardRepository.findTariff();
 
@@ -61,6 +69,7 @@ class DashboardService {
     }
 
     const effectiveReadingDay = this.getReadingDayFromTariff(tariff);
+    const lastEffectiveReadingDay = this.getLastEffectiveReadingDay(tariff);
 
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption(
@@ -69,12 +78,12 @@ class DashboardService {
 
     const currentMonthConsumptionPeak =
       await DashboardRepository.findCurrentMonthConsumptionPeak(
-        effectiveReadingDay
+        lastEffectiveReadingDay
       );
 
     const lastMonthConsumptionPeak =
       await DashboardRepository.findLastMonthConsumptionPeak(
-        effectiveReadingDay
+        lastEffectiveReadingDay
       );
 
     const currentMonthPeakKWh = currentMonthConsumptionPeak?.kWh ?? 0;
