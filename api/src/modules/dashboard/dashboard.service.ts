@@ -60,7 +60,7 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
-    const effectiveReadingDay = this.getReadingDayFromTariff(tariff) + 1;
+    const effectiveReadingDay = this.getReadingDayFromTariff(tariff);
 
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption(
@@ -121,13 +121,7 @@ class DashboardService {
       throw new Error("Tarifa não encontrada.");
     }
 
-    const currentDateUTC = new Date();
-    const currentDateInTimezone = toZonedTime(currentDateUTC, BRAZIL_TZ);
-    const nextReadingDateInTimezone = toZonedTime(
-      tariff.nextReadingDate,
-      BRAZIL_TZ
-    );
-    const effectiveReadingDay = this.getReadingDayFromTariff(tariff) + 1;
+    const effectiveReadingDay = this.getReadingDayFromTariff(tariff);
 
     const last15DaysConsumption =
       await DashboardRepository.getLast15DaysConsumption();
@@ -144,8 +138,8 @@ class DashboardService {
       last15DaysConsumption.length;
 
     const daysLeftToFinishMonth = differenceInDays(
-      nextReadingDateInTimezone,
-      currentDateInTimezone
+      tariff.nextReadingDate,
+      new Date()
     );
 
     const currentMonthConsumption =
@@ -191,7 +185,7 @@ class DashboardService {
 
     const last6MonthsConsumption =
       await DashboardRepository.getLast6MonthsConsumption(effectiveReadingDay);
-
+    
     if (!last6MonthsConsumption)
       throw new Error("Consumo mensal não encontrado.");
 
