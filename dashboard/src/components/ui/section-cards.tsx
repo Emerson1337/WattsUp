@@ -44,7 +44,7 @@ export function SectionCards() {
         100
       : 0;
 
-  const monthlyForecastBadgeTrend = consumptionForecastGrowth ? "up" : "down";
+  const monthlyForecastBadgeTrend = consumptionForecastGrowth > 0 ? "up" : "down";
 
   const nextReadingDate = tariff?.nextReadingDate
     ? format(new Date(tariff.nextReadingDate), "dd/MM")
