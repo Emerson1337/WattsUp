@@ -35,33 +35,10 @@ class DashboardRepository {
 
   private refreshCurrentTime = (): void => {
     this.currentTimeUTC = new Date();
-    this.currentTimeInTimezone = toZonedTime(this.currentTimeUTC, this.timezone);
-  };
-
-  private convertTimezoneToUTC = (dateInTimezone: Date): Date => {
-    return fromZonedTime(dateInTimezone, this.timezone);
-  };
-
-  private getStartOfCurrentMonthBasedOnReadingDay = (
-    startMonthReadingDay: number
-  ): Date => {
-    this.refreshCurrentTime();
-
-    const startOfHourCurrentDate = startOfHour(this.currentTimeInTimezone);
-
-    const currentDayOfMonth = startOfHourCurrentDate.getDate();
-    const currentMonth = startMonthReadingDay > currentDayOfMonth ? startOfHourCurrentDate.getMonth() + 1 : startOfHourCurrentDate.getMonth();
-    const currentYear = startOfHourCurrentDate.getFullYear();
-
-    const startOfCurrentMonthBasedOnReadingDay = startOfDay(
-      new Date(
-        currentYear,
-        currentMonth,
-        startMonthReadingDay,
-      )
+    this.currentTimeInTimezone = toZonedTime(
+      this.currentTimeUTC,
+      this.timezone
     );
-    
-    return startOfCurrentMonthBasedOnReadingDay;
   };
 
   findTariff = async (): Promise<PrismaTariffs | null> => {
@@ -88,10 +65,9 @@ class DashboardRepository {
   };
 
   findLastMonthConsumption = async (
-    startMonthReadingDay: number
+    effectiveReadingDate: Date
   ): Promise<PrismaMonthlyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);
+    const startOfCurrentMonth = effectiveReadingDate;
     const startOfLastMonth = subMonths(startOfCurrentMonth, 1);
 
     return await prisma.monthlyReport.findFirst({
@@ -105,11 +81,10 @@ class DashboardRepository {
   };
 
   findCurrentMonthConsumption = async (
-    startMonthReadingDay: number
+    effectiveReadingDate: Date
   ): Promise<PrismaMonthlyReport | null> => {
-    const startOfCurrentMonth =
-      addDays(this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay), 1);
-    
+    const startOfCurrentMonth = effectiveReadingDate;
+
     return await prisma.monthlyReport.findFirst({
       where: {
         createdAt: {
@@ -120,10 +95,9 @@ class DashboardRepository {
   };
 
   findCurrentMonthConsumptionPeak = async (
-    startMonthReadingDay: number
+    effectiveReadingDate: Date
   ): Promise<PrismaDailyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);    
+    const startOfCurrentMonth = effectiveReadingDate;
 
     return await prisma.dailyReport.findFirst({
       where: {
@@ -138,10 +112,9 @@ class DashboardRepository {
   };
 
   findLastMonthConsumptionPeak = async (
-    startMonthReadingDay: number
+    effectiveReadingDate: Date
   ): Promise<PrismaDailyReport | null> => {
-    const startOfCurrentMonth =
-      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);
+    const startOfCurrentMonth = effectiveReadingDate;
     const startOfLastMonth = subMonths(startOfCurrentMonth, 1);
 
     return await prisma.dailyReport.findFirst({
@@ -174,28 +147,27 @@ class DashboardRepository {
   };
 
   getLast6MonthsConsumption = async (
-    startMonthReadingDay: number
+    effectiveReadingDate: Date
   ): Promise<PrismaMonthlyReport[] | null> => {
     this.refreshCurrentTime();
 
-    const startOfCurrentMonth =
-      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);
+    const startOfCurrentMonth = effectiveReadingDate;
     let currentMonthTarget;
 
     const tariff = await this.findTariff();
 
-    if(!tariff) {
+    if (!tariff) {
       throw new Error("Tarifa não encontrada.");
     }
 
     const startOfNextMonth = tariff.nextReadingDate;
 
-    if(isAfter(this.currentTimeInTimezone, addDays(tariff.lastReading, 1))) {
+    if (isAfter(this.currentTimeInTimezone, addDays(tariff.lastReading, 1))) {
       currentMonthTarget = startOfNextMonth;
     } else {
       currentMonthTarget = startOfCurrentMonth;
     }
-      
+
     const startOfSixMonthsAgo = subMonths(startOfCurrentMonth, 6);
 
     const last6MonthsEntries = await prisma.monthlyReport.findMany({
@@ -207,27 +179,27 @@ class DashboardRepository {
       },
     });
 
-    if(!last6MonthsEntries.length) {
+    if (!last6MonthsEntries.length) {
       return [];
     }
 
-    last6MonthsEntries[last6MonthsEntries.length - 1].createdAt = currentMonthTarget;
+    last6MonthsEntries[last6MonthsEntries.length - 1].createdAt =
+      currentMonthTarget;
 
     return last6MonthsEntries;
   };
 
   getLast6MonthsConsumptionFromPastYear = async (
-    startMonthReadingDay: number
+    effectiveReadingDate: Date
   ): Promise<PrismaMonthlyReport[] | null> => {
     this.refreshCurrentTime();
 
-    const startOfCurrentMonth =
-      this.getStartOfCurrentMonthBasedOnReadingDay(startMonthReadingDay);
+    const startOfCurrentMonth = effectiveReadingDate;
     let currentMonthTarget;
 
     const tariff = await this.findTariff();
 
-    if(!tariff) {
+    if (!tariff) {
       throw new Error("Tarifa não encontrada.");
     }
 
@@ -241,7 +213,9 @@ class DashboardRepository {
     );
     const lastReadingOneYearAgo = subYears(tariff.lastReading, 1);
 
-    if(isAfter(this.currentTimeInTimezone, addDays(lastReadingOneYearAgo, 1))) {
+    if (
+      isAfter(this.currentTimeInTimezone, addDays(lastReadingOneYearAgo, 1))
+    ) {
       currentMonthTarget = startOfNextMonthOneYearAgo;
     } else {
       currentMonthTarget = startOfCurrentMonthOneYearAgo;
@@ -261,11 +235,12 @@ class DashboardRepository {
       },
     });
 
-    if(!last6MonthsEntries.length) {
+    if (!last6MonthsEntries.length) {
       return [];
     }
 
-    last6MonthsEntries[last6MonthsEntries.length - 1].createdAt = currentMonthTarget;
+    last6MonthsEntries[last6MonthsEntries.length - 1].createdAt =
+      currentMonthTarget;
 
     return last6MonthsEntries;
   };
