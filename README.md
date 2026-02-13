@@ -1,7 +1,6 @@
 Watch this video to understand it further
 
-https://youtu.be/nbbdoiMezgQ
-
+[![VIDEO](https://img.youtube.com/vi/nbbdoiMezgQ/0.jpg)](https://www.youtube.com/watch?v=nbbdoiMezgQ)
 
 Small demonstration on how it works in general terms:
 
