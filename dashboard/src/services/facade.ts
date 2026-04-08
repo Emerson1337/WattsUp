@@ -18,26 +18,26 @@ export async function updateTariff(id: string, tariff: Partial<Tariff>) {
   return await updateTariffApi(id, tariff);
 }
 
-export async function fetchMonthlyReport() {
-  return await getMonthlyReport();
+export async function fetchMonthlyReport(calibrate?: boolean) {
+  return await getMonthlyReport(calibrate);
 }
 
-export async function fetchMonthlyReportForecast() {
-  return await getMonthlyReportForecast();
+export async function fetchMonthlyReportForecast(calibrate?: boolean) {
+  return await getMonthlyReportForecast(calibrate);
 }
 
-export async function fetchLastSixMonthsReport() {
-  return await getLastSixMonthsReport();
+export async function fetchLastSixMonthsReport(calibrate?: boolean) {
+  return await getLastSixMonthsReport(calibrate);
 }
 
-export async function fetchLastHourPerMinute() {
-  return await getLastHourPerMinute();
+export async function fetchLastHourPerMinute(calibrate?: boolean) {
+  return await getLastHourPerMinute(calibrate);
 }
 
-export async function fetchLastDayHourly() {
-  return await getLastDayHourly();
+export async function fetchLastDayHourly(calibrate?: boolean) {
+  return await getLastDayHourly(calibrate);
 }
 
-export async function fetchLastMonthDaily() {
-  return await getLastMonthDaily();
+export async function fetchLastMonthDaily(calibrate?: boolean) {
+  return await getLastMonthDaily(calibrate);
 }

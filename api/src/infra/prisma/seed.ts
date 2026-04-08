@@ -12,6 +12,7 @@ async function main() {
       kWhPriceTaxes: 0.85,
       kWhTEPrice: 0.2598,
       kWhTUSDPrice: 0.388,
+      calibrationFactor: 1.0,
       lastReading: new Date("2025-04-20"),
       nextReadingDate: new Date("2025-05-20"),
     },

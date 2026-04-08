@@ -9,7 +9,7 @@ import {
   LastDayHourlyHistory,
   LastMonthDailyHistory,
 } from "@/services/types";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { openWSConnetionInstantConsumption } from "@/services/api";
 import {
   fetchTariff,
@@ -28,7 +28,10 @@ import React, {
   Dispatch,
 } from "react";
 
+const CALIBRATE_STORAGE_KEY = "wattsup-calibrate";
+
 interface State {
+  calibrate: boolean;
   tariff: Tariff | undefined;
   tariffIsLoading: boolean;
   monthlyReport: MonthlyReport | undefined;
@@ -47,6 +50,7 @@ interface State {
 }
 
 type Action =
+  | { type: "SET_CALIBRATE"; payload: boolean }
   | { type: "SET_TARIFF"; payload?: Tariff }
   | { type: "SET_TARIFF_LOADING"; payload: boolean }
   | { type: "SET_MONTHLY_REPORT"; payload?: MonthlyReport }
@@ -72,8 +76,14 @@ type Action =
     }
   | { type: "SET_LAST_MONTH_DAILY_CONSUMPTION_LOADING"; payload: boolean };
 
+const getInitialCalibrate = (): boolean => {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(CALIBRATE_STORAGE_KEY) === "true";
+};
+
 // Initial state
 const initialState: State = {
+  calibrate: false,
   tariff: undefined,
   tariffIsLoading: true,
   monthlyReport: undefined,
@@ -93,6 +103,8 @@ const initialState: State = {
 
 const dataLayerReducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case "SET_CALIBRATE":
+      return { ...state, calibrate: action.payload };
     case "SET_TARIFF":
       return { ...state, tariff: action.payload };
     case "SET_TARIFF_LOADING":
@@ -141,26 +153,32 @@ const dataLayerReducer = (state: State, action: Action): State => {
 const DataLayerContext = createContext<{
   state: State;
   dispatch: Dispatch<Action>;
+  refetchConsumptionData: (calibrate: boolean) => void;
 } | null>(null);
 
 export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(dataLayerReducer, initialState);
 
-  useEffect(() => {
-    const fetchTariffData = async () => {
-      try {
-        const data = await fetchTariff();
-        dispatch({ type: "SET_TARIFF", payload: data });
-      } catch (error) {
-        console.error("Erro ao consultar tarifa:", error);
-      } finally {
-        dispatch({ type: "SET_TARIFF_LOADING", payload: false });
-      }
-    };
+  const fetchConsumptionData = useCallback(async (calibrate: boolean) => {
+    dispatch({ type: "SET_MONTHLY_REPORT_LOADING", payload: true });
+    dispatch({ type: "SET_MONTHLY_REPORT_FORECAST_LOADING", payload: true });
+    dispatch({
+      type: "SET_LAST_SIX_MONTHS_CONSUMPTION_LOADING",
+      payload: true,
+    });
+    dispatch({
+      type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION_LOADING",
+      payload: true,
+    });
+    dispatch({ type: "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING", payload: true });
+    dispatch({
+      type: "SET_LAST_MONTH_DAILY_CONSUMPTION_LOADING",
+      payload: true,
+    });
 
     const fetchDataMonthlyReportData = async () => {
       try {
-        const data = await fetchMonthlyReport();
+        const data = await fetchMonthlyReport(calibrate);
         dispatch({ type: "SET_MONTHLY_REPORT", payload: data });
       } catch (error) {
         console.error("Erro ao consultar relatório mensal:", error);
@@ -171,7 +189,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchMonthlyReportForecastData = async () => {
       try {
-        const data = await fetchMonthlyReportForecast();
+        const data = await fetchMonthlyReportForecast(calibrate);
         dispatch({ type: "SET_MONTHLY_REPORT_FORECAST", payload: data });
       } catch (error) {
         console.error("Erro ao consultar previsão de consumo:", error);
@@ -183,22 +201,9 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    const fetchInstantConsumptionData = () => {
-      try {
-        const socket = openWSConnetionInstantConsumption();
-
-        dispatch({
-          type: "SET_INSTANT_CONSUMPTION_SOCKET",
-          payload: socket,
-        });
-      } catch (error) {
-        console.error("Erro ao abrir conexão em tempo real:", error);
-      }
-    };
-
     const fetchLastSixMonthsConsumptionData = async () => {
       try {
-        const data = await fetchLastSixMonthsReport();
+        const data = await fetchLastSixMonthsReport(calibrate);
         dispatch({
           type: "SET_LAST_SIX_MONTHS_CONSUMPTION",
           payload: data?.history,
@@ -215,7 +220,7 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchLastHourPerMinuteData = async () => {
       try {
-        const data = await fetchLastHourPerMinute();
+        const data = await fetchLastHourPerMinute(calibrate);
         dispatch({
           type: "SET_LAST_HOUR_PER_MINUTE_CONSUMPTION",
           payload: data?.history,
@@ -232,13 +237,13 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchLastDayHourlyData = async () => {
       try {
-        const data = await fetchLastDayHourly();
+        const data = await fetchLastDayHourly(calibrate);
         dispatch({
           type: "SET_LAST_DAY_HOURLY_CONSUMPTION",
           payload: data?.history,
         });
       } catch (error) {
-        console.error("Erro ao consultar consumo na última hora:", error);
+        console.error("Erro ao consultar consumo nas últimas 24h:", error);
       } finally {
         dispatch({
           type: "SET_LAST_DAY_HOURLY_CONSUMPTION_LOADING",
@@ -249,14 +254,13 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchLastMonthDailyData = async () => {
       try {
-        const data = await fetchLastMonthDaily();
-
+        const data = await fetchLastMonthDaily(calibrate);
         dispatch({
           type: "SET_LAST_MONTH_DAILY_CONSUMPTION",
           payload: data?.history,
         });
       } catch (error) {
-        console.error("Erro ao consultar consumo na última hora:", error);
+        console.error("Erro ao consultar consumo no último mês:", error);
       } finally {
         dispatch({
           type: "SET_LAST_MONTH_DAILY_CONSUMPTION_LOADING",
@@ -265,18 +269,60 @@ export const DataLayerProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    fetchTariffData();
     fetchDataMonthlyReportData();
     fetchMonthlyReportForecastData();
-    fetchInstantConsumptionData();
     fetchLastSixMonthsConsumptionData();
     fetchLastHourPerMinuteData();
     fetchLastDayHourlyData();
     fetchLastMonthDailyData();
   }, []);
 
+  useEffect(() => {
+    const savedCalibrate = getInitialCalibrate();
+    dispatch({ type: "SET_CALIBRATE", payload: savedCalibrate });
+
+    const fetchTariffData = async () => {
+      try {
+        const data = await fetchTariff();
+        dispatch({ type: "SET_TARIFF", payload: data });
+      } catch (error) {
+        console.error("Erro ao consultar tarifa:", error);
+      } finally {
+        dispatch({ type: "SET_TARIFF_LOADING", payload: false });
+      }
+    };
+
+    const fetchInstantConsumptionData = () => {
+      try {
+        const socket = openWSConnetionInstantConsumption();
+
+        dispatch({
+          type: "SET_INSTANT_CONSUMPTION_SOCKET",
+          payload: socket,
+        });
+      } catch (error) {
+        console.error("Erro ao abrir conexão em tempo real:", error);
+      }
+    };
+
+    fetchTariffData();
+    fetchConsumptionData(savedCalibrate);
+    fetchInstantConsumptionData();
+  }, [fetchConsumptionData]);
+
+  const refetchConsumptionData = useCallback(
+    (calibrate: boolean) => {
+      localStorage.setItem(CALIBRATE_STORAGE_KEY, String(calibrate));
+      dispatch({ type: "SET_CALIBRATE", payload: calibrate });
+      fetchConsumptionData(calibrate);
+    },
+    [fetchConsumptionData]
+  );
+
   return (
-    <DataLayerContext.Provider value={{ state, dispatch }}>
+    <DataLayerContext.Provider
+      value={{ state, dispatch, refetchConsumptionData }}
+    >
       {children}
     </DataLayerContext.Provider>
   );

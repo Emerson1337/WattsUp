@@ -48,6 +48,10 @@ paths:
                   state:
                     type: string
                     example: "Ceará"
+                  calibrationFactor:
+                    type: number
+                    format: float
+                    example: 1.0
                   lastReading:
                     type: string
                     format: date-time
@@ -68,6 +72,14 @@ paths:
   /consumption/monthly:
     get:
       summary: Monthly Report
+      parameters:
+        - in: query
+          name: calibrate
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: When true, applies the tariff calibrationFactor to all kWh values
       responses:
         "200":
           description: Monthly energy consumption
@@ -122,6 +134,14 @@ paths:
   /consumption/monthly/forecast:
     get:
       summary: Monthly Forecast
+      parameters:
+        - in: query
+          name: calibrate
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: When true, applies the tariff calibrationFactor to all kWh values
       responses:
         "200":
           description: Estimated usage and cost forecast
@@ -158,6 +178,14 @@ paths:
   /consumption/monthly/history:
     get:
       summary: Last 6 Month Report with Year Comparison
+      parameters:
+        - in: query
+          name: calibrate
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: When true, applies the tariff calibrationFactor to all kWh values
       responses:
         "200":
           description: History with previous year comparison
@@ -187,6 +215,14 @@ paths:
   /consumption/last-hour/history:
     get:
       summary: Last Hour History
+      parameters:
+        - in: query
+          name: calibrate
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: When true, applies the tariff calibrationFactor to all kW values
       responses:
         "200":
           description: Energy usage for last hour
@@ -212,6 +248,14 @@ paths:
   /consumption/last-day/history:
     get:
       summary: Last Day History
+      parameters:
+        - in: query
+          name: calibrate
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: When true, applies the tariff calibrationFactor to all kWh values
       responses:
         "200":
           description: Energy usage for last 24h
@@ -237,6 +281,14 @@ paths:
   /consumption/last-month/history:
     get:
       summary: Last Month Daily History
+      parameters:
+        - in: query
+          name: calibrate
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: When true, applies the tariff calibrationFactor to all kWh values
       responses:
         "200":
           description: Daily report for previous month

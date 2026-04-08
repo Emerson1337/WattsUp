@@ -4,6 +4,7 @@ export interface Tariff {
   kWhPriceTaxes: number;
   description: string;
   state: string;
+  calibrationFactor: number;
   lastReading: Date;
   nextReadingDate: Date;
   createdAt: Date;

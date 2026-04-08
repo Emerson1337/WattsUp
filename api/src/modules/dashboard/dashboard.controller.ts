@@ -37,11 +37,12 @@ class DashboardController {
   };
 
   getMonthlyConsumption = async (
-    _: Request,
+    request: Request,
     response: Response
   ): Promise<void> => {
     try {
-      const data = await DashboardService.getMonthlyConsumption();
+      const calibrate = request.query.calibrate === "true";
+      const data = await DashboardService.getMonthlyConsumption(calibrate);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);
@@ -49,11 +50,12 @@ class DashboardController {
   };
 
   getMonthlyForecast = async (
-    _: Request,
+    request: Request,
     response: Response
   ): Promise<void> => {
     try {
-      const data = await DashboardService.getMonthlyForecast();
+      const calibrate = request.query.calibrate === "true";
+      const data = await DashboardService.getMonthlyForecast(calibrate);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);
@@ -61,11 +63,12 @@ class DashboardController {
   };
 
   getLast6MonthsHistory = async (
-    _: Request,
+    request: Request,
     response: Response
   ): Promise<void> => {
     try {
-      const data = await DashboardService.getLast6MonthsHistory();
+      const calibrate = request.query.calibrate === "true";
+      const data = await DashboardService.getLast6MonthsHistory(calibrate);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);
@@ -73,20 +76,25 @@ class DashboardController {
   };
 
   getLastHourHistory = async (
-    _: Request,
+    request: Request,
     response: Response
   ): Promise<void> => {
     try {
-      const data = await DashboardService.getLastHourHistory();
+      const calibrate = request.query.calibrate === "true";
+      const data = await DashboardService.getLastHourHistory(calibrate);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);
     }
   };
 
-  getLastDayHistory = async (_: Request, response: Response): Promise<void> => {
+  getLastDayHistory = async (
+    request: Request,
+    response: Response
+  ): Promise<void> => {
     try {
-      const data = await DashboardService.getLastDayHistory();
+      const calibrate = request.query.calibrate === "true";
+      const data = await DashboardService.getLastDayHistory(calibrate);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);
@@ -94,11 +102,12 @@ class DashboardController {
   };
 
   getLastMonthHistory = async (
-    _: Request,
+    request: Request,
     response: Response
   ): Promise<void> => {
     try {
-      const data = await DashboardService.getLastMonthHistory();
+      const calibrate = request.query.calibrate === "true";
+      const data = await DashboardService.getLastMonthHistory(calibrate);
       response.json(data).status(200);
     } catch (error) {
       response.status(500).json(error);

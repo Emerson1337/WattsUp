@@ -9,7 +9,13 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CalendarIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { CalendarIcon, Gauge } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/logo.svg";
 import { useDataLayer } from "@/components/context/DataLayerContext";
@@ -20,8 +26,8 @@ const AVATAR_URL = "https://github.com/emerson1337.png";
 const AVATAR_SIZE = 250;
 
 export default function Navbar() {
-  const { state, dispatch } = useDataLayer();
-  const { tariff, tariffIsLoading } = state;
+  const { state, dispatch, refetchConsumptionData } = useDataLayer();
+  const { tariff, tariffIsLoading, calibrate } = state;
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -79,6 +85,10 @@ export default function Navbar() {
     }
   };
 
+  const handleToggleCalibrate = () => {
+    refetchConsumptionData(!calibrate);
+  };
+
   return (
     <header className="sticky max-lg:py-4 mb-4 lg:mb-10 lg:flex-col justify-end lg:pt-10 top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-10">
       <div className="flex gap-3 items-center max-lg:w-full">
@@ -115,7 +125,30 @@ export default function Navbar() {
         className="overflow-hidden w-10 lg:w-64 rounded-full"
         unoptimized
       />
-      <ThemeToggle />
+
+      <div className="flex flex-row items-center gap-2">
+        <ThemeToggle />
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={calibrate ? "default" : "outline"}
+                size="icon"
+                onClick={handleToggleCalibrate}
+              >
+                <Gauge className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Calibrar medição</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                {calibrate ? "Calibração ativa" : "Calibração desativada"}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" className="lg:hidden">

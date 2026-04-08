@@ -20,6 +20,14 @@ import {
 import { toZonedTime } from "date-fns-tz";
 
 class DashboardService {
+  private applyCalibration = (
+    value: number,
+    factor: number,
+    calibrate: boolean
+  ): number => {
+    return calibrate ? value * factor : value;
+  };
+
   private getReadingDayFromTariff = (tariff: PrismaTariffs): number => {
     const nextReadingDateInTimezone = toZonedTime(
       tariff.nextReadingDate,
@@ -59,17 +67,17 @@ class DashboardService {
     return updatedTariff;
   };
 
-  getMonthlyConsumption = async (): Promise<
-    MonthlyConsumptionResponse | undefined
-  > => {
+  getMonthlyConsumption = async (
+    calibrate: boolean = false
+  ): Promise<MonthlyConsumptionResponse | undefined> => {
     const tariff = await DashboardRepository.findTariff();
 
     if (!tariff) {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const factor = tariff.calibrationFactor ?? 1.0;
     const effectiveReadingDate = tariff.lastReading;
-    const lastEffectiveReadingDay = this.getLastEffectiveReadingDay(tariff);
 
     const currentMonthConsumption =
       await DashboardRepository.findCurrentMonthConsumption(
@@ -86,26 +94,35 @@ class DashboardService {
         effectiveReadingDate
       );
 
-    const currentMonthPeakKWh = currentMonthConsumptionPeak?.kWh ?? 0;
-    const lastMonthPeakKWh = lastMonthConsumptionPeak?.kWh ?? 0;
+    const rawMonthKWh = currentMonthConsumption?.kWh ?? 0;
+    const monthKWh = this.applyCalibration(rawMonthKWh, factor, calibrate);
+
+    const currentMonthPeakKWh = this.applyCalibration(
+      currentMonthConsumptionPeak?.kWh ?? 0,
+      factor,
+      calibrate
+    );
+    const lastMonthPeakKWh = this.applyCalibration(
+      lastMonthConsumptionPeak?.kWh ?? 0,
+      factor,
+      calibrate
+    );
 
     const currentMonthPeakKWhPrice = currentMonthConsumptionPeak?.kWh
-      ? currentMonthConsumptionPeak.kWh * tariff.kWhPriceTaxes
+      ? currentMonthPeakKWh * tariff.kWhPriceTaxes
       : 0;
     const lastMonthPeakKWhPrice = lastMonthConsumptionPeak?.kWh
-      ? lastMonthConsumptionPeak.kWh * tariff.kWhPriceTaxes
+      ? lastMonthPeakKWh * tariff.kWhPriceTaxes
       : 0;
 
-    const energyConsumptionPrice =
-      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhTEPrice;
-    const tusdPrice = (currentMonthConsumption?.kWh ?? 0) * tariff.kWhTUSDPrice;
+    const energyConsumptionPrice = monthKWh * tariff.kWhTEPrice;
+    const tusdPrice = monthKWh * tariff.kWhTUSDPrice;
     const extraTaxes =
-      (currentMonthConsumption?.kWh ?? 0) * tariff.kWhPriceTaxes -
-      (energyConsumptionPrice + tusdPrice);
+      monthKWh * tariff.kWhPriceTaxes - (energyConsumptionPrice + tusdPrice);
 
     return {
       energyConsumptionPrice,
-      energyConsumptionInKWh: currentMonthConsumption?.kWh ?? 0,
+      energyConsumptionInKWh: monthKWh,
       tusdPrice,
       extraTaxes,
       currentMonthPeak: {
@@ -121,15 +138,16 @@ class DashboardService {
     };
   };
 
-  getMonthlyForecast = async (): Promise<
-    MonthlyForecastResponse | undefined
-  > => {
+  getMonthlyForecast = async (
+    calibrate: boolean = false
+  ): Promise<MonthlyForecastResponse | undefined> => {
     const tariff = await DashboardRepository.findTariff();
 
     if (!tariff) {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const factor = tariff.calibrationFactor ?? 1.0;
     const effectiveReadingDate = tariff.lastReading;
 
     const last15DaysConsumption =
@@ -156,17 +174,30 @@ class DashboardService {
         effectiveReadingDate
       );
 
-    const currentKwhConsumption = currentMonthConsumption?.kWh ?? 0;
+    const currentKwhConsumption = this.applyCalibration(
+      currentMonthConsumption?.kWh ?? 0,
+      factor,
+      calibrate
+    );
+
+    const calibratedAverage = this.applyCalibration(
+      consumptionAverageLast15Days,
+      factor,
+      calibrate
+    );
 
     const currentMonthForecastInKWh =
-      consumptionAverageLast15Days * daysLeftToFinishMonth +
-      currentKwhConsumption;
+      calibratedAverage * daysLeftToFinishMonth + currentKwhConsumption;
 
     const currentMonthForecast = currentMonthForecastInKWh * tariff.kWhPrice;
     const currentMonthForecastWithTaxes =
       currentMonthForecastInKWh * tariff.kWhPriceTaxes;
 
-    const pastMonthConsumptionInKWh = lastMonthConsumption?.kWh ?? 0;
+    const pastMonthConsumptionInKWh = this.applyCalibration(
+      lastMonthConsumption?.kWh ?? 0,
+      factor,
+      calibrate
+    );
     const pastMonthConsumption = pastMonthConsumptionInKWh * tariff.kWhPrice;
     const pastMonthConsumptionWithTaxes =
       pastMonthConsumptionInKWh * tariff.kWhPriceTaxes;
@@ -181,15 +212,16 @@ class DashboardService {
     };
   };
 
-  getLast6MonthsHistory = async (): Promise<
-    LastSemesterHistoryResponse | undefined
-  > => {
+  getLast6MonthsHistory = async (
+    calibrate: boolean = false
+  ): Promise<LastSemesterHistoryResponse | undefined> => {
     const tariff = await DashboardRepository.findTariff();
 
     if (!tariff) {
       throw new Error("Tarifa não encontrada.");
     }
 
+    const factor = tariff.calibrationFactor ?? 1.0;
     const effectiveReadingDate = tariff.lastReading;
 
     const last6MonthsConsumption =
@@ -206,7 +238,7 @@ class DashboardService {
     const history: LastSemesterHistoryResponse["history"] =
       last6MonthsConsumption.map((consumption) => ({
         month: consumption.createdAt,
-        currentKWh: consumption.kWh,
+        currentKWh: this.applyCalibration(consumption.kWh, factor, calibrate),
       }));
 
     last6MonthsConsumptionFromPastYear?.forEach((pastYearConsumption) => {
@@ -216,7 +248,11 @@ class DashboardService {
 
       if (indexForInsertion === -1) return;
 
-      history[indexForInsertion].pastYearKWh = pastYearConsumption.kWh;
+      history[indexForInsertion].pastYearKWh = this.applyCalibration(
+        pastYearConsumption.kWh,
+        factor,
+        calibrate
+      );
     });
 
     return {
@@ -224,9 +260,12 @@ class DashboardService {
     };
   };
 
-  getLastHourHistory = async (): Promise<
-    LastHourHistoryResponse | undefined
-  > => {
+  getLastHourHistory = async (
+    calibrate: boolean = false
+  ): Promise<LastHourHistoryResponse | undefined> => {
+    const tariff = await DashboardRepository.findTariff();
+    const factor = tariff?.calibrationFactor ?? 1.0;
+
     const lastHourPerMinuteConsumption =
       await DashboardRepository.getLastHourHistoryPerMinute();
 
@@ -235,7 +274,7 @@ class DashboardService {
 
     const history = lastHourPerMinuteConsumption.map((consumption) => ({
       minute: consumption.createdAt,
-      KW: consumption.kW,
+      KW: this.applyCalibration(consumption.kW, factor, calibrate),
     }));
 
     return {
@@ -243,7 +282,12 @@ class DashboardService {
     };
   };
 
-  getLastDayHistory = async (): Promise<LastDayHistoryResponse | undefined> => {
+  getLastDayHistory = async (
+    calibrate: boolean = false
+  ): Promise<LastDayHistoryResponse | undefined> => {
+    const tariff = await DashboardRepository.findTariff();
+    const factor = tariff?.calibrationFactor ?? 1.0;
+
     const lastDayHourlyConsumption =
       await DashboardRepository.getLastDayHistoryHourly();
 
@@ -251,7 +295,7 @@ class DashboardService {
 
     const history = lastDayHourlyConsumption.map((consumption) => ({
       hour: consumption.createdAt,
-      KWh: consumption.kWh,
+      KWh: this.applyCalibration(consumption.kWh, factor, calibrate),
     }));
 
     return {
@@ -259,9 +303,12 @@ class DashboardService {
     };
   };
 
-  getLastMonthHistory = async (): Promise<
-    LastMonthHistoryResponse | undefined
-  > => {
+  getLastMonthHistory = async (
+    calibrate: boolean = false
+  ): Promise<LastMonthHistoryResponse | undefined> => {
+    const tariff = await DashboardRepository.findTariff();
+    const factor = tariff?.calibrationFactor ?? 1.0;
+
     const lastMonthDailyConsumption =
       await DashboardRepository.getLastMonthDaily();
 
@@ -269,7 +316,7 @@ class DashboardService {
 
     const history = lastMonthDailyConsumption.map((consumption) => ({
       day: consumption.createdAt,
-      KWh: consumption.kWh,
+      KWh: this.applyCalibration(consumption.kWh, factor, calibrate),
     }));
 
     return {

@@ -1,8 +1,11 @@
 import { ApiPaths } from "@/lib/apiUrls";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const res = await fetch(ApiPaths.history.lastHour());
+    const { searchParams } = new URL(request.url);
+    const calibrate = searchParams.get("calibrate") === "true";
+
+    const res = await fetch(ApiPaths.history.lastHour(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 

@@ -47,9 +47,11 @@ export async function updateTariff(
   }
 }
 
-export async function getMonthlyReport(): Promise<MonthlyReport | undefined> {
+export async function getMonthlyReport(
+  calibrate?: boolean
+): Promise<MonthlyReport | undefined> {
   try {
-    const res = await fetch(NextApiPaths.monthlyReport.get());
+    const res = await fetch(NextApiPaths.monthlyReport.get(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -61,11 +63,11 @@ export async function getMonthlyReport(): Promise<MonthlyReport | undefined> {
   }
 }
 
-export async function getMonthlyReportForecast(): Promise<
-  MonthlyReportForecast | undefined
-> {
+export async function getMonthlyReportForecast(
+  calibrate?: boolean
+): Promise<MonthlyReportForecast | undefined> {
   try {
-    const res = await fetch(NextApiPaths.monthlyReportForecast.get());
+    const res = await fetch(NextApiPaths.monthlyReportForecast.get(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -105,11 +107,11 @@ export function listenToSocket(
   };
 }
 
-export async function getLastSixMonthsReport(): Promise<
-  LastSixMonthsHistory | undefined
-> {
+export async function getLastSixMonthsReport(
+  calibrate?: boolean
+): Promise<LastSixMonthsHistory | undefined> {
   try {
-    const res = await fetch(NextApiPaths.history.lastSixMonths());
+    const res = await fetch(NextApiPaths.history.lastSixMonths(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -121,11 +123,11 @@ export async function getLastSixMonthsReport(): Promise<
   }
 }
 
-export async function getLastHourPerMinute(): Promise<
-  LastHourHistory | undefined
-> {
+export async function getLastHourPerMinute(
+  calibrate?: boolean
+): Promise<LastHourHistory | undefined> {
   try {
-    const res = await fetch(NextApiPaths.history.lastHour());
+    const res = await fetch(NextApiPaths.history.lastHour(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -137,9 +139,11 @@ export async function getLastHourPerMinute(): Promise<
   }
 }
 
-export async function getLastDayHourly(): Promise<LastDayHistory | undefined> {
+export async function getLastDayHourly(
+  calibrate?: boolean
+): Promise<LastDayHistory | undefined> {
   try {
-    const res = await fetch(NextApiPaths.history.lastDay());
+    const res = await fetch(NextApiPaths.history.lastDay(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -151,11 +155,11 @@ export async function getLastDayHourly(): Promise<LastDayHistory | undefined> {
   }
 }
 
-export async function getLastMonthDaily(): Promise<
-  LastMonthHistory | undefined
-> {
+export async function getLastMonthDaily(
+  calibrate?: boolean
+): Promise<LastMonthHistory | undefined> {
   try {
-    const res = await fetch(NextApiPaths.history.lastMonth());
+    const res = await fetch(NextApiPaths.history.lastMonth(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 

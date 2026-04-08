@@ -49,6 +49,7 @@ model Tariffs {
   kWhTUSDPrice  Float
   description String
   state String
+  calibrationFactor Float @default(1.0)
   lastReading DateTime
   nextReadingDate DateTime
   createdAt DateTime @default(now())

@@ -60,6 +60,7 @@ class DashboardRepository {
         kWhTUSDPrice: tariff.kWhTUSDPrice,
         description: tariff.description,
         state: tariff.state,
+        calibrationFactor: tariff.calibrationFactor,
       },
     });
   };

@@ -1,8 +1,11 @@
 import { ApiPaths } from "@/lib/apiUrls";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const res = await fetch(ApiPaths.monthlyReportForecast.get());
+    const { searchParams } = new URL(request.url);
+    const calibrate = searchParams.get("calibrate") === "true";
+
+    const res = await fetch(ApiPaths.monthlyReportForecast.get(calibrate));
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
