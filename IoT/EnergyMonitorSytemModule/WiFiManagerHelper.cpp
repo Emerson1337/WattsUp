@@ -8,8 +8,8 @@ const char* password = "setup123";
 
 // Default network to try connecting to automatically before falling back
 // to the manual WiFiManager setup portal.
-const char* defaultSsid = "MOB-COMMIT";
-const char* defaultPassword = "whatsapp123";
+const char* defaultSsid = "GIGACOMMIT";
+const char* defaultPassword = "Whatsapp@123";
 const int   maxConnectRetries = 3;
 const unsigned long connectTimeoutMs = 10000; // per-attempt timeout
 
